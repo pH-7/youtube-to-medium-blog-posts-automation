@@ -33,20 +33,27 @@ def get_authenticated_service():
             token.write(creds.to_json())
     return build("youtube", "v3", credentials=creds)
 
-# Fetch videos from your YouTube channel
 def get_channel_videos(youtube, channel_id):
     videos = []
-    request = youtube.search().list(
-        part="id,snippet",
-        channelId=channel_id,
-        type="video",
-        order="date",
-        maxResults=50
-    )
-    while request:
+    next_page_token = None
+
+    while True:
+        request = youtube.search().list(
+            part="id,snippet",
+            channelId=channel_id,
+            type="video",
+            order="date",
+            maxResults=50,
+            pageToken=next_page_token
+        )
+
         response = request.execute()
         videos.extend(response["items"])
-        request = youtube.search().list_next(request, response)
+
+        next_page_token = response.get("nextPageToken")
+        if not next_page_token:
+            break
+
     return videos
 
 def get_video_transcript(video_id, language='fr'):
@@ -138,23 +145,32 @@ def main():
     youtube = get_authenticated_service()
     channel_id = config['YOUTUBE_CHANNEL_ID']
     videos = get_channel_videos(youtube, channel_id)
-    
-    # Get the source language from config, defaulting to 'fr' if not specified
+
+    print(f"Found {len(videos)} videos in the channel.")
+
+    # Set source_language to French by default
     source_language = config.get('SOURCE_LANGUAGE', 'fr')
 
-    for video in videos:
+    for index, video in enumerate(videos, 1):
         video_id = video["id"]["videoId"]
         title = video["snippet"]["title"]
-        
+
+        print(f"Processing video {index}/{len(videos)}: {title}")
+
         transcript = get_video_transcript(video_id, language=source_language)
         if transcript:
             article = generate_article_from_transcript(transcript, title, source_language)
             tags = generate_tags(article, title)
             medium_url = post_to_medium(title, article, tags)
             if medium_url:
-                print(f"Article posted to Medium as a regular post: {medium_url}")
+                print(f"Article posted to Medium as a draft: {medium_url}")
                 print(f"Generated tags: {tags}")
-                print("Note: This is not a Medium Story. To create a Story, you'll need to use the Medium mobile app.")
+            else:
+                print(f"Failed to post article for video: {title}")
+        else:
+            print(f"Failed to get transcript for video: {title}")
+
+        print("--------------------")
 
 if __name__ == "__main__":
     main()
