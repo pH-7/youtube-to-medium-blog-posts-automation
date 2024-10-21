@@ -75,7 +75,7 @@ def generate_article_from_transcript(transcript, title, source_language='fr'):
 
     prompt = f"""{translation_instruction} removing filler sounds like "euh...", "bah", "ben", "hein" and similar French verbal tics.
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. "Bonjour à tous", "Bienvenue sur ma chaîne", ...) and the ending (e.g. "au revoir", "à bientôt", "ciao", "N'oubliez pas de vous abonner", ...).
-    Ensure it reads like an original article, not a transcript of a video. Pay attention to French idioms and expressions, translating them to natural English equivalents.
+    Ensure it reads well like an original article, not a transcript of a video, and can include personal ideas. Pay attention to French idioms and expressions, translating them to natural English equivalents.
 
     Title: {title}
 
@@ -96,7 +96,7 @@ def generate_article_from_transcript(transcript, title, source_language='fr'):
 
 def generate_tags(article_content, title):
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"""Generate 5 relevant tags as a JSON array of strings for an article titled "{title}".
+    prompt = f"""Generate 5 relevant tags as a JSON array of strings for a Medium.com article titled "{title}".
     The article content is provided below:
 
     Content: {article_content[:1000]}"""
@@ -196,8 +196,33 @@ def save_article_locally(title, tags, article):
         file.write(f"Tags: {', '.join(tags)}\n\n")
         file.write(article)
 
-    print(f"Article successfully created locally: {file_name}")
+    print(f"Article successfully saved locally: {file_name}")
     return file_name
+
+def fetch_images_from_unsplash(query):
+    unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
+    url = f"https://api.unsplash.com/search/photos?query={query}&client_id={unsplash_access_key}&per_page=3"
+
+    response = requests.get(url)
+    if response.status_code == requests.codes.ok:
+        results = response.json()['results']
+        # Return a list of dictionaries with 'url' and 'alt' (using the query as the alt text)
+        return [{'url': result['urls']['regular'], 'alt': query} for result in results]
+    else:
+        print(f"Failed to fetch images from Unsplash. Status code: {response.status_code}")
+        return None
+
+def embed_images_in_content(article_content, images):
+    image_markdown = "\n\n".join([f"![{image['alt']}]({image['url']})" for image in images])
+    # Insert the images at a strategic place in the article, for example after the first paragraph
+    paragraphs = article_content.split("\n\n")
+    if len(paragraphs) > 1:
+        paragraphs.insert(1, image_markdown)
+    else:
+        # If article is short, just append images at the end
+        paragraphs.append(image_markdown)
+
+    return "\n\n".join(paragraphs)
 
 def main():
     youtube = get_authenticated_service()
@@ -206,7 +231,6 @@ def main():
 
     print(f"Found {len(videos)} videos in the channel.")
 
-    # Set source_language to French by default
     source_language = config.get('SOURCE_LANGUAGE', 'fr')
 
     for index, video in enumerate(videos, 1):
@@ -220,10 +244,20 @@ def main():
             article = generate_article_from_transcript(transcript, title, source_language)
             tags = generate_tags(article, title)
 
+            # Fetch images from Unsplash
+            images = fetch_images_from_unsplash(tags[0])  # Use the first tag for image search
+            if images:
+                article = embed_images_in_content(article, images)
+
             # Save article locally
             local_file_path = save_article_locally(title, tags, article)
-            print(f"Article saved locally: {local_file_path}")
 
+            # if filename already exists, it means it already exists so we skip that one
+            if os.path.exists(local_file_path):
+                print(f"Article already exists locally: {local_file_path}")
+                continue
+
+            # Post the article to Medium
             medium_url = post_to_medium(title, article, tags)
             if medium_url:
                 print(f"Article posted to Medium as a draft: {medium_url}")

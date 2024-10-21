@@ -40,6 +40,7 @@ This program not only converts video transcripts extremely well into articles, b
        "OPENAI_API_KEY":      "YOUR_OPENAI_API_KEY",
        "MEDIUM_ACCESS_TOKEN": "YOUR_MEDIUM_ACCESS_TOKEN",
        "YOUTUBE_CHANNEL_ID":  "YOUR_CHANNEL_ID",
+       "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
        "SOURCE_LANGUAGE":     "fr"
      }
      ```
@@ -51,6 +52,8 @@ This program not only converts video transcripts extremely well into articles, b
    - Create a new project and enable the YouTube Data API v3
    - Create credentials (OAuth 2.0 Client ID) for a desktop application. Select **External** for **Use Type**
    - Download the client configuration and save it as `client_secrets.json` in the project root directory
+
+5. Lastly, get your Unsplash API key: https://unsplash.com/oauth/applications/new
 
 ## 🪄 Usage
 
