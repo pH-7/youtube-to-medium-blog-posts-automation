@@ -49,7 +49,7 @@ This program not only converts video transcripts extremely well into articles, b
 4. Set up YouTube API credentials:
    - Go to the [Google Developers Console](https://console.developers.google.com/)
    - Create a new project and enable the YouTube Data API v3
-   - Create credentials (OAuth 2.0 Client ID) for a desktop application
+   - Create credentials (OAuth 2.0 Client ID) for a desktop application. Select **External** for **Use Type**
    - Download the client configuration and save it as `client_secrets.json` in the project root directory
 
 ## 🪄 Usage
