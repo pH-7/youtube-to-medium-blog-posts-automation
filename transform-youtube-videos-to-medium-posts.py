@@ -122,8 +122,12 @@ def generate_tags(article_content, title):
 
 def post_to_medium(title, content, tags):
     token = config['MEDIUM_ACCESS_TOKEN']
-    user_info = requests.get(f"https://api.medium.com/v1/me", headers={"Authorization": f"Bearer {token}"})
+    user_info = requests.get("https://api.medium.com/v1/me", headers={"Authorization": f"Bearer {token}"})
     user_json_info = user_info.json()
+
+    if 'errors' in user_json_info:
+        print(f"Error fetching user info: {user_json_info['errors']}")
+        return None
 
     header = {
         "Authorization": f"Bearer {token}",
@@ -153,7 +157,36 @@ def post_to_medium(title, content, tags):
         return response.json()["data"]["url"]
     else:
         print(f"Failed to post article: {title}. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
         return None
+
+def save_article_locally(title, tags, article):
+    """
+    Save the generated article locally as a Markdown file.
+
+    Args:
+    title (str): The title of the article.
+    tags (list): List of tags for the article.
+    article (str): The content of the article in Markdown format.
+
+    Returns:
+    str: The path of the saved file.
+    """
+    # Create 'articles' directory if it doesn't exist
+    if not os.path.exists('articles'):
+        os.makedirs('articles')
+
+    # Create a safe filename from the title
+    safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+    file_name = f"articles/{safe_title}.md"
+
+    with open(file_name, "w", encoding="utf-8") as file:
+        file.write(f"# {title}\n\n")
+        file.write(f"Tags: {', '.join(tags)}\n\n")
+        file.write(article)
+
+    print(f"Article successfully created locally: {file_name}")
+    return file_name
 
 def main():
     youtube = get_authenticated_service()
@@ -176,11 +209,9 @@ def main():
             article = generate_article_from_transcript(transcript, title, source_language)
             tags = generate_tags(article, title)
 
-            # save each article to a markdown file in case it fails to post to Medium
-            with open(f"articles/{title}.md", "w", encoding="utf-8") as file:
-                file.write(f"# {title}\n\n")
-                file.write(f"Tags: {', '.join(tags)}\n\n")
-                file.write(article)
+            # Save article locally
+            local_file_path = save_article_locally(title, tags, article)
+            print(f"Article saved locally: {local_file_path}")
 
             medium_url = post_to_medium(title, article, tags)
             if medium_url:
