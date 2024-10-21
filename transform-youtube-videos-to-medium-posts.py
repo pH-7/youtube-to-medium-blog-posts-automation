@@ -49,23 +49,29 @@ def get_channel_videos(youtube, channel_id):
         request = youtube.search().list_next(request, response)
     return videos
 
-# Transcribe video content
-def transcribe_video(video_id):
+def get_video_transcript(video_id):
     try:
-        transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id)
+        transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=['fr'])
         return " ".join([entry["text"] for entry in transcript])
     except Exception as e:
-        print(f"Error transcribing video {video_id}: {e}")
+        print(f"Error fetching transcript for video {video_id}: {e}")
         return None
 
-def generate_article(transcription, title):
+def generate_article_from_transcript(transcript, title):
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"Write a well-structured article for Medium.com based on the following video transcription. Title: {title}\n\nTranscription: {transcription[:4000]}"
+    prompt = f"""Translate the following French YouTube video transcript to English, remove filler sounds like "euh..." and similar verbal tics,
+    and rewrite it as a well-structured article. Ensure it reads like an original piece, not a transcript of a video.
+
+    Title: {title}
+
+    Transcript: {transcript[:4000]}  # Limiting to 4000 characters to avoid token limits
+
+    Translated and structured article:"""
     
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+        model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a professional content writer."},
+            {"role": "system", "content": "You are a professional translator, editor, and content writer."},
             {"role": "user", "content": prompt}
         ],
         max_tokens=1500
@@ -75,12 +81,17 @@ def generate_article(transcription, title):
 
 def generate_tags(article_content, title):
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"Generate 5 relevant tags for a Medium article with the following title and content. Provide the tags as a JSON array of strings.\n\nTitle: {title}\n\nContent: {article_content[:1000]}"
+    prompt = f"""Generate 5 relevant English tags for a Medium article with the following title and content.
+    Provide the tags as a JSON array of strings.
+
+    Title: {title}
+
+    Content: {article_content[:1000]}"""
     
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+        model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant that generates relevant tags for articles."},
+            {"role": "system", "content": "You are a helpful assistant that generates relevant English tags for articles."},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100
@@ -91,7 +102,8 @@ def generate_tags(article_content, title):
         return tags if isinstance(tags, list) else []
     except json.JSONDecodeError:
         print("Error parsing tags. Using default tags.")
-        return ["YouTube", "Content", "Article"]
+        default_tags = ["self-help", "psychology", "self-improvement"]
+        return default_tags
 
 def post_to_medium(title, content, tags):
     url = "https://api.medium.com/v1/users/me/posts"
@@ -124,9 +136,9 @@ def main():
         video_id = video["id"]["videoId"]
         title = video["snippet"]["title"]
         
-        transcription = transcribe_video(video_id)
-        if transcription:
-            article = generate_article(transcription, title)
+        transcript = get_video_transcript(video_id)
+        if transcript:
+            article = generate_article_from_transcript(transcript, title)
             tags = generate_tags(article, title)
             medium_url = post_to_medium(title, article, tags)
             if medium_url:
