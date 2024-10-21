@@ -207,8 +207,13 @@ def save_article_locally(original_title, title, tags, article):
     #  os.makedirs('articles')
 
     # Create a safe filename from the title
-    safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+    safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
     file_name = f"articles/{safe_title}.md"
+
+    # Check if article already exists
+    if os.path.exists(file_name):
+        # exit here if file already exists
+        return file_name
 
     with open(file_name, "w", encoding="utf-8") as file:
         file.write(f"# {original_title}\n\n")
