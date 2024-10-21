@@ -122,33 +122,42 @@ def generate_tags(article_content, title):
 
 def post_to_medium(title, content, tags):
     token = config['MEDIUM_ACCESS_TOKEN']
-    user_info = requests.get("https://api.medium.com/v1/me", headers={"Authorization": f"Bearer {token}"})
-    user_json_info = user_info.json()
-
-    if 'errors' in user_json_info:
-        print(f"Error fetching user info: {user_json_info['errors']}")
+    # Get user details
+    user_info = requests.get("https://api.medium.com/v1/me",
+                             headers={"Authorization": f"Bearer {token}",
+                                      "Content-Type": "application/json",
+                                      "Accept": "application/json",
+                                      "Accept-Charset": "utf-8"})
+    if user_info.status_code != requests.codes.ok:
+        print(f"Error fetching user info. Status code: {user_info.status_code}")
         return None
 
-    header = {
+    user_id = user_info.json()['data']['id']
+
+    headers = {
         "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Accept-Charset": "utf-8"
     }
 
-    # Generate a publish date and time in the future (e.g., 1 day from now)
-    publish_at = (datetime.now() + timedelta(days=1)).isoformat()
+    # Ensure content is not too long (Medium has a limit)
+    max_content_length = 100000  # Medium's limit is around 100,000 characters
+    if len(content) > max_content_length:
+        content = content[:max_content_length-3] + "..."
+        print(f"Content was truncated to {max_content_length} characters due to Medium's limit.")
 
     article = {
         "title": title,
         "contentFormat": "markdown",
         "content": content,
-        "tags": tags,
-        "publishStatus": "draft",
-        "publishedAt": publish_at
+        "tags": tags[:5],  # Medium allows up to 5 tags
+        "publishStatus": "draft"
     }
 
     response = requests.post(
-        f"https://api.medium.com/v1/users/{user_json_info['data']['id']}/posts",
-        headers=header,
+        f"https://api.medium.com/v1/users/{user_id}/posts",
+        headers=headers,
         json=article
     )
 
@@ -158,6 +167,7 @@ def post_to_medium(title, content, tags):
     else:
         print(f"Failed to post article: {title}. Status code: {response.status_code}")
         print(f"Response: {response.text}")
+        print(f"Request payload: {json.dumps(article, indent=2)}")
         return None
 
 def save_article_locally(title, tags, article):
@@ -173,8 +183,8 @@ def save_article_locally(title, tags, article):
     str: The path of the saved file.
     """
     # Create 'articles' directory if it doesn't exist
-    if not os.path.exists('articles'):
-        os.makedirs('articles')
+    #if not os.path.exists('articles'):
+    #  os.makedirs('articles')
 
     # Create a safe filename from the title
     safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
