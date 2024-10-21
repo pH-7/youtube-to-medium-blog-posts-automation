@@ -57,7 +57,7 @@ def get_channel_videos(youtube, channel_id):
 
     return videos
 
-def get_video_transcript(video_id, language='fr'):
+def get_video_transcript(video_id, language):
     try:
         transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
         return " ".join([entry["text"] for entry in transcript])
@@ -96,7 +96,7 @@ def generate_article_from_transcript(transcript, title, source_language='fr'):
 
 def generate_tags(article_content, title):
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"""Generate 5 relevant tags as a JSON array of strings for a Medium.com article titled "{title}".
+    prompt = f"""Generate in English 5 relevant tags as a JSON array of strings for a Medium.com article titled "{title}".
     The article content is provided below:
 
     Content: {article_content[:1000]}"""
@@ -120,6 +120,25 @@ def generate_tags(article_content, title):
     except json.JSONDecodeError:
         print("Error parsing tags. Using default tags.")
         return ["self-help", "psychology", "self-improvement"]
+
+def generate_medium_title(article_content):
+    openai.api_key = config['OPENAI_API_KEY']
+    prompt = f"""You are an expert content writer. Based on the content provided below, generate an engaging and clickable title for a Medium.com article.
+
+    Content: {article_content[:1000]}  # Limit the content sent to the model
+    
+    Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters."""
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are an expert content writer and title generator."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=100
+    )
+    
+    return response.choices[0].message.content.strip('"')
 
 def post_to_medium(title, content, tags):
     token = config['MEDIUM_ACCESS_TOKEN']
@@ -171,7 +190,7 @@ def post_to_medium(title, content, tags):
         print(f"Request payload: {json.dumps(article, indent=2)}")
         return None
 
-def save_article_locally(title, tags, article):
+def save_article_locally(original_title, title, tags, article):
     """
     Save the generated article locally as a Markdown file.
 
@@ -192,7 +211,7 @@ def save_article_locally(title, tags, article):
     file_name = f"articles/{safe_title}.md"
 
     with open(file_name, "w", encoding="utf-8") as file:
-        file.write(f"# {title}\n\n")
+        file.write(f"# {original_title}\n\n")
         file.write(f"Tags: {', '.join(tags)}\n\n")
         file.write(article)
 
@@ -243,6 +262,7 @@ def main():
         if transcript:
             article = generate_article_from_transcript(transcript, title, source_language)
             tags = generate_tags(article, title)
+            optimized_title = generate_medium_title(article)
 
             # Fetch images from Unsplash
             images = fetch_images_from_unsplash(tags[0])  # Use the first tag for image search
@@ -250,7 +270,7 @@ def main():
                 article = embed_images_in_content(article, images)
 
             # Save article locally
-            local_file_path = save_article_locally(title, tags, article)
+            local_file_path = save_article_locally(title, optimized_title, tags, article)
 
             # if filename already exists, it means it already exists so we skip that one
             if os.path.exists(local_file_path):
@@ -258,7 +278,7 @@ def main():
                 continue
 
             # Post the article to Medium
-            medium_url = post_to_medium(title, article, tags)
+            medium_url = post_to_medium(optimized_title, article, tags)
             if medium_url:
                 print(f"Article posted to Medium as a draft: {medium_url}")
                 print(f"Generated tags: {tags}")
