@@ -1,5 +1,8 @@
 # YouTube to Medium Automation
+
 **Automate the process of converting YouTube video content into Medium articles 🎥📝**
+
+This program not only converts video transcripts extremely well into articles, but also removes any "transcript-like" writing. It produces a real, professional article from a video instead.
 
 - [⚙️ Requirements](#%EF%B8%8F-requirements)
 - [📦 Installation](#-installation)
@@ -19,8 +22,8 @@
 
 1. Clone this repository:
    ```console
-   git clone https://github.com/pH-7/youtube-to-medium-automation.git
-   cd youtube-to-medium-automation
+   git clone https://github.com/pH-7/youtube-to-medium-blog-posts-automation.git
+   cd youtube-to-medium-blog-posts-automation
    ```
 
 2. Install the required Python packages:
