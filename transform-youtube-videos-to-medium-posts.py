@@ -59,22 +59,23 @@ def get_video_transcript(video_id):
 
 def generate_article_from_transcript(transcript, title):
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"""Translate the following French YouTube video transcript to English, remove filler sounds like "euh..." and similar verbal tics,
-    and rewrite it as a well-structured article. Ensure it reads like an original piece, not a transcript of a video.
+    prompt = f"""Translate the following French YouTube video transcript into English, removing filler sounds like "euh..." and similar verbal tics. 
+    Rewrite it as a well-structured article, skipping the video introduction (e.g., "welcome to this video") and the ending (e.g., "goodbye, see you later, subscribe to my channel"). 
+    Ensure it reads like an original article, not a transcript of a video.
 
     Title: {title}
 
-    Transcript: {transcript[:4000]}  # Limiting to 4000 characters to avoid token limits
+    Transcript: {transcript[:12000]}  # Increased transcript length to handle up to 5,000 words
 
     Translated and structured article:"""
     
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a professional translator, editor, and content writer."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=1500
+        max_tokens=5000 # Increased max tokens to allow longer responses
     )
     
     return response.choices[0].message.content
@@ -89,7 +90,7 @@ def generate_tags(article_content, title):
     Content: {article_content[:1000]}"""
     
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are a helpful assistant that generates relevant English tags for articles."},
             {"role": "user", "content": prompt}
