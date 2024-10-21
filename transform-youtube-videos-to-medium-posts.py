@@ -81,7 +81,7 @@ def generate_article_from_transcript(transcript, title, source_language='fr'):
 
     Transcript: {transcript[:12000]}  # Increased transcript length to 1,2000 to handle up to 5,000 words
 
-    Structured article in English and use Markdown format for headings, links, bold, italic, etc:"""
+    Structured as a Medium.com article in English and use Markdown format for headings, links, bold, italic, etc:"""
     
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
@@ -96,17 +96,15 @@ def generate_article_from_transcript(transcript, title, source_language='fr'):
 
 def generate_tags(article_content, title):
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"""Generate 5 relevant English tags for a Medium article with the following title and content.
-    Provide the tags as a JSON array of strings.
-
-    Title: {title}
+    prompt = f"""Generate 5 relevant tags as a JSON array of strings for an article titled "{title}".
+    The article content is provided below:
 
     Content: {article_content[:1000]}"""
     
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant that generates relevant English tags for articles."},
+            {"role": "system", "content": "You are an assistant that generates tags for Medium articles."},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100
@@ -114,11 +112,14 @@ def generate_tags(article_content, title):
     
     try:
         tags = json.loads(response.choices[0].message.content)
-        return tags if isinstance(tags, list) else []
+        if isinstance(tags, list) and all(isinstance(tag, str) for tag in tags):
+            return tags
+        else:
+            print("Invalid tags generated. Using default tags.")
+            return ["self-help", "psychology", "self-improvement"]
     except json.JSONDecodeError:
         print("Error parsing tags. Using default tags.")
-        default_tags = ["self-help", "psychology", "self-improvement"]
-        return default_tags
+        return ["self-help", "psychology", "self-improvement"]
 
 def post_to_medium(title, content, tags):
     token = config['MEDIUM_ACCESS_TOKEN']
