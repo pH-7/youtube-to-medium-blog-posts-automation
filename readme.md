@@ -36,10 +36,11 @@ This program not only converts video transcripts extremely well into articles, b
    - Add your API keys and YouTube channel ID to the file as followed:
      ```json
      {
-       "YOUTUBE_API_KEY": "YOUR_YOUTUBE_API_KEY",
-       "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
+       "YOUTUBE_API_KEY":     "YOUR_YOUTUBE_API_KEY",
+       "OPENAI_API_KEY":      "YOUR_OPENAI_API_KEY",
        "MEDIUM_ACCESS_TOKEN": "YOUR_MEDIUM_ACCESS_TOKEN",
-       "YOUTUBE_CHANNEL_ID": "YOUR_CHANNEL_ID"
+       "YOUTUBE_CHANNEL_ID":  "YOUR_CHANNEL_ID",
+       "SOURCE_LANGUAGE":     "fr"
      }
      ```
 

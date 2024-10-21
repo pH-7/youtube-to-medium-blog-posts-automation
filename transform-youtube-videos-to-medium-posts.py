@@ -49,28 +49,34 @@ def get_channel_videos(youtube, channel_id):
         request = youtube.search().list_next(request, response)
     return videos
 
-def get_video_transcript(video_id):
+def get_video_transcript(video_id, language='fr'):
     try:
-        transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=['fr'])
+        transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
         return " ".join([entry["text"] for entry in transcript])
     except Exception as e:
-        print(f"Error fetching transcript for video {video_id}: {e}")
+        print(f"Error fetching transcript for video {video_id} in {language}: {e}")
         return None
 
-def generate_article_from_transcript(transcript, title):
+def generate_article_from_transcript(transcript, title, source_language='fr'):
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"""Translate the following French YouTube video transcript into English, removing filler sounds like "euh..." and similar verbal tics. 
-    Rewrite it as a well-structured article, skipping the video introduction (e.g., "welcome to this video") and the ending (e.g., "goodbye, see you later, subscribe to my channel"). 
-    Ensure it reads like an original article, not a transcript of a video.
+
+    if source_language.lower() == 'fr':
+        translation_instruction = "Translate the following French YouTube video transcript into English,"
+    else:
+        translation_instruction = f"Translate the following {source_language} YouTube video transcript into English,"
+
+    prompt = f"""{translation_instruction} removing filler sounds like "euh...", "bah", "ben", "hein" and similar French verbal tics.
+    Rewrite it as a well-structured article in English, skipping the video introduction (e.g. "Bonjour à tous", "Bienvenue sur ma chaîne", ...) and the ending (e.g. "au revoir", "à bientôt", "ciao", "N'oubliez pas de vous abonner", ...).
+    Ensure it reads like an original article, not a transcript of a video. Pay attention to French idioms and expressions, translating them to natural English equivalents.
 
     Title: {title}
 
     Transcript: {transcript[:12000]}  # Increased transcript length to handle up to 5,000 words
 
-    Translated and structured article:"""
+    Structured article in English:"""
     
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are a professional translator, editor, and content writer."},
             {"role": "user", "content": prompt}
@@ -133,13 +139,16 @@ def main():
     channel_id = config['YOUTUBE_CHANNEL_ID']
     videos = get_channel_videos(youtube, channel_id)
     
+    # Get the source language from config, defaulting to 'fr' if not specified
+    source_language = config.get('SOURCE_LANGUAGE', 'fr')
+
     for video in videos:
         video_id = video["id"]["videoId"]
         title = video["snippet"]["title"]
         
-        transcript = get_video_transcript(video_id)
+        transcript = get_video_transcript(video_id, language=source_language)
         if transcript:
-            article = generate_article_from_transcript(transcript, title)
+            article = generate_article_from_transcript(transcript, title, source_language)
             tags = generate_tags(article, title)
             medium_url = post_to_medium(title, article, tags)
             if medium_url:
