@@ -1,0 +1,7 @@
+google-api-python-client==2.97.0
+google-auth==2.22.0
+google-auth-oauthlib==1.0.0
+youtube-transcript-api==0.6.0
+openai==0.27.8
+requests==2.31.0
+requests==2.32.3

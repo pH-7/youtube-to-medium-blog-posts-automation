@@ -7,6 +7,7 @@ from google.oauth2.credentials import Credentials
 import youtube_transcript_api
 import openai
 import requests
+from datetime import datetime, timedelta
 
 # Function to load configuration
 def load_config():
@@ -78,9 +79,9 @@ def generate_article_from_transcript(transcript, title, source_language='fr'):
 
     Title: {title}
 
-    Transcript: {transcript[:12000]}  # Increased transcript length to handle up to 5,000 words
+    Transcript: {transcript[:12000]}  # Increased transcript length to 1,2000 to handle up to 5,000 words
 
-    Structured article in English:"""
+    Structured article in English and use Markdown format for headings, links, bold, italic, etc:"""
     
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
@@ -120,21 +121,34 @@ def generate_tags(article_content, title):
         return default_tags
 
 def post_to_medium(title, content, tags):
-    url = "https://api.medium.com/v1/users/me/posts"
-    headers = {
-        "Authorization": f"Bearer {config['MEDIUM_ACCESS_TOKEN']}",
-        "Content-Type": "application/json",
-        "Accept": "application/json"
+    token = config['MEDIUM_ACCESS_TOKEN']
+    user_info = requests.get(f"https://api.medium.com/v1/me", headers={"Authorization": f"Bearer {token}"})
+    user_json_info = user_info.json()
+
+    header = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
     }
-    data = {
+
+    # Generate a publish date and time in the future (e.g., 1 day from now)
+    publish_at = (datetime.now() + timedelta(days=1)).isoformat()
+
+    article = {
         "title": title,
-        "contentFormat": "html",
+        "contentFormat": "markdown",
         "content": content,
         "tags": tags,
-        "publishStatus": "draft"  # Change to "public" if you want to publish immediately
+        "publishStatus": "draft",
+        "publishedAt": publish_at
     }
-    response = requests.post(url, json=data, headers=headers)
-    if response.status_code == 201:
+
+    response = requests.post(
+        f"https://api.medium.com/v1/users/{user_json_info['data']['id']}/posts",
+        headers=header,
+        json=article
+    )
+
+    if response.status_code == requests.codes.created:
         print(f"Successfully posted article: {title}")
         return response.json()["data"]["url"]
     else:
@@ -161,6 +175,13 @@ def main():
         if transcript:
             article = generate_article_from_transcript(transcript, title, source_language)
             tags = generate_tags(article, title)
+
+            # save each article to a markdown file in case it fails to post to Medium
+            with open(f"articles/{title}.md", "w", encoding="utf-8") as file:
+                file.write(f"# {title}\n\n")
+                file.write(f"Tags: {', '.join(tags)}\n\n")
+                file.write(article)
+
             medium_url = post_to_medium(title, article, tags)
             if medium_url:
                 print(f"Article posted to Medium as a draft: {medium_url}")

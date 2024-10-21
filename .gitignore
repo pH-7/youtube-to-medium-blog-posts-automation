@@ -1,2 +1,5 @@
-.DS_Store
+articles/*
+!articles/.gitkeep
+
 config.json
+.DS_Store
