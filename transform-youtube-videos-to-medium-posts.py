@@ -93,9 +93,51 @@ def post_to_medium(title, content, tags):
         print(f"Failed to post article: {title}. Status code: {response.status_code}")
         return None
 
+def generate_tags(article_content, title):
+    openai.api_key = OPENAI_API_KEY
+    prompt = f"Generate 5 relevant tags for a Medium article with the following title and content. Provide the tags as a JSON array of strings.\n\nTitle: {title}\n\nContent: {article_content[:1000]}"
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that generates relevant tags for articles."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=100
+    )
+    
+    try:
+        tags = json.loads(response.choices[0].message.content)
+        return tags if isinstance(tags, list) else []
+    except json.JSONDecodeError:
+        print("Error parsing tags. Using default tags.")
+        return ["YouTube", "Content", "Article"]
+
+def post_to_medium(title, content, tags):
+    url = "https://api.medium.com/v1/users/me/posts"
+    headers = {
+        "Authorization": f"Bearer {MEDIUM_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    data = {
+        "title": title,
+        "contentFormat": "html",
+        "content": content,
+        "tags": tags,
+        "publishStatus": "draft"  # Change to "public" if you want to publish immediately
+    }
+    response = requests.post(url, json=data, headers=headers)
+    if response.status_code == 201:
+        print(f"Successfully posted article: {title}")
+        return response.json()["data"]["url"]
+    else:
+        print(f"Failed to post article: {title}. Status code: {response.status_code}")
+        return None
+
 def main():
     youtube = get_authenticated_service()
-    channel_id = "YOUR_CHANNEL_ID"
+    channel_id = "UCXrntkhLN9WRV-kU8XymMYQ"
     videos = get_channel_videos(youtube, channel_id)
     
     for video in videos:
@@ -105,10 +147,12 @@ def main():
         transcription = transcribe_video(video_id)
         if transcription:
             article = generate_article(transcription, title)
-            
+            tags = generate_tags(article, title)
             medium_url = post_to_medium(title, article, tags)
             if medium_url:
-                print(f"Article posted to Medium: {medium_url}")
+                print(f"Article posted to Medium as a regular post: {medium_url}")
+                print(f"Generated tags: {tags}")
+                print("Note: This is not a Medium Story. To create a Story, you'll need to use the Medium mobile app.")
 
 if __name__ == "__main__":
     main()
