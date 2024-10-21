@@ -28,7 +28,7 @@ This program not only converts video transcripts extremely well into articles, b
 
 2. Install the required Python packages:
    ```console
-   pip install google-api-python-client google-auth-oauthlib youtube-transcript-api openai requests
+   pip install -r requirements.txt
    ```
 
 3. Set up your configuration file:
