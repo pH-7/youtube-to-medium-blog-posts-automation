@@ -1,15 +1,20 @@
 import os
 import json
+import isodate
 from typing import List, Dict, Optional
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+
+# Google/YouTube API related imports
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 import youtube_transcript_api
+
+# OpenAI and HTTP requests
 import openai
 import requests
-from datetime import datetime, timedelta
 
 @dataclass
 class UnsplashImage:
@@ -68,7 +73,7 @@ def get_video_transcript(video_id, language):
 
 def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     """
-    Retrieves ALL videos from a YouTube channel using pagination.
+    Retrieves all long-format videos (excluding Shorts) from a YouTube channel using pagination.
     Returns a list of VideoData objects.
     """
     videos = []
@@ -76,6 +81,7 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     
     while True:
         try:
+            # First get the video IDs and basic info
             request = youtube.search().list(
                 part="id,snippet",
                 channelId=channel_id,
@@ -87,14 +93,44 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
             
             response = request.execute()
             
-            for item in response.get("items", []):
-                video_data = VideoData(
-                    id=item["id"]["videoId"],
-                    title=item["snippet"]["title"],
-                    description=item["snippet"]["description"],
-                    published_at=item["snippet"]["publishedAt"]
+            # Batch video IDs to get detailed information
+            video_ids = [item["id"]["videoId"] for item in response.get("items", [])]
+            
+            if video_ids:
+                # Get detailed video information including duration
+                videos_request = youtube.videos().list(
+                    part="contentDetails,snippet",
+                    id=",".join(video_ids)
                 )
-                videos.append(video_data)
+                videos_response = videos_request.execute()
+                
+                for item in videos_response.get("items", []):
+                    # Parse duration string (PT1H2M10S format)
+                    duration_str = item["contentDetails"]["duration"]
+                    
+                    # Check if it's a Short video:
+                    # 1. Duration is less than or equal to 60 seconds
+                    # 2. Using vertical video aspect ratio (typically 9:16)
+                    duration_seconds = parse_duration(duration_str)
+                    
+                    # Get video dimensions
+                    if "maxres" in item["snippet"].get("thumbnails", {}):
+                        thumbnail = item["snippet"]["thumbnails"]["maxres"]
+                        aspect_ratio = thumbnail["width"] / thumbnail["height"]
+                    else:
+                        aspect_ratio = 16/9  # Default to landscape if no maxres thumbnail
+                    
+                    # Skip if it's likely a Short (vertical video ≤ 60 seconds)
+                    if duration_seconds <= 60 and aspect_ratio < 1:
+                        continue
+                        
+                    video_data = VideoData(
+                        id=item["id"],
+                        title=item["snippet"]["title"],
+                        description=item["snippet"]["description"],
+                        published_at=item["snippet"]["publishedAt"]
+                    )
+                    videos.append(video_data)
             
             next_page_token = response.get("nextPageToken")
             if not next_page_token:
@@ -105,6 +141,21 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
             break
     
     return videos
+
+def parse_duration(duration_str: str) -> int:
+    """
+    Parse ISO 8601 duration format to seconds.
+    Example: PT1H2M10S -> 3730 seconds
+    """
+    import re
+    import isodate
+    
+    try:
+        duration = isodate.parse_duration(duration_str)
+        return int(duration.total_seconds())
+    except Exception as e:
+        print(f"Error parsing duration {duration_str}: {e}")
+        return 0
 
 def generate_article_from_transcript(transcript, title, source_language='fr'):
     openai.api_key = config['OPENAI_API_KEY']
