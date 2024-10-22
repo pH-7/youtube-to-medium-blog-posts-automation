@@ -5,3 +5,4 @@ youtube-transcript-api==0.6.0
 openai==0.27.8
 requests==2.31.0
 requests==2.32.3
+isodate==0.7.2
