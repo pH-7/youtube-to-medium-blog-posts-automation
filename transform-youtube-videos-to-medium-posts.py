@@ -296,8 +296,7 @@ def save_article_locally(original_title, title, tags, article):
     str: The path of the saved file.
     """
     # Create 'articles' directory if it doesn't exist
-    #if not os.path.exists('articles'):
-    #  os.makedirs('articles')
+    # os.makedirs('articles', exist_ok=True)
 
     # Create a safe filename from the title
     safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
@@ -378,6 +377,11 @@ def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
         print(f"Response: {response.text if 'response' in locals() else 'No response'}")
         return None
 
+def check_article_exists(title: str) -> Optional[str]:
+    safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+    file_name = os.path.join('articles', f"{safe_title}.md")
+    return file_name if os.path.exists(file_name) else None
+
 def main():
     youtube = get_authenticated_service()
     channel_id = config['YOUTUBE_CHANNEL_ID']
@@ -386,19 +390,13 @@ def main():
     print(f"Found {len(videos)} videos in the channel.")
 
     source_language = config.get('SOURCE_LANGUAGE', 'fr')
-    
-    # Create articles directory if it doesn't exist
-    os.makedirs('articles', exist_ok=True)
 
     for index, video in enumerate(videos, 1):
         print_progress_separator(index, len(videos), video.title)
         
         # Skip if article already exists
-        safe_title = "".join([c for c in video.title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-        file_name = f"articles/{safe_title}.md"
-        
-        if os.path.exists(file_name):
-            print(f"Article already exists: {file_name}")
+        if check_article_exists(video.title):
+            print(f"Article "{video.title}" already exists locally")
             continue
 
         try:
@@ -417,12 +415,7 @@ def main():
                 article = embed_images_in_content(article, images)
 
             # Save article locally
-            local_file_path = save_article_locally(video.title, optimized_title, tags, article)
-
-            # If filename already exists, it means it already exists so we skip that one
-            if os.path.exists(local_file_path):
-                print(f"Article already exists locally: {local_file_path}")
-                continue
+            save_article_locally(video.title, optimized_title, tags, article)
 
             # Post article to Medium
             medium_url = post_to_medium(optimized_title, article, tags)
