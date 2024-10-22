@@ -156,6 +156,8 @@ def generate_article_from_transcript(transcript, title, source_language='fr'):
 
     if source_language.lower() == 'fr':
         translation_instruction = "Translate the following French YouTube video transcript into English,"
+    elif source_language.lower() == 'en':
+        translation_instruction = "Translate the following YouTube video transcript and remove any promotional content, Subscribe to my channel, introductions, and conclusions,"
     else:
         translation_instruction = f"Translate the following {source_language} YouTube video transcript into English,"
 
