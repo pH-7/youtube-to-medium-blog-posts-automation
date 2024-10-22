@@ -115,7 +115,7 @@ def generate_article_from_transcript(transcript, title, source_language='fr'):
         translation_instruction = f"Translate the following {source_language} YouTube video transcript into English,"
 
     prompt = f"""{translation_instruction} removing filler sounds like "euh...", "bah", "ben", "hein" and similar French verbal tics.
-    Rewrite it as a well-structured article in English, skipping the video introduction (e.g. "Bonjour à tous", "Bienvenue sur ma chaîne", ...) and the ending (e.g. "au revoir", "à bientôt", "ciao", "N'oubliez pas de vous abonner", ...).
+    Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oubliez pas de vous abonner, ...), and any promotions related to PIERREWRITER.COM and my workshops.
     Ensure it reads well like an original article, not a transcript of a video, and can include personal ideas. Pay attention to French idioms and expressions, translating them to natural English equivalents.
 
     Title: {title}
@@ -363,7 +363,7 @@ def main():
             # Save article locally
             local_file_path = save_article_locally(video.title, optimized_title, tags, article)
 
-            # if filename already exists, it means it already exists so we skip that one
+            # If filename already exists, it means it already exists so we skip that one
             if os.path.exists(local_file_path):
                 print(f"Article already exists locally: {local_file_path}")
                 continue
