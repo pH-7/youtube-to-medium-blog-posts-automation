@@ -4,6 +4,7 @@ import isodate
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from ratelimit import limits, sleep_and_retry
 
 # Google/YouTube API related imports
 from googleapiclient.discovery import build
@@ -28,7 +29,7 @@ class VideoData:
     description: str
     published_at: str
 
-def print_progress_separator(index: int, total: int, title: str):
+def print_progress_separator(index: int, total: int, title: str) -> None:
     """
     Print a formatted progress separator with video information.
     """
@@ -39,7 +40,7 @@ def print_progress_separator(index: int, total: int, title: str):
     print(f"Processing: {title}")
     print("=" * len(separator))
 
-def load_config() -> dict:
+def load_config() -> Dict[str, Any]:
     with open('config.json', 'r') as config_file:
         return json.load(config_file)
 
@@ -207,7 +208,7 @@ def generate_tags(article_content, title):
         print("Error parsing tags. Using default tags.")
         return ["self-help", "psychology", "self-improvement"]
 
-def generate_medium_title(article_content):
+def generate_medium_title(article_content: str) -> str:
     openai.api_key = config['OPENAI_API_KEY']
     prompt = f"""You are an expert content writer. Based on the content provided below, generate an engaging and clickable title for a Medium.com article.
 
@@ -300,7 +301,7 @@ def save_article_locally(original_title, title, tags, article):
 
     # Create a safe filename from the title
     safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-    file_name = f"articles/{safe_title}.md"
+    file_name = os.path.join('articles', f"{safe_title}.md")
 
     # Check if article already exists
     if os.path.exists(file_name):
@@ -315,6 +316,8 @@ def save_article_locally(original_title, title, tags, article):
     print(f"Article successfully saved locally: {file_name}")
     return file_name
 
+@sleep_and_retry
+@limits(calls=30, period=60)  # 30 calls per minute
 def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
     """
     Post article to Medium with support for publication posting.
