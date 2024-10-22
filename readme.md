@@ -88,10 +88,9 @@ You can modify the following in the script:
 
 **Pierre-Henry Soria**. A passionate developer who loves automating content creation! 🚀 Enthusiast for YouTube, AI, and writing! 😊 Find me at [PH7.me](https://PH7.me) 💫
 
+☕️ Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (I love almond flat white 😋)
 
-☕️ Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** and fuel more awesome automations! 💪
-
-[![@phenrysay][twitter-image]](https://x.com/phenrysay) [![pH-7][github-image]](https://github.com/pH-7)
+[![@phenrysay][twitter-icon]](https://x.com/phenrysay) [![pH-7][github-icon]](https://github.com/pH-7) [![YouTube Tech Videos][youtube-icon]](https://www.youtube.com/@pH7Programming "My YouTube Tech Channel")
 
 
 ## 🤝 Contributing
@@ -107,5 +106,6 @@ Contributions to this project are welcome. Please fork the repository and submit
 This project is for educational purposes only. Ensure you comply with YouTube's terms of service and Medium's API usage guidelines when using this script.
 
 <!-- GitHub's Markdown reference links -->
-[twitter-image]: https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white
-[github-image]: https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white
+[twitter-icon]: https://img.shields.io/badge/x-000000?style=for-the-badge&logo=x
+[github-icon]: https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white
+[youtube-icon]: https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white
