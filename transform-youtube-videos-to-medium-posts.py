@@ -290,14 +290,14 @@ def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
         "tags": tags[:5],  # Medium allows up to 5 tags
         "publishStatus": "draft"
     }
-    
+
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
         "Accept": "application/json",
         "Accept-Charset": "utf-8"
     }
-    
+
     try:
         if post_to_publication and publication_id:
             # Post to publication
@@ -322,10 +322,10 @@ def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
                 headers=headers,
                 json=article
             )
-        
+
         response.raise_for_status()
         return response.json()["data"]["url"]
-    
+
     except Exception as e:
         print(f"Failed to post article: {e}")
         print(f"Response: {response.text if 'response' in locals() else 'No response'}")
