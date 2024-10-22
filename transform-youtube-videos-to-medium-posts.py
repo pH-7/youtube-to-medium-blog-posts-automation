@@ -1,5 +1,7 @@
 import os
 import json
+from typing import List, Dict, Optional
+from dataclasses import dataclass
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -9,8 +11,30 @@ import openai
 import requests
 from datetime import datetime, timedelta
 
-# Function to load configuration
-def load_config():
+@dataclass
+class UnsplashImage:
+    url: str
+    alt: str
+
+@dataclass
+class VideoData:
+    id: str
+    title: str
+    description: str
+    published_at: str
+
+def print_progress_separator(index: int, total: int, title: str):
+    """
+    Print a formatted progress separator with video information.
+    """
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    progress = f"[{index}/{total}]"
+    separator = f"{'=' * 20} {progress} {timestamp} {'=' * 20}"
+    print(f"\n{separator}")
+    print(f"Processing: {title}")
+    print("=" * len(separator))
+
+def load_config() -> dict:
     with open('config.json', 'r') as config_file:
         return json.load(config_file)
 
@@ -34,29 +58,6 @@ def get_authenticated_service():
             token.write(creds.to_json())
     return build("youtube", "v3", credentials=creds)
 
-def get_channel_videos(youtube, channel_id):
-    videos = []
-    next_page_token = None
-
-    while True:
-        request = youtube.search().list(
-            part="id,snippet",
-            channelId=channel_id,
-            type="video",
-            order="date",
-            maxResults=50,
-            pageToken=next_page_token
-        )
-
-        response = request.execute()
-        videos.extend(response["items"])
-
-        next_page_token = response.get("nextPageToken")
-        if not next_page_token:
-            break
-
-    return videos
-
 def get_video_transcript(video_id, language):
     try:
         transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
@@ -64,6 +65,46 @@ def get_video_transcript(video_id, language):
     except Exception as e:
         print(f"Error fetching transcript for video {video_id} in {language}: {e}")
         return None
+
+def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
+    """
+    Retrieves ALL videos from a YouTube channel using pagination.
+    Returns a list of VideoData objects.
+    """
+    videos = []
+    next_page_token = None
+    
+    while True:
+        try:
+            request = youtube.search().list(
+                part="id,snippet",
+                channelId=channel_id,
+                type="video",
+                order="date",
+                maxResults=50,  # Maximum allowed by YouTube API
+                pageToken=next_page_token
+            )
+            
+            response = request.execute()
+            
+            for item in response.get("items", []):
+                video_data = VideoData(
+                    id=item["id"]["videoId"],
+                    title=item["snippet"]["title"],
+                    description=item["snippet"]["description"],
+                    published_at=item["snippet"]["publishedAt"]
+                )
+                videos.append(video_data)
+            
+            next_page_token = response.get("nextPageToken")
+            if not next_page_token:
+                break
+                
+        except Exception as e:
+            print(f"Error fetching videos: {e}")
+            break
+    
+    return videos
 
 def generate_article_from_transcript(transcript, title, source_language='fr'):
     openai.api_key = config['OPENAI_API_KEY']
@@ -140,55 +181,61 @@ def generate_medium_title(article_content):
     
     return response.choices[0].message.content.strip('"')
 
-def post_to_medium(title, content, tags):
-    token = config['MEDIUM_ACCESS_TOKEN']
-    # Get user details
-    user_info = requests.get("https://api.medium.com/v1/me",
-                             headers={"Authorization": f"Bearer {token}",
-                                      "Content-Type": "application/json",
-                                      "Accept": "application/json",
-                                      "Accept-Charset": "utf-8"})
-    if user_info.status_code != requests.codes.ok:
-        print(f"Error fetching user info. Status code: {user_info.status_code}")
-        return None
-
-    user_id = user_info.json()['data']['id']
-
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Accept-Charset": "utf-8"
-    }
-
-    # Ensure content is not too long (Medium has a limit)
-    max_content_length = 100000  # Medium's limit is around 100,000 characters
-    if len(content) > max_content_length:
-        content = content[:max_content_length-3] + "..."
-        print(f"Content was truncated to {max_content_length} characters due to Medium's limit.")
-
-    article = {
-        "title": title,
-        "contentFormat": "markdown",
-        "content": content,
-        "tags": tags[:5],  # Medium allows up to 5 tags
-        "publishStatus": "draft"
-    }
-
-    response = requests.post(
-        f"https://api.medium.com/v1/users/{user_id}/posts",
-        headers=headers,
-        json=article
+def fetch_images_from_unsplash(query: str, per_page: int = 3) -> Optional[List[UnsplashImage]]:
+    """
+    Fetch black and white images from Unsplash API.
+    Args:
+        query: Search query for images
+        per_page: Number of images to fetch (default: 3)
+    """
+    unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
+    url = (
+        f"https://api.unsplash.com/search/photos"
+        f"?query={query}"
+        f"&client_id={unsplash_access_key}"
+        f"&per_page={per_page}"
+        f"&color=black_and_white"  # Only fetch black and white images https://unsplash.com/documentation#search-photos
     )
 
-    if response.status_code == requests.codes.created:
-        print(f"Successfully posted article: {title}")
-        return response.json()["data"]["url"]
-    else:
-        print(f"Failed to post article: {title}. Status code: {response.status_code}")
-        print(f"Response: {response.text}")
-        print(f"Request payload: {json.dumps(article, indent=2)}")
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        results = response.json()['results']
+        return [
+            UnsplashImage(
+                url=result['urls']['regular'],
+                alt=f"{query} - Photo by {result['user']['name']} on Unsplash"
+            ) 
+            for result in results
+        ]
+    except Exception as e:
+        print(f"Failed to fetch images from Unsplash: {e}")
         return None
+
+def embed_images_in_content(article_content: str, images: List[UnsplashImage]) -> str:
+    """
+    Embed images in the article content using Markdown format.
+    """
+    if not images:
+        return article_content
+
+    # Split content into sections
+    sections = article_content.split("\n\n")
+    
+    # Create image markdown with proper attribution
+    image_blocks = []
+    for image in images:
+        # Use Markdown format for images
+        image_md = f"\n![{image.alt}]({image.url})\n*{image.alt}*\n"
+        image_blocks.append(image_md)
+
+    # Distribute images throughout the content
+    image_spacing = max(1, len(sections) // (len(images) + 1))
+    for i, image_block in enumerate(image_blocks):
+        insert_position = min((i + 1) * image_spacing, len(sections))
+        sections.insert(insert_position, image_block)
+
+    return "\n\n".join(sections)
 
 def save_article_locally(original_title, title, tags, article):
     """
@@ -223,30 +270,57 @@ def save_article_locally(original_title, title, tags, article):
     print(f"Article successfully saved locally: {file_name}")
     return file_name
 
-def fetch_images_from_unsplash(query):
-    unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
-    url = f"https://api.unsplash.com/search/photos?query={query}&client_id={unsplash_access_key}&per_page=3"
-
-    response = requests.get(url)
-    if response.status_code == requests.codes.ok:
-        results = response.json()['results']
-        # Return a list of dictionaries with 'url' and 'alt' (using the query as the alt text)
-        return [{'url': result['urls']['regular'], 'alt': query} for result in results]
-    else:
-        print(f"Failed to fetch images from Unsplash. Status code: {response.status_code}")
+def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
+    """
+    Post article to Medium with improved error handling and validation.
+    """
+    token = config['MEDIUM_ACCESS_TOKEN']
+    
+    # Get user details
+    try:
+        user_info = requests.get(
+            "https://api.medium.com/v1/me",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Accept-Charset": "utf-8"
+            }
+        )
+        user_info.raise_for_status()
+        user_id = user_info.json()['data']['id']
+    except Exception as e:
+        print(f"Error fetching user info: {e}")
         return None
 
-def embed_images_in_content(article_content, images):
-    image_markdown = "\n\n".join([f"![{image['alt']}]({image['url']})" for image in images])
-    # Insert the images at a strategic place in the article, for example after the first paragraph
-    paragraphs = article_content.split("\n\n")
-    if len(paragraphs) > 1:
-        paragraphs.insert(1, image_markdown)
-    else:
-        # If article is short, just append images at the end
-        paragraphs.append(image_markdown)
+    # Prepare article in Markdown format
+    full_content = f"# {title}\n\n{content}"
 
-    return "\n\n".join(paragraphs)
+    article = {
+        "title": title,
+        "contentFormat": "markdown",
+        "content": full_content,
+        "tags": tags[:5],  # Medium allows up to 5 tags
+        "publishStatus": "draft"
+    }
+
+    try:
+        response = requests.post(
+            f"https://api.medium.com/v1/users/{user_id}/posts",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Accept-Charset": "utf-8"
+            },
+            json=article
+        )
+        response.raise_for_status()
+        return response.json()["data"]["url"]
+    except Exception as e:
+        print(f"Failed to post article: {e}")
+        print(f"Response: {response.text if 'response' in locals() else 'No response'}")
+        return None
 
 def main():
     youtube = get_authenticated_service()
@@ -256,43 +330,54 @@ def main():
     print(f"Found {len(videos)} videos in the channel.")
 
     source_language = config.get('SOURCE_LANGUAGE', 'fr')
+    
+    # Create articles directory if it doesn't exist
+    os.makedirs('articles', exist_ok=True)
 
     for index, video in enumerate(videos, 1):
-        video_id = video["id"]["videoId"]
-        title = video["snippet"]["title"]
+        print_progress_separator(index, len(videos), video.title)
+        
+        # Skip if article already exists
+        safe_title = "".join([c for c in video.title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+        file_name = f"articles/{safe_title}.md"
+        
+        if os.path.exists(file_name):
+            print(f"Article already exists: {file_name}")
+            continue
 
-        print(f"Processing video {index}/{len(videos)}: {title}")
+        try:
+            transcript = get_video_transcript(video.id, language=source_language)
+            if not transcript:
+                print(f"No transcript available for: {video.title}")
+                continue
 
-        transcript = get_video_transcript(video_id, language=source_language)
-        if transcript:
-            article = generate_article_from_transcript(transcript, title, source_language)
-            tags = generate_tags(article, title)
+            article = generate_article_from_transcript(transcript, video.title, source_language)
+            tags = generate_tags(article, video.title)
             optimized_title = generate_medium_title(article)
 
-            # Fetch images from Unsplash
-            images = fetch_images_from_unsplash(tags[0])  # Use the first tag for image search
+            # Retrieve relevant images from Unsplash for the article
+            images = fetch_images_from_unsplash(tags[0]) # Use first tag for image search
             if images:
                 article = embed_images_in_content(article, images)
 
             # Save article locally
-            local_file_path = save_article_locally(title, optimized_title, tags, article)
+            local_file_path = save_article_locally(video.title, optimized_title, tags, article)
 
             # if filename already exists, it means it already exists so we skip that one
             if os.path.exists(local_file_path):
                 print(f"Article already exists locally: {local_file_path}")
                 continue
 
-            # Post the article to Medium
+            # Post article to Medium
             medium_url = post_to_medium(optimized_title, article, tags)
             if medium_url:
-                print(f"Article posted to Medium as a draft: {medium_url}")
-                print(f"Generated tags: {tags}")
+                print(f"✓ Article posted to Medium: {medium_url}")
+                print(f"✓ Generated tags added to the post: {tags}")
             else:
-                print(f"Failed to post article for video: {title}")
-        else:
-            print(f"Failed to get transcript for video: {title}")
+                print(f"✗ Failed to post article to Medium")
 
-        print("--------------------")
+        except Exception as e:
+            print(f"Error processing video {video.title}: {e}")
 
 if __name__ == "__main__":
     main()
