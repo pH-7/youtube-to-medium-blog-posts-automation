@@ -113,15 +113,8 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
                     # 2. Using vertical video aspect ratio (typically 9:16)
                     duration_seconds = parse_duration(duration_str)
                     
-                    # Get video dimensions
-                    if "maxres" in item["snippet"].get("thumbnails", {}):
-                        thumbnail = item["snippet"]["thumbnails"]["maxres"]
-                        aspect_ratio = thumbnail["width"] / thumbnail["height"]
-                    else:
-                        aspect_ratio = 16/9  # Default to landscape if no maxres thumbnail
-                    
-                    # Skip if it's likely a Short (vertical video ≤ 60 seconds)
-                    if duration_seconds <= 60 and aspect_ratio < 1:
+                    # Skip short video formats (<= 60s)
+                    if duration_seconds <= 60:
                         continue
                         
                     video_data = VideoData(
