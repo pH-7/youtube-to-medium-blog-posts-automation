@@ -316,7 +316,7 @@ def save_article_locally(original_title, title, tags, article):
     return file_name
 
 @sleep_and_retry
-@limits(calls=30, period=60)  # 30 calls per minute
+@limits(calls=1, period=120) # 1 call for every 2 minutes
 def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
     """
     Post article to Medium with support for publication posting.
