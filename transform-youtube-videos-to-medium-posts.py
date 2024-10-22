@@ -273,26 +273,12 @@ def save_article_locally(original_title, title, tags, article):
 
 def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
     """
-    Post article to Medium with improved error handling and validation.
+    Post article to Medium with support for publication posting.
     """
+    config = load_config()
+    publication_id = config.get('MEDIUM_PUBLICATION_ID')
+    post_to_publication = config.get('POST_TO_PUBLICATION', False)
     token = config['MEDIUM_ACCESS_TOKEN']
-    
-    # Get user details
-    try:
-        user_info = requests.get(
-            "https://api.medium.com/v1/me",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Accept-Charset": "utf-8"
-            }
-        )
-        user_info.raise_for_status()
-        user_id = user_info.json()['data']['id']
-    except Exception as e:
-        print(f"Error fetching user info: {e}")
-        return None
 
     # Prepare article in Markdown format
     full_content = f"# {title}\n\n{content}"
@@ -304,20 +290,42 @@ def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
         "tags": tags[:5],  # Medium allows up to 5 tags
         "publishStatus": "draft"
     }
-
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Accept-Charset": "utf-8"
+    }
+    
     try:
-        response = requests.post(
-            f"https://api.medium.com/v1/users/{user_id}/posts",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Accept-Charset": "utf-8"
-            },
-            json=article
-        )
+        if post_to_publication and publication_id:
+            # Post to publication
+            response = requests.post(
+                f"https://api.medium.com/v1/publications/{publication_id}/posts",
+                headers=headers,
+                json=article
+            )
+        else:
+            # Post to user's profile
+            # First get the user's id
+            user_info = requests.get(
+                "https://api.medium.com/v1/me",
+                headers=headers
+            )
+            user_info.raise_for_status()
+            user_id = user_info.json()['data']['id']
+
+            # Then create the post under the user's profile
+            response = requests.post(
+                f"https://api.medium.com/v1/users/{user_id}/posts",
+                headers=headers,
+                json=article
+            )
+        
         response.raise_for_status()
         return response.json()["data"]["url"]
+    
     except Exception as e:
         print(f"Failed to post article: {e}")
         print(f"Response: {response.text if 'response' in locals() else 'No response'}")
