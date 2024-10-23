@@ -65,7 +65,7 @@ This program not only converts video transcripts extremely well into articles, b
 To run the script, use the following command in the project root directory:
 
 ```console
-python youtube_to_medium_script.py
+python transform-youtube-videos-to-medium-posts.py
 ```
 
 **The script will:**
