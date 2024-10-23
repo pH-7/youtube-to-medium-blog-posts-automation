@@ -258,12 +258,12 @@ def generate_medium_title(article_content: str) -> str:
 
     return response.choices[0].message.content.strip('"')
 
-def fetch_images_from_unsplash(query: str, per_page: int = 3) -> Optional[List[UnsplashImage]]:
+def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
-    Fetch black and white images from Unsplash API.
+    Fetch images from Unsplash API, limited to 2 images maximum.
     Args:
         query: Search query for images
-        per_page: Number of images to fetch (default: 3)
+        per_page: Number of images to fetch (default: 2)
     """
     unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
     url = (
@@ -306,11 +306,18 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage]) -
         image_md = f"\n![{image.alt}]({image.url})\n*{image.alt}*\n"
         image_blocks.append(image_md)
 
-    # Distribute images throughout the content
-    image_spacing = max(1, len(sections) // (len(images) + 1))
-    for i, image_block in enumerate(image_blocks):
-        insert_position = min((i + 1) * image_spacing, len(sections))
-        sections.insert(insert_position, image_block)
+    # For 2 images: place first image after first third, second image after second third
+    # For 1 image: place it in the middle
+    total_sections = len(sections)
+
+    if len(images) == 2:
+        first_pos = total_sections // 3
+        second_pos = (total_sections * 2) // 3
+        sections.insert(second_pos, image_blocks[1])
+        sections.insert(first_pos, image_blocks[0])
+    elif len(images) == 1:
+        middle_pos = total_sections // 2
+        sections.insert(middle_pos, image_blocks[0])
 
     return "\n\n".join(sections)
 
