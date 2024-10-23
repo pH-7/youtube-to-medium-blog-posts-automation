@@ -350,7 +350,7 @@ def save_article_locally(original_title, title, tags, article):
         file.write(f"Tags: {', '.join(tags)}\n\n")
         file.write(article)
 
-    print(f"Article successfully saved locally: {file_name}")
+    print(f"✓ Article successfully saved locally: {file_name}")
     return file_name
 
 @sleep_and_retry
