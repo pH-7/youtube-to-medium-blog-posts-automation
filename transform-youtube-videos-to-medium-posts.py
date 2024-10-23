@@ -271,7 +271,7 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         f"?query={query}"
         f"&client_id={unsplash_access_key}"
         f"&per_page={per_page}"
-        f"&color=black_and_white"  # Only fetch black and white images https://unsplash.com/documentation#search-photos
+        #f"&color=black_and_white"  # Only fetch black and white images https://unsplash.com/documentation#search-photos
     )
 
     try:
