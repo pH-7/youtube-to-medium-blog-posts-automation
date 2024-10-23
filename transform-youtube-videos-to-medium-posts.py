@@ -441,7 +441,12 @@ def main():
                 print(f"No transcript available for: {video.title}")
                 continue
 
-            article = generate_article_from_transcript(transcript, video.title, source_language, output_language)
+            article = generate_article_from_transcript(
+                transcript,
+                video.title,
+                source_language=source_language,
+                output_language=output_language  # Add this parameter
+            )
             tags = generate_tags(article, video.title)
             optimized_title = generate_medium_title(article)
 
