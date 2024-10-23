@@ -425,7 +425,7 @@ def main():
     channel_id = config['YOUTUBE_CHANNEL_ID']
     videos = get_channel_videos(youtube, channel_id)
 
-    print(f"Found {len(videos)} videos in the channel.")
+    print(f"Found {len(videos)} videos in the channel")
 
     source_language = config.get('SOURCE_LANGUAGE', 'fr')
     output_language = config.get('OUTPUT_LANGUAGE', 'en')
