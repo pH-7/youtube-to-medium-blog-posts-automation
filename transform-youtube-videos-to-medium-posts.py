@@ -1,9 +1,9 @@
 import os
 import json
 import isodate
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from ratelimit import limits, sleep_and_retry
 
 # Google/YouTube API related imports
@@ -141,9 +141,6 @@ def parse_duration(duration_str: str) -> int:
     Parse ISO 8601 duration format to seconds.
     Example: PT1H2M10S -> 3730 seconds
     """
-    import re
-    import isodate
-    
     try:
         duration = isodate.parse_duration(duration_str)
         return int(duration.total_seconds())
@@ -151,7 +148,7 @@ def parse_duration(duration_str: str) -> int:
         print(f"Error parsing duration {duration_str}: {e}")
         return 0
 
-def generate_article_from_transcript(transcript, title, source_language='fr'):
+def generate_article_from_transcript(transcript: str, title: str, source_language: str = 'fr') -> str:
     openai.api_key = config['OPENAI_API_KEY']
 
     if source_language.lower() == 'fr':
