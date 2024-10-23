@@ -218,29 +218,25 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
 def generate_tags(article_content, title):
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"""Generate in English 5 relevant tags as a JSON array of strings for a Medium.com article titled "{title}".
-    The article content is provided below:
 
-    Content: {article_content[:1000]}"""
+    prompt = f'Return ONLY a JSON array with 5 tags for this article. Example: ["tag1","tag2"]\nTitle: "{title}"\nContent: {article_content[:1000]}'
 
     response = openai.ChatCompletion.create(
         model=config['OPENAI_MODEL'],
         messages=[
-            {"role": "system", "content": "You are an assistant that generates tags for Medium articles."},
+            {"role": "system", "content": 'You are a tag generator. Only output JSON arrays like ["tag1","tag2"]'},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100
     )
 
     try:
-        tags = json.loads(response.choices[0].message.content)
-        if isinstance(tags, list) and all(isinstance(tag, str) for tag in tags):
-            return tags
-        else:
-            print("Invalid tags generated. Using default tags.")
-            return ["self-help", "psychology", "self-improvement"]
+        # Clean and parse response
+        content = response.choices[0].message.content.strip().strip('`')
+        tags = json.loads(content)
+        return tags[:5] if isinstance(tags, list) else ["self-help", "psychology", "self-improvement"]
     except json.JSONDecodeError:
-        print("Error parsing tags. Using default tags.")
+        print("Error parsing tags. Using default tags")
         return ["self-help", "psychology", "self-improvement"]
 
 def generate_medium_title(article_content: str) -> str:
