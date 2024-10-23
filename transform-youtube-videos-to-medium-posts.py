@@ -79,7 +79,7 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     """
     videos = []
     next_page_token = None
-    
+
     while True:
         try:
             # First get the video IDs and basic info
@@ -91,12 +91,12 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
                 maxResults=50,  # Maximum allowed by YouTube API
                 pageToken=next_page_token
             )
-            
+
             response = request.execute()
-            
+
             # Batch video IDs to get detailed information
             video_ids = [item["id"]["videoId"] for item in response.get("items", [])]
-            
+
             if video_ids:
                 # Get detailed video information including duration
                 videos_request = youtube.videos().list(
@@ -104,20 +104,20 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
                     id=",".join(video_ids)
                 )
                 videos_response = videos_request.execute()
-                
+
                 for item in videos_response.get("items", []):
                     # Parse duration string (PT1H2M10S format)
                     duration_str = item["contentDetails"]["duration"]
-                    
+
                     # Check if it's a Short video:
                     # 1. Duration is less than or equal to 60 seconds
                     # 2. Using vertical video aspect ratio (typically 9:16)
                     duration_seconds = parse_duration(duration_str)
-                    
+
                     # Skip short video formats (<= 60s)
                     if duration_seconds <= 60:
                         continue
-                        
+
                     video_data = VideoData(
                         id=item["id"],
                         title=item["snippet"]["title"],
@@ -125,15 +125,15 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
                         published_at=item["snippet"]["publishedAt"]
                     )
                     videos.append(video_data)
-            
+
             next_page_token = response.get("nextPageToken")
             if not next_page_token:
                 break
-                
+
         except Exception as e:
             print(f"Error fetching videos: {e}")
             break
-    
+
     return videos
 
 def parse_duration(duration_str: str) -> int:
@@ -148,36 +148,72 @@ def parse_duration(duration_str: str) -> int:
         print(f"Error parsing duration {duration_str}: {e}")
         return 0
 
-def generate_article_from_transcript(transcript: str, title: str, source_language: str = 'fr') -> str:
+def generate_article_from_transcript(transcript: str, title: str, source_language: str = 'fr', output_language: str = 'en') -> str:
     openai.api_key = config['OPENAI_API_KEY']
 
-    if source_language.lower() == 'fr':
-        translation_instruction = "Translate the following French YouTube video transcript into English,"
-    elif source_language.lower() == 'en':
-        translation_instruction = "Translate the following YouTube video transcript and remove any promotional content, Subscribe to my channel, introductions, and conclusions,"
-    else:
-        translation_instruction = f"Translate the following {source_language} YouTube video transcript into English,"
+    # Define instructions and prompts for both English and French languages
+    instructions = {
+        'en': {
+            'fr': "Translate the following French YouTube video transcript into English,",
+            'en': "Translate the following YouTube video transcript and remove any promotional content, Subscribe to my channel, introductions, and conclusions,",
+            'other': lambda lang: f"Translate the following {lang} YouTube video transcript into English,"
+        },
+        'fr': {
+            'fr': "Reformule la transcription vidéo YouTube suivante en français,",
+            'en': "Traduis la transcription vidéo YouTube suivante en français et supprime tout contenu promotionnel, les appels à s'abonner, les introductions et les conclusions,",
+            'other': lambda lang: f"Traduis la transcription vidéo YouTube suivante du {lang} vers le français,"
+        }
+    }
 
-    prompt = f"""{translation_instruction} removing filler sounds like "euh...", "bah", "ben", "hein" and similar French verbal tics.
+    prompts = {
+        'en': f"""{{instruction}} removing filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oubliez pas de vous abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
     End the article with a short bullet points recap, actions list. Lastly, suggest readers to read my Amazon book at https://book.ph7.me (use an anchor text like my book or "my latest published book").
 
     Title: {title}
 
-    Transcript: {transcript[:12000]}  # Increased transcript length to 1,2000 to handle up to 5,000 words
+    Transcript: {transcript[:12000]}
 
-    Structured as a Medium.com article in English and use Markdown format for headings, links, bold, italic, etc:"""
-    
+    Structured as a Medium.com article in English and use Markdown format for headings, links, bold, italic, etc:""",
+
+        'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
+    Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir, à bientôt, ciao, N'oubliez pas de vous abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
+    Assure-toi que le texte se lit comme un véritable article, pas comme une transcription de vidéo, et mets en valeur les idées personnelles qui fascineraient les lecteurs. Porte une attention particulière aux expressions idiomatiques, en les adaptant naturellement en français.
+    Termine l'article avec un bref récapitulatif sous forme de points et une liste d'actions. Enfin, suggère aux lecteurs de lire mon livre Amazon sur https://book.ph7.me (utilise un texte d'ancrage comme mon livre ou "mon dernier livre publié").
+
+    Titre: {title}
+
+    Transcription: {transcript[:12000]}
+
+    Structuré comme un article Medium.com en français et utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    }
+
+    # Get the appropriate instruction based on source and output languages
+    instruction_map = instructions[output_language]
+    if source_language.lower() in instruction_map:
+        instruction = instruction_map[source_language.lower()]
+    else:
+        instruction = instruction_map['other'](source_language)
+
+    # Get the appropriate prompt template and format it with the instruction
+    prompt = prompts[output_language].format(instruction=instruction)
+
+    # Set the system message based on output language
+    system_messages = {
+        'en': "You are a professional translator, editor, and content writer.",
+        'fr': "Vous êtes un traducteur professionnel, éditeur et rédacteur de contenu."
+    }
+
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+        model=config['OPENAI_MODEL'],
         messages=[
-            {"role": "system", "content": "You are a professional translator, editor, and content writer."},
+            {"role": "system", "content": system_messages[output_language]},
             {"role": "user", "content": prompt}
         ],
         max_tokens=5000 # Increased max tokens to allow longer responses
     )
-    
+
     return response.choices[0].message.content
 
 def generate_tags(article_content, title):
@@ -186,16 +222,16 @@ def generate_tags(article_content, title):
     The article content is provided below:
 
     Content: {article_content[:1000]}"""
-    
+
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+        model=config['OPENAI_MODEL'],
         messages=[
             {"role": "system", "content": "You are an assistant that generates tags for Medium articles."},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100
     )
-    
+
     try:
         tags = json.loads(response.choices[0].message.content)
         if isinstance(tags, list) and all(isinstance(tag, str) for tag in tags):
@@ -214,16 +250,16 @@ def generate_medium_title(article_content: str) -> str:
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
     Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters."""
-    
+
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+        model=config['OPENAI_MODEL'],
         messages=[
             {"role": "system", "content": "You are an expert content writer and title generator."},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100
     )
-    
+
     return response.choices[0].message.content.strip('"')
 
 def fetch_images_from_unsplash(query: str, per_page: int = 3) -> Optional[List[UnsplashImage]]:
@@ -250,7 +286,7 @@ def fetch_images_from_unsplash(query: str, per_page: int = 3) -> Optional[List[U
             UnsplashImage(
                 url=result['urls']['regular'],
                 alt=f"{query} - Photo by {result['user']['name']} on Unsplash"
-            ) 
+            )
             for result in results
         ]
     except Exception as e:
@@ -266,7 +302,7 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage]) -
 
     # Split content into sections
     sections = article_content.split("\n\n")
-    
+
     # Create image markdown with proper attribution
     image_blocks = []
     for image in images:
@@ -389,10 +425,11 @@ def main():
     print(f"Found {len(videos)} videos in the channel.")
 
     source_language = config.get('SOURCE_LANGUAGE', 'fr')
+    output_language = config.get('OUTPUT_LANGUAGE', 'en')
 
     for index, video in enumerate(videos, 1):
         print_progress_separator(index, len(videos), video.title)
-        
+
         # Skip if article already exists
         if check_article_exists(video.title):
             print(f"Article "{video.title}" already exists locally")
@@ -404,7 +441,7 @@ def main():
                 print(f"No transcript available for: {video.title}")
                 continue
 
-            article = generate_article_from_transcript(transcript, video.title, source_language)
+            article = generate_article_from_transcript(transcript, video.title, source_language, output_language)
             tags = generate_tags(article, video.title)
             optimized_title = generate_medium_title(article)
 
