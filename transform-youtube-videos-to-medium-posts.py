@@ -336,8 +336,8 @@ def save_article_locally(original_title, title, tags, article):
     # Create 'articles' directory if it doesn't exist
     # os.makedirs('articles', exist_ok=True)
 
-    # Create a safe filename from the title
-    safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+    # Create a safe filename from the original title
+    safe_title = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
     file_name = os.path.join('articles', f"{safe_title}.md")
 
     # Check if article already exists
