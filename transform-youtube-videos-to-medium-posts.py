@@ -284,7 +284,7 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         """
         MAX_DESC_LENGTH = 100  # Maximum length for description
 
-        if not description:
+        if not description or description == "None":  # Handle both None and "None" string
             # Fallback to query if no description available
             desc_text = query
         else:
@@ -304,7 +304,7 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
             UnsplashImage(
                 url=result['urls']['regular'],
                 alt=format_alt_text(
-                    description=result.get('description'),
+                    description=result['description'] if 'description' in result else None,
                     photographer=result['user']['name']
                 )
             )
