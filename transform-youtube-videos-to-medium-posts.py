@@ -37,7 +37,7 @@ def print_progress_separator(index: int, total: int, title: str) -> None:
     progress = f"[{index}/{total}]"
     separator = f"{'=' * 20} {progress} {timestamp} {'=' * 20}"
     print(f"\n{separator}")
-    print(f"Processing: {title}")
+    print(f"Processing Video: {title}")
     print("=" * len(separator))
 
 def load_config() -> Dict[str, Any]:
