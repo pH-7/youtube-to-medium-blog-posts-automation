@@ -347,8 +347,8 @@ def save_article_locally(original_title, title, tags, article):
         # exit here if file already exists
         return file_name
 
-    # Format tags in Dev.to style (space-separated)
-    formatted_tags = ' '.join(tags)
+    # Format tags with comma and space separation
+    formatted_tags = ', '.join(tags)
 
     # Create Dev.to style frontmatter
     devto_frontmatter = f"""---
