@@ -219,25 +219,26 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 def generate_tags(article_content, title):
     openai.api_key = config['OPENAI_API_KEY']
 
-    prompt = f'Return ONLY a JSON array with 5 tags for this article. Example: ["tag1","tag2"]\nTitle: "{title}"\nContent: {article_content[:1000]}'
+    prompt = f'Return ONLY a JSON array with exactly 5 tags for this article. The response must contain exactly 5 tags, no more, no less.\nTitle: "{title}"\nContent: {article_content[:1000]}'
 
     response = openai.ChatCompletion.create(
         model=config['OPENAI_MODEL'],
         messages=[
-            {"role": "system", "content": 'You are a tag generator. Only output JSON arrays like ["tag1","tag2"]'},
+            {"role": "system", "content": 'You are a tag generator. Only output JSON arrays with exactly 5 tags like ["tag1","tag2","tag3","tag4","tag5"]'},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100
     )
 
+    default_tags = ["self help", "psychology", "self improvement", "personal development", "personal growth"]
     try:
         # Clean and parse response
         content = response.choices[0].message.content.strip().strip('`')
         tags = json.loads(content)
-        return tags[:5] if isinstance(tags, list) else ["self-help", "psychology", "self-improvement"]
+        return tags[:5] if isinstance(tags, list) else default_tags
     except json.JSONDecodeError:
         print("Error parsing tags. Using default tags")
-        return ["self-help", "psychology", "self-improvement"]
+        return default_tags
 
 def generate_medium_title(article_content: str) -> str:
     openai.api_key = config['OPENAI_API_KEY']
