@@ -289,7 +289,7 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         print(f"Failed to fetch images from Unsplash: {e}")
         return None
 
-def embed_images_in_content(article_content: str, images: List[UnsplashImage]) -> str:
+def embed_images_in_content(article_content: str, images: List[UnsplashImage], article_title: str) -> str:
     """
     Embed images in the article content using Markdown format.
     """
@@ -303,7 +303,7 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage]) -
     image_blocks = []
     for image in images:
         # Use Markdown format for images
-        image_md = f"\n![{image.alt}]({image.url})\n*{image.alt}*\n"
+        image_md = f"""\n![{image.alt}]({image.url} "{article_title}")\n*{image.alt}*\n"""
         image_blocks.append(image_md)
 
     # For 2 images: place first image after first third, second image after second third
@@ -456,7 +456,7 @@ def main():
             # Retrieve relevant images from Unsplash for the article
             images = fetch_images_from_unsplash(tags[0]) # Use first tag for image search
             if images:
-                article = embed_images_in_content(article, images)
+                article = embed_images_in_content(article, images, optimized_title)
 
             # Save article locally
             save_article_locally(video.title, optimized_title, tags, article)
