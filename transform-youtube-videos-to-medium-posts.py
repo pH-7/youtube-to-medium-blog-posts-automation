@@ -169,7 +169,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         'en': f"""{{instruction}} removing filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oubliez pas de vous abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
-    End the article with a short bullet points recap, actions list or "ask yourself reflection questions" preceded by a Markdown separator. Lastly, suggest readers to read my Amazon book at https://book.ph7.me (use an anchor text like my book or "my latest published book").
+    End the article with a short bullet points recap, actions list, or "ask yourself" questions preceded by a Markdown separator. Lastly, suggest readers to read my Amazon book at https://book.ph7.me (use an anchor text like my book or "my latest published book").
 
     Title: {title}
 
@@ -246,7 +246,10 @@ def generate_medium_title(article_content: str) -> str:
 
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
-    Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters."""
+    Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
+    Whenever possible, use one of the following formats "How to [Action] to [Benefit] WITHOUT [Pain Point]", "How to [Action] to [Benefit] in [Limited Time]", or "The New Way to [Action] Without [Pain Point]".
+
+    Don't use irrelevant adjective like Unlock, Embrace, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer."""
 
     response = openai.ChatCompletion.create(
         model=config['OPENAI_MODEL'],
