@@ -322,36 +322,49 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
 
     return "\n\n".join(sections)
 
-def save_article_locally(original_title, title, tags, article):
+def save_article_locally(
+        original_title: str,
+        title: str,
+        tags: List[str],
+        article: str,
+        base_dir: str = 'articles'
+) -> str:
     """
     Save the generated article locally as a Markdown file.
 
     Args:
-    original_title (str): The original title from the video
-    title (str): The optimized title for the article
-    tags (list): List of tags for the article.
-    article (str): The content of the article in Markdown format.
+        original_title (str): The original title from the video
+        title (str): The optimized title for the article
+        tags (List[str]): List of tags for the article
+        article (str): The content of the article in Markdown format
+        base_dir (str, optional): Base directory for saving articles. Defaults to 'articles'
 
     Returns:
-    str: The path of the saved file.
+        str: The path of the saved file
+
+    Raises:
+        OSError: If there are problems creating the directory or writing the file
+        UnicodeEncodeError: If there are problems encoding the content
     """
     # Create 'articles' directory if it doesn't exist
     # os.makedirs('articles', exist_ok=True)
 
     # Create a safe filename from the original title
-    safe_title = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-    file_name = os.path.join('articles', f"{safe_title}.md")
+    safe_title: str = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+    file_name: str = os.path.join(base_dir, f"{safe_title}.md")
+
+    # Create directory if it doesn't exist
+    os.makedirs(base_dir, exist_ok=True)
 
     # Check if article already exists
     if os.path.exists(file_name):
-        # exit here if file already exists
         return file_name
 
     # Format tags with comma and space separation
-    formatted_tags = ', '.join(tags)
+    formatted_tags: str = ', '.join(tags)
 
     # Create Dev.to style frontmatter
-    devto_frontmatter = f"""---
+    devto_frontmatter: str = f"""---
 title: {title}
 date: {datetime.now().isoformat()}
 tags: {formatted_tags}
@@ -359,11 +372,15 @@ tags: {formatted_tags}
 
 """
 
-    with open(file_name, "w", encoding="utf-8") as file:
-        # Write frontmatter
-        file.write(devto_frontmatter)
-        # Write article content
-        file.write(article)
+    try:
+        with open(file_name, "w", encoding="utf-8") as file:
+            # Write frontmatter
+            file.write(devto_frontmatter)
+            # Write article content
+            file.write(article)
+    except (OSError, UnicodeEncodeError) as e:
+        print(f"Error saving article: {e}")
+        raise
 
     print(f"✓ Article successfully saved locally: {file_name}")
     return file_name
