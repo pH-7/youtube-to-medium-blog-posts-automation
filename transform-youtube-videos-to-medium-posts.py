@@ -275,17 +275,38 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         f"?query={query}"
         f"&client_id={unsplash_access_key}"
         f"&per_page={per_page}"
-        #f"&color=black_and_white"  # Only fetch black and white images https://unsplash.com/documentation#search-photos
     )
+
+    def format_alt_text(description: Optional[str], photographer: str) -> str:
+        """
+        Format the alt text using the photo description or fallback to query.
+        Truncates description if it's too long.
+        """
+        MAX_DESC_LENGTH = 100  # Maximum length for description
+
+        if not description:
+            # Fallback to query if no description available
+            desc_text = query
+        else:
+            # Clean and truncate description if needed
+            desc_text = description.strip()
+            if len(desc_text) > MAX_DESC_LENGTH:
+                desc_text = desc_text[:MAX_DESC_LENGTH].rstrip() + "..."
+
+        return f"{desc_text} - Photo by {photographer} on Unsplash"
 
     try:
         response = requests.get(url)
         response.raise_for_status()
         results = response.json()['results']
+
         return [
             UnsplashImage(
                 url=result['urls']['regular'],
-                alt=f"{query} - Photo by {result['user']['name']} on Unsplash"
+                alt=format_alt_text(
+                    description=result.get('description'),
+                    photographer=result['user']['name']
+                )
             )
             for result in results
         ]
