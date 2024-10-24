@@ -322,12 +322,12 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
 
     return "\n\n".join(sections)
 
-def save_article_locally(original_title, title, tags, article):
+def save_article_locally(original_title, tags, article):
     """
     Save the generated article locally as a Markdown file.
 
     Args:
-    title (str): The title of the article.
+    original_title (str): The original title from the video
     tags (list): List of tags for the article.
     article (str): The content of the article in Markdown format.
 
@@ -460,7 +460,7 @@ def main():
                 article = embed_images_in_content(article, images, optimized_title)
 
             # Save article locally
-            save_article_locally(video.title, optimized_title, tags, article)
+            save_article_locally(video.title, tags, article)
 
             # Post article to Medium
             medium_url = post_to_medium(optimized_title, article, tags)
