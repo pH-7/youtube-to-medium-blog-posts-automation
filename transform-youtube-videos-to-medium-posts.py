@@ -216,29 +216,62 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     return response.choices[0].message.content
 
-def generate_tags(article_content, title):
+def generate_tags(article_content: str, title: str, output_language: str = 'en') -> List[str]:
+    """
+    Generate tags for an article in either English or French.
+
+    Args:
+        article_content: The content of the article
+        title: The title of the article
+        output_language: Target language ('en' or 'fr')
+
+    Returns:
+        List[str]: List of exactly 5 tags in the specified language
+    """
     openai.api_key = config['OPENAI_API_KEY']
 
-    prompt = f'Return ONLY a JSON array with exactly 5 tags for this article. The response must contain exactly 5 tags, no more, no less.\nTitle: "{title}"\nContent: {article_content[:1000]}'
+    prompts = {
+        'en': f'''Return ONLY a JSON array with exactly 5 tags for this article. The response must contain exactly 5 tags, no more, no less.
+Title: "{title}"
+Content: {article_content[:1000]}''',
 
-    response = openai.ChatCompletion.create(
-        model=config['OPENAI_MODEL'],
-        messages=[
-            {"role": "system", "content": 'You are a tag generator. Only output JSON arrays with exactly 5 tags like ["tag1","tag2","tag3","tag4","tag5"]'},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=100
-    )
+        'fr': f'''Renvoie UNIQUEMENT un tableau JSON avec exactement 5 tags pour cet article. La réponse doit contenir exactement 5 tags, ni plus, ni moins.
+Titre : "{title}"
+Contenu : {article_content[:1000]}'''
+    }
 
-    default_tags = ["self help", "psychology", "self improvement", "personal development", "personal growth"]
+    system_messages = {
+        'en': 'You are a tag generator. Only output JSON arrays with exactly 5 tags like ["tag1","tag2","tag3","tag4","tag5"]',
+        'fr': 'Tu es un générateur de tags. Renvoie uniquement des tableaux JSON avec exactement 5 tags comme ["tag1","tag2","tag3","tag4","tag5"]'
+    }
+
+    # Default tags for each language
+    default_tags = {
+        'en': ["self help", "psychology", "self improvement", "personal development", "personal growth"],
+        'fr': ["développement personnel", "psychologie", "croissance personnelle", "motivation", "bien-être"]
+    }
+
+    # Get the appropriate prompt and system message based on the output language
+    prompt = prompts.get(output_language, prompts['en'])  # Default to English if language not found
+    system_message = system_messages.get(output_language, system_messages['en'])
+
     try:
+        response = openai.ChatCompletion.create(
+            model=config['OPENAI_MODEL'],
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=100
+        )
+
         # Clean and parse response
         content = response.choices[0].message.content.strip().strip('`')
         tags = json.loads(content)
-        return tags[:5] if isinstance(tags, list) else default_tags
-    except json.JSONDecodeError:
-        print("Error parsing tags. Using default tags")
-        return default_tags
+        return tags[:5] if isinstance(tags, list) else default_tags[output_language]
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"Error generating tags: {e}")
+        return default_tags[output_language]
 
 def generate_medium_title(article_content: str, output_language: str = 'en') -> str:
     """
@@ -537,7 +570,7 @@ def main():
                 source_language=source_language,
                 output_language=output_language  # Add this parameter
             )
-            tags = generate_tags(article, video.title)
+            tags = generate_tags(article, video.title, output_language=output_language)
             optimized_title = generate_medium_title(article)
 
             # Retrieve relevant images from Unsplash for the article
