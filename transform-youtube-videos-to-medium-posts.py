@@ -356,7 +356,8 @@ def generate_medium_title(article_content: str, output_language: str = 'en') -> 
 
 def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
-    Fetch images from Unsplash API, limited to 2 images maximum.
+    Fetch images from Unsplash - one for header, one for content.
+
     Args:
         query: Search query for images
         per_page: Number of images to fetch (default: 2)
@@ -369,6 +370,7 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         f"?query={query}"
         f"&client_id={unsplash_access_key}"
         f"&per_page={per_page}"
+        f"&orientation=landscape" # Prefer landscape orientation for better Medium display
     )
 
     try:
@@ -380,7 +382,7 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
             UnsplashImage(
                 url=result['urls']['regular'],
                 alt=result['description'] if result.get('description') else f"Photo by {result['user']['name']}",
-                caption=f"Photo by [{result['user']['name']}]({result['user']['links']['html']}) on [{result['links']['html']}](Unsplash)"
+                caption=f"Photo by [{result['user']['name']}]({result['user']['links']['html']}) on [Unsplash]({result['links']['html']})"
             )
             for result in results
         ]
@@ -391,6 +393,8 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
 def embed_images_in_content(article_content: str, images: List[UnsplashImage], article_title: str) -> str:
     """
     Embed images in the article content using Markdown format with proper attribution captions.
+    Places the first image at the start of the article and distributes any additional images
+    throughout the content.
 
     Args:
         article_content: The main article content
@@ -403,32 +407,26 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
     if not images:
         return article_content
 
+    # Create image markdown blocks with attribution
+    def create_image_block(image: UnsplashImage) -> str:
+        return f"""![{image.alt}]({image.url} "{article_title}")
+*{image.caption}*\n"""
+
     # Split content into sections
     sections = article_content.split("\n\n")
 
-    # Create image markdown blocks with attribution
-    image_blocks = []
-    for image in images:
-        # Format: ![alt text](image_url "title")
-        # Follow with caption in italics and attribution in regular text
-        image_md = f"""\n![{image.alt}]({image.url} "{article_title}")
-*{image.caption}*\n"""
-        image_blocks.append(image_md)
+    # Always place the first image at the start of the article
+    result = [create_image_block(images[0])]
 
-    # For 2 images: place first image after first third, second image after second third
-    # For 1 image: place it in the middle
-    total_sections = len(sections)
+    # If there's a second image, place it after the second third of the content
+    if len(images) > 1:
+        second_pos = (len(sections) * 2) // 3
+        sections.insert(second_pos, create_image_block(images[1]))
 
-    if len(images) == 2:
-        first_pos = total_sections // 3
-        second_pos = (total_sections * 2) // 3
-        sections.insert(second_pos, image_blocks[1])
-        sections.insert(first_pos, image_blocks[0])
-    elif len(images) == 1:
-        middle_pos = total_sections // 2
-        sections.insert(middle_pos, image_blocks[0])
+    # Add all sections after the first image
+    result.extend(sections)
 
-    return "\n\n".join(sections)
+    return "\n\n".join(result)
 
 def save_article_locally(
         original_title: str,
