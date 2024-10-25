@@ -297,7 +297,7 @@ def generate_medium_title(article_content: str, output_language: str = 'en') -> 
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
     Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
-    Whenever possible, use one of the following formats: "How to [Action|Benefit] WITHOUT [Pain Point]", "How to [Action|Benefit] in [Limited Time]", or "The New Way to [Action] Without [Pain Point]".
+    Whenever possible, use one of the following formats: "How to [Action|Benefit] WITHOUT [Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", or "The New Way to [Action] Without [Pain Point]?".
 
     Don't use irrelevant adjective like Unlock, Embrace, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer.""",
 
@@ -306,7 +306,7 @@ def generate_medium_title(article_content: str, output_language: str = 'en') -> 
     Contenu: {article_content[:1000]}  # Limite le contenu envoyé au modèle
     
     Assure-toi que le titre attire l'attention et donne envie aux lecteurs de Medium.com de cliquer et de lire l'histoire. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
-    Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur]", "Comment [Action|Bénéfice] en [Temps Limité]", ou "La Nouvelle Façon de [Action] Sans [Point de Douleur]".
+    Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", ou "La Nouvelle Façon de [Action] Sans [Point de Douleur] ?".
 
     N'utilise pas d'adjectifs non pertinents comme Débloquer, Embrasser, Dévoiler, Démasquer, Révéler, Rationaliser, Rapide, Révolutionnaire."""
     }
