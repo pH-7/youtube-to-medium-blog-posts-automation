@@ -555,7 +555,7 @@ def main():
 
         # Skip if article already exists
         if check_article_exists(video.title):
-            print(f"Article '{video.title}' already exists locally")
+            print(f"Already exists locally. Skipping '{video.title}'")
             continue
 
         try:
