@@ -415,6 +415,7 @@ def save_article_locally(
         title: str,
         tags: List[str],
         article: str,
+        medium_url: str,
         base_dir: str = 'articles'
 ) -> str:
     """
@@ -453,7 +454,9 @@ def save_article_locally(
 
     # Create Dev.to style frontmatter
     devto_frontmatter: str = f"""---
-title: {title}
+original_title: {original_title}
+optimized_title: {title}
+medium_url: {medium_url}
 date: {datetime.now().isoformat()}
 tags: {formatted_tags}
 ---
@@ -578,12 +581,19 @@ def main():
             if images:
                 article = embed_images_in_content(article, images, optimized_title)
 
-            # Save article locally
-            save_article_locally(video.title, optimized_title, tags, article)
+            # First, post article to Medium
+            medium_url = post_to_medium(optimized_title, article, tags, output_language)
 
-            # Post article to Medium
-            medium_url = post_to_medium(optimized_title, article, tags)
-            if medium_url:
+            # Second, save article locally too
+            path_saved_file = save_article_locally(
+                video.title,
+                optimized_title,
+                tags,
+                article,
+                medium_url
+            )
+
+            if medium_url and path_saved_file:
                 print(f"✓ Article posted to Medium: {medium_url}")
                 print(f"✓ Generated tags added to the post: {tags}")
             else:
