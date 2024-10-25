@@ -332,6 +332,8 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
     Args:
         query: Search query for images
         per_page: Number of images to fetch (default: 2)
+    Returns:
+        Optional[List[UnsplashImage]]: List of UnsplashImage objects with URLs, alt text, and attribution captions in Markdown
     """
     unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
     url = (
@@ -341,24 +343,6 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         f"&per_page={per_page}"
     )
 
-    def format_alt_text(description: Optional[str], photographer: str) -> str:
-        """
-        Format the alt text using the photo description or fallback to query.
-        Truncates description if it's too long.
-        """
-        MAX_DESC_LENGTH = 100  # Maximum length for description
-
-        if not description or description == "None":  # Handle both None and "None" string
-            # Fallback to query if no description available
-            desc_text = query
-        else:
-            # Clean and truncate description if needed
-            desc_text = description.strip()
-            if len(desc_text) > MAX_DESC_LENGTH:
-                desc_text = desc_text[:MAX_DESC_LENGTH].rstrip() + "..."
-
-        return f"{desc_text} - Photo by {photographer} on Unsplash"
-
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -367,10 +351,8 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         return [
             UnsplashImage(
                 url=result['urls']['regular'],
-                alt=format_alt_text(
-                    description=result['description'] if 'description' in result else None,
-                    photographer=result['user']['name']
-                )
+                alt=result['description'] if result.get('description') else f"Photo by {result['user']['name']}",
+                caption=f"Photo by [{result['user']['name']}]({result['user']['links']['html']}) on [{result['links']['html']}](Unsplash)"
             )
             for result in results
         ]
@@ -380,7 +362,15 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
 
 def embed_images_in_content(article_content: str, images: List[UnsplashImage], article_title: str) -> str:
     """
-    Embed images in the article content using Markdown format.
+    Embed images in the article content using Markdown format with proper attribution captions.
+
+    Args:
+        article_content: The main article content
+        images: List of UnsplashImage objects containing url, alt text, and caption
+        article_title: Title of the article for image title attribute
+
+    Returns:
+        str: Article content with embedded images and their captions
     """
     if not images:
         return article_content
@@ -388,11 +378,13 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
     # Split content into sections
     sections = article_content.split("\n\n")
 
-    # Create image markdown with proper attribution
+    # Create image markdown blocks with attribution
     image_blocks = []
     for image in images:
-        # Use Markdown format for images
-        image_md = f"""\n![{image.alt}]({image.url} "{article_title}")\n*{image.alt}*\n"""
+        # Format: ![alt text](image_url "title")
+        # Follow with caption in italics and attribution in regular text
+        image_md = f"""\n![{image.alt}]({image.url} "{article_title}")
+*{image.caption}*\n"""
         image_blocks.append(image_md)
 
     # For 2 images: place first image after first third, second image after second third
