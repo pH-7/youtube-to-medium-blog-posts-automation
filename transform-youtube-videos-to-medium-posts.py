@@ -80,22 +80,31 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     videos = []
     next_page_token = None
 
+    # First get the uploads playlist ID
+    channel_response = youtube.channels().list(
+        part="contentDetails",
+        id=channel_id
+    ).execute()
+
+    uploads_playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+
     while True:
         try:
-            # First get the video IDs and basic info
-            request = youtube.search().list(
-                part="id,snippet",
-                channelId=channel_id,
-                type="video",
+            # Get videos from uploads playlist
+            request = youtube.playlistItems().list(
+                part="snippet",
+                playlistId=uploads_playlist_id,
+                maxResults=50, # Maximum allowed by YouTube API
                 order="date",
-                maxResults=50,  # Maximum allowed by YouTube API
+                type="video",
                 pageToken=next_page_token
             )
 
             response = request.execute()
 
-            # Batch video IDs to get detailed information
-            video_ids = [item["id"]["videoId"] for item in response.get("items", [])]
+            # Get video IDs from playlist items
+            video_ids = [item["snippet"]["resourceId"]["videoId"]
+                         for item in response.get("items", [])]
 
             if video_ids:
                 # Get detailed video information including duration
@@ -109,12 +118,8 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
                     # Parse duration string (PT1H2M10S format)
                     duration_str = item["contentDetails"]["duration"]
 
-                    # Check if it's a Short video:
-                    # 1. Duration is less than or equal to 60 seconds
-                    # 2. Using vertical video aspect ratio (typically 9:16)
-                    duration_seconds = parse_duration(duration_str)
-
                     # Skip short video formats (<= 60s)
+                    duration_seconds = parse_duration(duration_str)
                     if duration_seconds <= 60:
                         continue
 
