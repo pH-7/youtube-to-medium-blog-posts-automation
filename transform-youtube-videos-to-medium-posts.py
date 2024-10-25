@@ -392,13 +392,13 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
 
 def embed_images_in_content(article_content: str, images: List[UnsplashImage], article_title: str) -> str:
     """
-    Embed images in the article content using Markdown format with proper attribution captions.
-    Places the first image at the start of the article and distributes any additional images
-    throughout the content.
+    Embed 1-3 images in the article content using Medium-compatible Markdown format.
+    First image is always placed as the header image, additional images (if any)
+    are distributed through the content at 1/3 and 2/3 positions.
 
     Args:
         article_content: The main article content
-        images: List of UnsplashImage objects containing url, alt text, and caption
+        images: List of UnsplashImage objects (1-3 images)
         article_title: Title of the article for image title attribute
 
     Returns:
@@ -407,26 +407,33 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
     if not images:
         return article_content
 
-    # Create image markdown blocks with attribution
     def create_image_block(image: UnsplashImage) -> str:
         return f"""![{image.alt}]({image.url} "{article_title}")
-*{image.caption}*\n"""
+*{image.caption}*\n\n"""
 
-    # Split content into sections
-    sections = article_content.split("\n\n")
+    # Split content into paragraphs
+    paragraphs = article_content.split('\n\n')
 
-    # Always place the first image at the start of the article
+    # Calculate insertion points for additional images
+    one_third = len(paragraphs) // 3
+    two_thirds = (len(paragraphs) * 2) // 3
+
+    # Start with header image
     result = [create_image_block(images[0])]
 
-    # If there's a second image, place it after the second third of the content
-    if len(images) > 1:
-        second_pos = (len(sections) * 2) // 3
-        sections.insert(second_pos, create_image_block(images[1]))
+    # Add content with additional images if available
+    for i, paragraph in enumerate(paragraphs):
+        result.append(paragraph)
 
-    # Add all sections after the first image
-    result.extend(sections)
+        # Add second image at 1/3 point if available
+        if i == one_third and len(images) >= 2:
+            result.append(create_image_block(images[1]))
 
-    return "\n\n".join(result)
+        # Add third image at 2/3 point if available
+        if i == two_thirds and len(images) >= 3:
+            result.append(create_image_block(images[2]))
+
+    return '\n\n'.join(result)
 
 def save_article_locally(
         original_title: str,
@@ -570,6 +577,7 @@ def main():
 
     print(f"Found {len(videos)} videos in the channel")
 
+    images_per_article = config.get('IMAGES_PER_ARTICLE', 2)
     source_language = config.get('SOURCE_LANGUAGE', 'fr')
     output_language = config.get('OUTPUT_LANGUAGE', 'en')
 
@@ -596,8 +604,8 @@ def main():
             tags = generate_tags(article, video.title, output_language=output_language)
             optimized_title = generate_medium_title(article)
 
-            # Retrieve relevant images from Unsplash for the article
-            images = fetch_images_from_unsplash(tags[0]) # Use first tag for image search
+            # Retrieve images using configured count
+            images = fetch_images_from_unsplash(tags[0], images_per_article)  # Use first tag for image search
             if images:
                 article = embed_images_in_content(article, images, optimized_title)
 

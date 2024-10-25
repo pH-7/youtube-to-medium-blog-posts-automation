@@ -46,6 +46,7 @@ This program not only converts video transcripts extremely well into articles, b
        "OPENAI_MODEL": "gpt-4o-mini",
        "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
        "PUBLISH_STATUS": "draft",
+       "IMAGES_PER_ARTICLE": 2, // between 1 to 3 images
        "SOURCE_LANGUAGE": "en",
        "OUTPUT_LANGUAGE": "en"
      }
