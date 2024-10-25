@@ -478,12 +478,13 @@ tags: {formatted_tags}
 
 @sleep_and_retry
 @limits(calls=1, period=120) # 1 call for every 2 minutes
-def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
+def post_to_medium(title: str, content: str, tags: List[str], output_language: str) -> Optional[str]:
     """
     Post article to Medium with support for publication posting.
     """
     config = load_config()
-    publication_id = config.get('MEDIUM_PUBLICATION_ID')
+    en_publication_id = config.get('MEDIUM_EN_PUBLICATION_ID')
+    fr_publication_id = config.get('MEDIUM_FR_PUBLICATION_ID')
     post_to_publication = config.get('POST_TO_PUBLICATION', False)
     token = config['MEDIUM_ACCESS_TOKEN']
 
@@ -506,7 +507,8 @@ def post_to_medium(title: str, content: str, tags: List[str]) -> Optional[str]:
     }
 
     try:
-        if post_to_publication and publication_id:
+        if post_to_publication and (en_publication_id or fr_publication_id):
+            publication_id = fr_publication_id if output_language == 'fr' else en_publication_id
             # Post to publication
             response = requests.post(
                 f"https://api.medium.com/v1/publications/{publication_id}/posts",
@@ -571,7 +573,7 @@ def main():
                 transcript,
                 video.title,
                 source_language=source_language,
-                output_language=output_language  # Add this parameter
+                output_language=output_language
             )
             tags = generate_tags(article, video.title, output_language=output_language)
             optimized_title = generate_medium_title(article)

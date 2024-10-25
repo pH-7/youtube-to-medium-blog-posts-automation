@@ -37,7 +37,8 @@ This program not only converts video transcripts extremely well into articles, b
      ```json
      {
        "MEDIUM_ACCESS_TOKEN": "YOUR_MEDIUM_ACCESS_TOKEN",
-       "MEDIUM_PUBLICATION_ID": "A_PUBLICATION_ID",
+       "MEDIUM_EN_PUBLICATION_ID": "OPTIONAL_ENGLISH_PUBLICATION_ID",
+       "MEDIUM_FR_PUBLICATION_ID": "OPTIONAL_FRENCH_PUBLICATION_ID",
        "POST_TO_PUBLICATION": true,
        "YOUTUBE_API_KEY": "YOUR_YOUTUBE_API_KEY",
        "YOUTUBE_CHANNEL_ID": "YOUR_CHANNEL_ID",
