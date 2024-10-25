@@ -240,21 +240,52 @@ def generate_tags(article_content, title):
         print("Error parsing tags. Using default tags")
         return default_tags
 
-def generate_medium_title(article_content: str) -> str:
+def generate_medium_title(article_content: str, output_language: str = 'en') -> str:
+    """
+    Generate an engaging title for Medium.com article in either English or French.
+
+    Args:
+        article_content: The content of the article
+        output_language: Target language ('en' or 'fr')
+
+    Returns:
+        str: Generated title in the specified language
+    """
     openai.api_key = config['OPENAI_API_KEY']
-    prompt = f"""You are an expert content writer. Based on the content provided below, generate an engaging and clickable title for a Medium.com article.
+
+    prompts = {
+        'en': f"""You are an expert content writer. Based on the content provided below, generate an engaging and clickable title for a Medium.com article.
 
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
     Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
     Whenever possible, use one of the following formats "How to [Action] to [Benefit] WITHOUT [Pain Point]", "How to [Action] to [Benefit] in [Limited Time]", or "The New Way to [Action] Without [Pain Point]".
 
-    Don't use irrelevant adjective like Unlock, Embrace, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer."""
+    Don't use irrelevant adjective like Unlock, Embrace, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer.""",
+
+        'fr': f"""Tu es un expert en rédaction de contenu. À partir du contenu fourni ci-dessous, génère un titre accrocheur pour un article Medium.com.
+
+    Contenu: {article_content[:1000]}  # Limite le contenu envoyé au modèle
+    
+    Assure-toi que le titre attire l'attention et donne envie aux lecteurs de Medium.com de cliquer et de lire l'histoire. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
+    Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action] pour [Bénéfice] SANS [Point de Douleur]", "Comment [Action] pour [Bénéfice] en [Temps Limité]", ou "La Nouvelle Façon de [Action] Sans [Point de Douleur]".
+
+    N'utilise pas d'adjectifs non pertinents comme Débloquer, Embrasser, Dévoiler, Démasquer, Révéler, Rationaliser, Rapide, Révolutionnaire."""
+    }
+
+    system_messages = {
+        'en': "You are an expert content writer and title generator.",
+        'fr': "Tu es un expert en rédaction de contenu et en génération de titres."
+    }
+
+    # Use the appropriate prompt and system message based on the output language
+    prompt = prompts.get(output_language, prompts['en'])  # Default to English if language not found
+    system_message = system_messages.get(output_language, system_messages['en'])
 
     response = openai.ChatCompletion.create(
         model=config['OPENAI_MODEL'],
         messages=[
-            {"role": "system", "content": "You are an expert content writer and title generator."},
+            {"role": "system", "content": system_message},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100
