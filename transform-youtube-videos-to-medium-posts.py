@@ -74,70 +74,93 @@ def get_video_transcript(video_id, language):
 
 def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     """
-    Retrieves all long-format videos (excluding Shorts) from a YouTube channel using pagination.
-    Returns a list of VideoData objects.
+    Current implementation analysis:
+    1. Uses pagination (next_page_token) to iterate through all results
+    2. Retrieves videos in batches of 50 (maximum allowed by YouTube API)
+    3. Filters out short videos (<=60s)
+    4. Gets detailed video information including duration
+
+    Limitations:
+    1. No error handling for API quotas
+    2. No rate limiting implementation
+    3. No handling for very large channels (potential timeout)
+
+    Improved version:
     """
+    @sleep_and_retry
+    @limits(calls=1, period=1)  # Rate limit: 1 call per second
+    def get_videos_page(youtube, uploads_playlist_id: str, page_token: Optional[str] = None):
+        return youtube.playlistItems().list(
+            part="snippet",
+            playlistId=uploads_playlist_id,
+            maxResults=50,
+            pageToken=page_token
+        ).execute()
+
     videos = []
     next_page_token = None
 
-    # First get the uploads playlist ID
-    channel_response = youtube.channels().list(
-        part="contentDetails",
-        id=channel_id
-    ).execute()
+    try:
+        # Get uploads playlist ID
+        channel_response = youtube.channels().list(
+            part="contentDetails",
+            id=channel_id
+        ).execute()
 
-    uploads_playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+        if not channel_response.get("items"):
+            raise ValueError(f"No channel found for ID: {channel_id}")
 
-    while True:
-        try:
-            # Get videos from uploads playlist
-            request = youtube.playlistItems().list(
-                part="snippet",
-                playlistId=uploads_playlist_id,
-                maxResults=50, # Maximum allowed by YouTube API
-                order="date",
-                type="video",
-                pageToken=next_page_token
-            )
+        uploads_playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
 
-            response = request.execute()
+        while True:
+            try:
+                # Get videos from uploads playlist with rate limiting
+                response = get_videos_page(youtube, uploads_playlist_id, next_page_token)
 
-            # Get video IDs from playlist items
-            video_ids = [item["snippet"]["resourceId"]["videoId"]
-                         for item in response.get("items", [])]
+                # Get video IDs from playlist items
+                video_ids = [item["snippet"]["resourceId"]["videoId"]
+                             for item in response.get("items", [])]
 
-            if video_ids:
-                # Get detailed video information including duration
-                videos_request = youtube.videos().list(
-                    part="contentDetails,snippet",
-                    id=",".join(video_ids)
-                )
-                videos_response = videos_request.execute()
+                if video_ids:
+                    # Get detailed video information in batches of 50
+                    for i in range(0, len(video_ids), 50):
+                        batch_ids = video_ids[i:i + 50]
+                        videos_response = youtube.videos().list(
+                            part="contentDetails,snippet",
+                            id=",".join(batch_ids)
+                        ).execute()
 
-                for item in videos_response.get("items", []):
-                    # Parse duration string (PT1H2M10S format)
-                    duration_str = item["contentDetails"]["duration"]
+                        for item in videos_response.get("items", []):
+                            duration_str = item["contentDetails"]["duration"]
+                            duration_seconds = parse_duration(duration_str)
 
-                    # Skip short video formats (<= 60s)
-                    duration_seconds = parse_duration(duration_str)
-                    if duration_seconds <= 60:
-                        continue
+                            # Skip short video formats (<= 60s)
+                            if duration_seconds <= 60:
+                                continue
 
-                    video_data = VideoData(
-                        id=item["id"],
-                        title=item["snippet"]["title"],
-                        description=item["snippet"]["description"],
-                        published_at=item["snippet"]["publishedAt"]
-                    )
-                    videos.append(video_data)
+                            video_data = VideoData(
+                                id=item["id"],
+                                title=item["snippet"]["title"],
+                                description=item["snippet"]["description"],
+                                published_at=item["snippet"]["publishedAt"]
+                            )
+                            videos.append(video_data)
 
-            next_page_token = response.get("nextPageToken")
-            if not next_page_token:
-                break
+                next_page_token = response.get("nextPageToken")
+                if not next_page_token:
+                    break
 
-        except Exception as e:
-            print(f"Error fetching videos: {e}")
-            break
+            except Exception as e:
+                print(f"Error in pagination: {e}")
+                # Wait before retrying or breaking
+                time.sleep(5)
+                if str(e).lower().find("quota") != -1:
+                    print("YouTube API quota exceeded")
+                    break
+                continue
+
+    except Exception as e:
+        print(f"Error fetching videos: {e}")
 
     return videos
 
