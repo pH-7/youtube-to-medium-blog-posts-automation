@@ -233,7 +233,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         'en': f"""{{instruction}} removing filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
-    End the article with a short bullet points recap, Actions List, or "Ask Yourself" questions preceded by a Markdown separator. Lastly, lead readers to read my complementary Amazon book at https://book.ph7.me (use an anchor text like "my book" or "my latest published book" and emphasize/bold it).
+    End the article with short bullet points recap, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions preceded by Markdown separator. Lastly, followed by Markdown separator, lead readers to read my complementary Amazon book at https://book.ph7.me (use an anchor text like "my book" or "my latest published book" and emphasize/bold it).
 
     Title: {title}
 
@@ -243,7 +243,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
     Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
-    Assure-toi que le texte se lit comme un véritable article, pas comme une transcription de vidéo, et mets en valeur les idées personnelles qui fascineraient les lecteurs. Porte une attention particulière aux expressions idiomatiques, en les adaptant naturellement en français.
+    Assure-toi que le texte se lit comme un véritable article, pas comme une transcription de vidéo, et mets en valeur les idées personnelles qui fascineraient les lecteurs.
 
     Si le texte le permet, utilise la structure suivante:
     1. Annonce / Présentation de la lecture
@@ -261,7 +261,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     7. Étendre - Aller plus loin
     (Amener le livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre publié" et met le lien en gras).
 
-    Puis, termine l'article avec un bref récapitulatif sous forme de points et une liste d'actions précédé d'un Markdown séparateur.
+    Puis, termine l'article avec un bref récapitulatif sous forme de points et liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
 
     Titre: {title}
 
