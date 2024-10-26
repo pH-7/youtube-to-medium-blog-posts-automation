@@ -79,7 +79,7 @@ python transform-youtube-videos-to-medium-posts.py
 
 **Note:** The script posts articles as drafts by default. To change this, modify the `publishStatus` in the `post_to_medium` function.
 
-![Script running, converting YouTube videos to Medium articles](example-script-converter-running.jpg "Example how the videos to blog posts convertor works")
+![Script running, converting YouTube videos to Medium articles](example-script-converter-running.png "Example how the videos to blog posts convertor works")
 
 ## 🛠️ Configuration
 
