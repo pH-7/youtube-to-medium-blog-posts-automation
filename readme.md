@@ -86,7 +86,7 @@ python transform-youtube-videos-to-medium-posts.py
 
 **Note:** The script posts articles as drafts by default. To change this, modify the `PUBLISH_STATUS` to "publish" in the `config.json` file.
 
-🙃 Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (spoiler alert: I love almond flat white 😋)
+🙃 Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (**spoiler alert**: I love almond flat white 😋)
 
 ![Script running, converting YouTube videos to Medium articles](example-script-converter-running.png "Example how the videos to blog posts convertor works")
 
