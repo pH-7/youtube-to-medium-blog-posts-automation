@@ -85,22 +85,24 @@ python transform-youtube-videos-to-medium-posts.py
 
 **Note:** The script posts articles as drafts by default. To change this, modify the `PUBLISH_STATUS` to "publish" in the `config.json` file.
 
+🙃 Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (spoiler alert: I love almond flat white 😋)
+
 ![Script running, converting YouTube videos to Medium articles](example-script-converter-running.png "Example how the videos to blog posts convertor works")
 
 ## 🛠️ Configuration
 
 You can modify the following in the script:
-- The number of videos to process (change `maxResults` in `get_channel_videos`)
-- The length of the generated article (change `max_tokens` in `generate_article`)
-- The number of tags to generate (modify the prompt in `generate_tags`)
+- The number of videos to process (change `maxResults` in `get_channel_videos` function)
+- The length of the generated article (change `max_tokens` in `generate_article` function)
+- The number of tags to generate (modify the prompt in `generate_tags` function)
 
-## 👨‍🍳 Who created this?
+## 👨‍🍳 Who created this awesome script?
 
 [![Pierre-Henry Soria](https://s.gravatar.com/avatar/a210fe61253c43c869d71eaed0e90149?s=200)](https://PH7.me 'Pierre-Henry Soria personal website')
 
-**Pierre-Henry Soria**. A passionate developer who loves automating content creation! 🚀 Enthusiast for YouTube, AI, and writing! 😊 Find me at [PH7.me](https://PH7.me) 💫
+**Pierre-Henry Soria**. A **super passionate engineer** who loves automating efficiently content creation! 🚀 Enthusiast for YouTube, AI, learning, and writing of course! 😊 Find me at [pH7.me](https://ph7.me) 💫
 
-☕️ Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (I love almond flat white 😋)
+☕️ Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (spoiler alert: I love almond flat white 😋)
 
 [![@phenrysay][twitter-icon]](https://x.com/phenrysay) [![pH-7][github-icon]](https://github.com/pH-7) [![YouTube Tech Videos][youtube-icon]](https://www.youtube.com/@pH7Programming "My YouTube Tech Channel")
 
