@@ -545,6 +545,11 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
 
     article = {
         "title": title,
+
+        # TODO Test if subtitle works for Medium
+        #generate_article_title(title), # generate new title for the subtitle
+        "subtitle": "Why you should read the following or you will miss something big",
+
         "contentFormat": "markdown",
         "content": full_content,
         "tags": tags[:5],  # Medium allows up to 5 tags
