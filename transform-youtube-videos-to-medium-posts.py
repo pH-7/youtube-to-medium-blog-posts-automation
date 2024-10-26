@@ -124,7 +124,6 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
             playlistId=uploads_playlist_id,
             maxResults=50,
             pageToken=page_token,
-            type="video",
             videoStatus="public"  # Filter for public videos only at API level
         ).execute()
 
