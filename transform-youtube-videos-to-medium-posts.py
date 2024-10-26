@@ -341,7 +341,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     openai.api_key = config['OPENAI_API_KEY']
 
     prompts = {
-        'en': f"""You are an expert content writer. Based on the content provided below, generate an engaging and clickable title for a Medium.com article.
+        'en': f"""You are an expert content writer. Based on the content provided below, generate an engaging title for a Medium.com article.
 
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
