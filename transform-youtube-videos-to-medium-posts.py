@@ -161,7 +161,7 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
                         ).execute()
 
                         for item in videos_response.get("items", []):
-                            # Only process public videos
+                            # Only process public videos. Skip the non-public ones
                             if item["status"]["privacyStatus"] != "public":
                                 continue
 
