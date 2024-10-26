@@ -45,7 +45,7 @@ This program not only converts video transcripts extremely well into articles, b
        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
        "OPENAI_MODEL": "gpt-4o-mini",
        "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
-       "PUBLISH_STATUS": "draft",
+       "PUBLISH_STATUS": "draft", // "draft" or "publish"
        "SOURCE_LANGUAGE": "en",
        "OUTPUT_LANGUAGE": "en"
      }

@@ -8,7 +8,7 @@
     "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
     "OPENAI_MODEL": "gpt-4o-mini",
     "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
-    "PUBLISH_STATUS": "draft",
+    "PUBLISH_STATUS": "draft", // "draft" or "publish"
     "SOURCE_LANGUAGE": "fr", // default: "fr"
     "OUTPUT_LANGUAGE": "en" // default: "en"
 }
