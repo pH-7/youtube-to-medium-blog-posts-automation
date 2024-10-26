@@ -123,15 +123,14 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
             part="snippet",
             playlistId=uploads_playlist_id,
             maxResults=50,
-            pageToken=page_token,
-            videoStatus="public"  # Filter for public videos only at API level
+            pageToken=page_token
         ).execute()
 
     videos = []
     next_page_token = None
 
     try:
-        # Get uploads playlist ID
+        # Get uploads playlist ID for the channel
         channel_response = youtube.channels().list(
             part="contentDetails",
             id=channel_id
@@ -140,27 +139,32 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
         if not channel_response.get("items"):
             raise ValueError(f"No channel found for ID: {channel_id}")
 
-        uploads_playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+        uploads_playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylmarks"]["uploads"]
 
         while True:
             try:
-                # Get videos from uploads playlist with rate limiting
                 response = get_videos_page(youtube, uploads_playlist_id, next_page_token)
 
-                # Get video IDs from playlist items
-                video_ids = [item["snippet"]["resourceId"]["videoId"]
-                             for item in response.get("items", [])]
+                video_ids = [
+                    item["snippet"]["resourceId"]["videoId"]
+                    for item in response.get("items", [])
+                    if item["snippet"].get("publishedAt")
+                ]
 
                 if video_ids:
                     # Get detailed video information in batches of 50
                     for i in range(0, len(video_ids), 50):
                         batch_ids = video_ids[i:i + 50]
                         videos_response = youtube.videos().list(
-                            part="contentDetails,snippet",
+                            part="contentDetails,snippet,status",
                             id=",".join(batch_ids)
                         ).execute()
 
                         for item in videos_response.get("items", []):
+                            # Only process public videos
+                            if item["status"]["privacyStatus"] != "public":
+                                continue
+
                             duration_str = item["contentDetails"]["duration"]
                             duration_seconds = parse_duration(duration_str)
 
@@ -192,6 +196,8 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     except Exception as e:
         print(f"Error fetching videos: {e}")
 
+    # Sort videos by publish date, newest first
+    videos.sort(key=lambda x: x.published_at, reverse=True)
     return videos
 
 def parse_duration(duration_str: str) -> int:
