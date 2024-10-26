@@ -239,6 +239,8 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcript: {transcript[:12000]}
 
+    Don't use irrelevant adjective like Unlock, Embrace, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Game-changer.
+
     Structured as a Medium.com article in English and use Markdown format for headings, links, bold, italic, etc:""",
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
