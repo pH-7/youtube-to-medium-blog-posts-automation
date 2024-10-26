@@ -503,8 +503,7 @@ def save_article_locally(
     # Format tags with comma and space separation
     formatted_tags: str = ', '.join(tags)
 
-    # Create Dev.to style frontmatter
-    devto_frontmatter: str = f"""---
+    metadata_header: str = f"""---
 original_title: {original_title}
 optimized_title: {title}
 medium_url: {medium_url}
@@ -516,8 +515,8 @@ tags: {formatted_tags}
 
     try:
         with open(file_name, "w", encoding="utf-8") as file:
-            # Write frontmatter
-            file.write(devto_frontmatter)
+            # Write yaml-like metadata
+            file.write(metadata_header)
             # Write article content
             file.write(article)
     except (OSError, UnicodeEncodeError) as e:
