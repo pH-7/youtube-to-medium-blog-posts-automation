@@ -43,6 +43,12 @@ def print_progress_separator(index: int, total: int, title: str) -> None:
     print("=" * len(separator))
 
 def load_config() -> Dict[str, Any]:
+    """
+    Load configuration from config.json file.
+
+    Returns:
+        Dict[str, Any]: Configuration dictionary
+    """
     with open('config.json', 'r') as config_file:
         return json.load(config_file)
 
@@ -53,6 +59,12 @@ config = load_config()
 SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
 def get_authenticated_service():
+    """
+    Get authenticated YouTube service.
+
+    Returns:
+        googleapiclient.discovery.Resource: Authenticated YouTube service
+    """
     creds = None
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
@@ -62,11 +74,21 @@ def get_authenticated_service():
         else:
             flow = InstalledAppFlow.from_client_secrets_file("client_secrets.json", SCOPES)
             creds = flow.run_local_server(port=0)
-        with open("token.json", "w") as token:
+        with open("token.json", "w", encoding='utf-8') as token:  # Added encoding parameter
             token.write(creds.to_json())
     return build("youtube", "v3", credentials=creds)
 
-def get_video_transcript(video_id, language):
+def get_video_transcript(video_id: str, language: str) -> Optional[str]:
+    """
+    Get video transcript in specified language.
+
+    Args:
+        video_id: YouTube video ID
+        language: Language code (e.g., 'en', 'fr')
+
+    Returns:
+        Optional[str]: Combined transcript text or None if not available
+    """
     try:
         transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
         return " ".join([entry["text"] for entry in transcript])
