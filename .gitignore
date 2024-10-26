@@ -1,5 +1,11 @@
 articles/*
 !articles/.gitkeep
 
+## config ##
 config.json
+
+## IDE - PyCharm ##
+.idea
+
+## Misc files ##
 .DS_Store
