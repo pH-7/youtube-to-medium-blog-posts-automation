@@ -86,7 +86,12 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     2. No rate limiting implementation
     3. No handling for very large channels (potential timeout)
 
-    Improved version:
+    Args:
+        youtube: YouTube API service instance
+        channel_id: ID of the YouTube channel
+
+    Returns:
+        List[VideoData]: List of published video data
     """
     @sleep_and_retry
     @limits(calls=1, period=1)  # Rate limit: 1 call per second
