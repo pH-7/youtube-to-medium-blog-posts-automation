@@ -109,11 +109,11 @@ You can modify the following in the script:
 
 ## 🤝 Contributing
 
-Contributions to this project are welcome. Please fork the repository and submit a pull request with your changes.
+Contributions to this project are welcome! Please fork the repository and submit a pull request with your changes.
 
 ## ⚖️ License
 
-**YouTube to Medium Automation** is generously distributed under the *[MIT License](https://opensource.org/licenses/MIT)* 🎉 Enjoy!
+**YouTube to Medium Automation** script is generously distributed under the *[MIT License](https://opensource.org/licenses/MIT)* 🎉 Enjoy!
 
 ## ⚠️ Disclaimer
 
