@@ -72,9 +72,13 @@ python transform-youtube-videos-to-medium-posts.py
 **The script will:**
 1. Fetch recent videos from your YouTube channel
 2. Transcribe each video
-3. Generate an article for each transcription
-4. Create relevant tags for the article
-5. Post the article to Medium as a draft
+3. Generate an article for each video transcript
+4. Create 5 best relevant tags for the article
+5. Generate an engaging article title
+6. Fetch relevant images from Unsplash for the article (one for article header, and 1-2 for content)
+7. Embed a few images in the article content using Medium-compatible Markdown format.
+8. Post the article to Medium as a draft, unless *PUBLISH_STATUS* is changed to "publish" in `config.json`
+9. Save the generated article locally as a Markdown file, so you always keep a copy, with article's details in a markdown yaml-like metadata
 
 **Note:** The script posts articles as drafts by default. To change this, modify the `publishStatus` in the `post_to_medium` function.
 
