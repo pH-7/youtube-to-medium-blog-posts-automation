@@ -139,7 +139,7 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
         if not channel_response.get("items"):
             raise ValueError(f"No channel found for ID: {channel_id}")
 
-        uploads_playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylmarks"]["uploads"]
+        uploads_playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
 
         while True:
             try:
