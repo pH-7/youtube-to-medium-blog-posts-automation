@@ -327,7 +327,7 @@ Contenu : {article_content[:1000]}'''
         print(f"Error generating tags: {e}")
         return default_tags[output_language]
 
-def generate_medium_title(article_content: str, output_language: str = 'en') -> str:
+def generate_article_title(article_content: str, output_language: str = 'en') -> str:
     """
     Generate an engaging title for Medium.com article in either English or French.
 
@@ -628,7 +628,7 @@ def main():
                 output_language=output_language
             )
             tags = generate_tags(article, video.title, output_language=output_language)
-            optimized_title = generate_medium_title(article)
+            optimized_title = generate_article_title(article)
 
             # Retrieve images. Number of images depends if the article is long or short
             images_per_article = 3 if len(article) > 2000 else 2
