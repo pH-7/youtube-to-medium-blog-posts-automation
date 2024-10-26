@@ -217,7 +217,24 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
     Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
     Assure-toi que le texte se lit comme un véritable article, pas comme une transcription de vidéo, et mets en valeur les idées personnelles qui fascineraient les lecteurs. Porte une attention particulière aux expressions idiomatiques, en les adaptant naturellement en français.
-    Termine l'article avec un bref récapitulatif sous forme de points et une liste d'actions précédé d'un Markdown séparateur. Enfin, amener les lecteurs vers le livre complémentaire Amazon https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre publié" et met le lien en gras).
+
+    Si le texte le permet, utilise la structure suivante:
+    1. Annonce / Présentation de la lecture
+    (Dans les lignes qui suivent, vous allez apprendre comment...)
+    2. Problèmes
+    (Vous en avez assez de... ?)
+    3. Fausses solutions
+    (Vous avez peut-être essayé de X ou Y... mais...)
+    4 Théorie / L'explication
+    (La méthode dont je vais vous parler, elle consiste à...)
+    5. Preuve(s) et/ou exemple(s)
+    (Voici comment j'ai utilisé cette méthode...)
+    6. En pratique / Mode d'emploi
+    (Liste d'étapes concrètes pour faire la même chose chez vous).
+    7. Étendre - Aller plus loin
+    (Amener le livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre publié" et met le lien en gras).
+
+    Puis, termine l'article avec un bref récapitulatif sous forme de points et une liste d'actions précédé d'un Markdown séparateur.
 
     Titre: {title}
 
