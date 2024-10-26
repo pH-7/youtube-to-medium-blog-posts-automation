@@ -233,7 +233,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         'en': f"""{{instruction}} removing filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
-    End the article with a short bullet points recap, Actions List, or "Ask Yourself" questions preceded by a Markdown separator. Lastly, lead readers to read my complementary Amazon book at https://book.ph7.me (use an anchor text like "my bookæ or "my latest published book" and emphasize it).
+    End the article with a short bullet points recap, Actions List, or "Ask Yourself" questions preceded by a Markdown separator. Lastly, lead readers to read my complementary Amazon book at https://book.ph7.me (use an anchor text like "my book" or "my latest published book" and emphasize/bold it).
 
     Title: {title}
 
