@@ -21,6 +21,7 @@ import requests
 class UnsplashImage:
     url: str
     alt: str
+    caption: str
 
 @dataclass
 class VideoData:
