@@ -382,7 +382,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
 
 def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
-    Fetch images from Unsplash - one for header, one for content.
+    Fetch images from Unsplash - one for header, and 1-2 for content.
 
     Args:
         query: Search query for images
@@ -644,7 +644,7 @@ def main():
             # First, post article to Medium
             medium_url = post_to_medium(optimized_title, article, tags, output_language)
 
-            # Second, save article locally too
+            # Second, save article locally to safely keep a copy
             path_saved_file = save_article_locally(
                 video.title,
                 optimized_title,
