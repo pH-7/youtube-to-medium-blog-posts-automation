@@ -513,6 +513,7 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
     fr_publication_id = config.get('MEDIUM_FR_PUBLICATION_ID')
     post_to_publication = config.get('POST_TO_PUBLICATION', False)
     token = config['MEDIUM_ACCESS_TOKEN']
+    publish_status = config['PUBLISH_STATUS']
 
     # Prepare article in Markdown format
     full_content = f"# {title}\n\n{content}"
@@ -522,7 +523,7 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
         "contentFormat": "markdown",
         "content": full_content,
         "tags": tags[:5],  # Medium allows up to 5 tags
-        "publishStatus": "draft"
+        "publishStatus": publish_status
     }
 
     headers = {
@@ -623,7 +624,7 @@ def main():
             )
 
             if medium_url and path_saved_file:
-                print(f"✓ Article posted to Medium: {medium_url}")
+                print(f"✓ Article added at: {medium_url}")
                 print(f"✓ Generated tags added to the post: {tags}")
             else:
                 print(f"✗ Failed to post article to Medium")
