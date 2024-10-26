@@ -77,10 +77,13 @@ python transform-youtube-videos-to-medium-posts.py
 5. Generate an engaging article title
 6. Fetch relevant images from Unsplash for the article (one for article header, and 1-2 for content)
 7. Embed a few images in the article content using Medium-compatible Markdown format.
-8. Post the article to Medium as a draft, unless *PUBLISH_STATUS* is changed to "publish" in `config.json`
+8. Post the article to Medium as a draft
 9. Save the generated article locally as a Markdown file, so you always keep a copy, with article's details in a markdown yaml-like metadata
+10. Clearly mentioning any issues for each publishing step till the end, right in the terminal
+11. Automatically wait a few minutes before publishing a new article to Medium, to prevent being wrongly flagged as spam
+12. Sit and relax. Enjoy the work!
 
-**Note:** The script posts articles as drafts by default. To change this, modify the `publishStatus` in the `post_to_medium` function.
+**Note:** The script posts articles as drafts by default. To change this, modify the `PUBLISH_STATUS` to "publish" in the `config.json` file.
 
 ![Script running, converting YouTube videos to Medium articles](example-script-converter-running.png "Example how the videos to blog posts convertor works")
 
