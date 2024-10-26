@@ -662,12 +662,14 @@ def main():
             if images:
                 article = embed_images_in_content(article, images, optimized_title)
 
-            # First, post article to Medium
+            ## First, post article to Medium ##
             medium_url = post_to_medium(optimized_title, article, tags, output_language)
 
-            # Second, save article locally to safely keep a copy
+            ## Second, save article locally to safely keep a copy ##
+            # add prefix if not published otherwise it will not be resubmitted to Medium
+            video_title_name = video.title if medium_url else f"not_published_{video.title}"
             path_saved_file = save_article_locally(
-                video.title,
+                video_title_name,
                 optimized_title,
                 tags,
                 article,
