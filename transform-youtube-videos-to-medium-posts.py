@@ -19,7 +19,7 @@ import openai
 import requests
 
 RATE_LIMIT_PERIOD_SECONDS = 180
-MAX_CALLS_IN_PERIOD = 30
+MAX_CALLS_IN_PERIOD = 1
 
 @dataclass
 class UnsplashImage:
