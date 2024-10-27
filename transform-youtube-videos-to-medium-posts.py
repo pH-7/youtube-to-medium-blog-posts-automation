@@ -262,9 +262,10 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     6. En pratique / Mode d'emploi
     (Liste d'étapes concrètes pour faire la même chose chez vous).
     7. Étendre - Aller plus loin
-    (Amener le livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre publié" et met le lien en gras).
+    (Amener le livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre publié" et met le lien en gras). 
 
     Puis, termine l'article avec un bref récapitulatif sous forme de points et liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
+    En dernier, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
     Titre: {title}
 
