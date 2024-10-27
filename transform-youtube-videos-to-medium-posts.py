@@ -317,24 +317,26 @@ def generate_tags(article_content: str, title: str, output_language: str = 'en')
     openai.api_key = config['OPENAI_API_KEY']
 
     prompts = {
-        'en': f'''Generate exactly 5 unique and relevant tags for this article, formatted as a valid JSON array of strings. The response should be parseable JSON that looks exactly like this: ["tag1","tag2","tag3","tag4","tag5"].
+        'en': f'''Generate exactly 5 unique and relevant tags for this article. Return them as a JSON object with a "tags" key containing the array.
 
 Title: "{title}"
 Content: {article_content[:1000]}
 
-Return only the JSON array, no additional text or formatting.''',
+The response should look exactly like this:
+{{"tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]}}''',
 
-        'fr': f'''Génère exactement 5 tags uniques et pertinents pour cet article, formatés comme un tableau JSON valide de chaînes. La réponse doit être du JSON analysable qui ressemble exactement à ceci : ["tag1","tag2","tag3","tag4","tag5"].
+        'fr': f'''Génère exactement 5 tags uniques et pertinents pour cet article. Renvoie-les sous forme d'objet JSON avec une clé "tags" contenant le tableau.
 
 Titre : "{title}"
 Contenu : {article_content[:1000]}
 
-Renvoie uniquement le tableau JSON sans texte ni formatage supplémentaire'''
+La réponse doit ressembler exactement à ceci :
+{{"tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]}}'''
     }
 
     system_messages = {
-        'en': 'You are a tag generator that only outputs valid JSON arrays containing exactly 5 tags. Format: ["tag1","tag2","tag3","tag4","tag5"]',
-        'fr': 'Tu es un générateur de tags qui ne produit que des tableaux JSON valides contenant exactement 5 tags. Format : ["tag1","tag2","tag3","tag4","tag5"]'
+        'en': 'You are a tag generator that only outputs valid JSON objects with a "tags" array containing exactly 5 tags.',
+        'fr': 'Tu es un générateur de tags qui ne produit que des objets JSON valides avec un tableau "tags" contenant exactement 5 tags.'
     }
 
     # Default tags for each language
@@ -356,25 +358,26 @@ Renvoie uniquement le tableau JSON sans texte ni formatage supplémentaire'''
             ],
             temperature=0.7,
             max_completion_tokens=100,
-            response_format={"type": "json_object"},
+            response_format={"type": "json_object"}
         )
 
-        # Get the response content and clean it
+        # Get the response content
         content = response.choices[0].message.content.strip()
 
-        # Remove any markdown formatting or extra characters
-        content = content.replace('```json', '').replace('```', '').strip()
-
-        # Try to parse the JSON
         try:
-            tags = json.loads(content)
+            # Parse the JSON response
+            parsed_response = json.loads(content)
 
-            # Validate that we got a list of strings
-            if (isinstance(tags, list) and all(isinstance(tag, str) for tag in tags)):
-                return tags
-            else:
-                print(f"Invalid tags format. Using default tags. Got: {tags}")
-                return default_tags[output_language]
+            # Extract tags array from the response
+            if isinstance(parsed_response, dict) and "tags" in parsed_response:
+                tags = parsed_response["tags"]
+
+                # Validate that we got a list of strings
+                if isinstance(tags, list) and len(tags) > 0 and all(isinstance(tag, str) for tag in tags):
+                    return tags[:5]  # Ensure we return exactly 5 tags
+
+            print(f"Invalid tags format. Using default tags. Got: {parsed_response}")
+            return default_tags[output_language]
 
         except json.JSONDecodeError as je:
             print(f"JSON parsing error: {je}. Response content: {content}")
