@@ -294,7 +294,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
             {"role": "system", "content": system_messages[output_language]},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.3,
+        temperature=0.5,
         max_completion_tokens=5000 # Increased max tokens to allow longer responses
     )
 
@@ -352,7 +352,7 @@ Renvoie uniquement le tableau JSON sans texte ni formatage supplémentaire'''
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.4,
+            temperature=0.6,
             max_completion_tokens=100,
             response_format={"type": "json_object"},
         )
@@ -432,6 +432,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt}
         ],
+        temperature=0.7,
         max_completion_tokens=100
     )
 
