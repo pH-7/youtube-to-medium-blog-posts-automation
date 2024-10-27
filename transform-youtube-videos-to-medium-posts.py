@@ -367,10 +367,8 @@ Renvoie uniquement le tableau JSON sans texte ni formatage supplémentaire'''
         try:
             tags = json.loads(content)
 
-            # Validate that we got a list with exactly 5 strings
-            if (isinstance(tags, list) and
-                    len(tags) == 5 and
-                    all(isinstance(tag, str) for tag in tags)):
+            # Validate that we got a list of strings
+            if (isinstance(tags, list) and all(isinstance(tag, str) for tag in tags)):
                 return tags
             else:
                 print(f"Invalid tags format. Using default tags. Got: {tags}")
