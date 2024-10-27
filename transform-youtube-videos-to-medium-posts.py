@@ -18,6 +18,9 @@ import youtube_transcript_api
 import openai
 import requests
 
+RATE_LIMIT_PERIOD_SECONDS = 180
+MAX_CALLS_IN_PERIOD = 30
+
 @dataclass
 class UnsplashImage:
     url: str
@@ -31,6 +34,8 @@ class VideoData:
     description: str
     published_at: str
 
+@sleep_and_retry
+@limits(calls=MAX_CALLS_IN_PERIOD, period=RATE_LIMIT_PERIOD_SECONDS) # 1 call for every 3 minutes
 def print_progress_separator(index: int, total: int, title: str) -> None:
     """
     Print a formatted progress separator with video information.
@@ -78,8 +83,6 @@ def get_authenticated_service():
             token.write(creds.to_json())
     return build("youtube", "v3", credentials=creds)
 
-@sleep_and_retry
-@limits(calls=1, period=120) # 1 call for every 2 minutes
 def get_video_transcript(video_id: str, language: str) -> Optional[str]:
     """
     Get video transcript in specified language.
@@ -666,6 +669,7 @@ def main():
     output_language = config.get('OUTPUT_LANGUAGE', 'en')
 
     for index, video in enumerate(videos, 1):
+        print(f"Waiting for {RATE_LIMIT_PERIOD_SECONDS} seconds before processing the next video...")
         print_progress_separator(index, len(videos), video.title)
 
         # Skip if article already exists
