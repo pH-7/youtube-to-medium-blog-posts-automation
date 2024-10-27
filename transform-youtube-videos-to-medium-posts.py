@@ -299,7 +299,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
             {"role": "system", "content": system_messages[output_language]},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.3,
+        temperature=0.2,
         max_completion_tokens=5000 # Increased max tokens to allow longer responses
     )
 
