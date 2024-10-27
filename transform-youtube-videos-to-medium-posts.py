@@ -239,7 +239,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcript: {transcript[:12000]}
 
-    Don't use irrelevant adjective like Unlock, Embrace, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Game-changer.
+    Don't use irrelevant/complicated adjective like Unlock, Dive into, Embrace, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Game-changer.
 
     Structured as a Medium.com article in English and use Markdown format for headings, links, bold, italic, etc:""",
 
