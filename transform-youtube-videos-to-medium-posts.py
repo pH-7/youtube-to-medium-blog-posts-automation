@@ -352,7 +352,7 @@ Renvoie uniquement le tableau JSON sans texte ni formatage supplémentaire'''
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.6,
+            temperature=0.7,
             max_completion_tokens=100,
             response_format={"type": "json_object"},
         )
