@@ -668,14 +668,14 @@ def main():
     source_language = config.get('SOURCE_LANGUAGE', 'fr')
     output_language = config.get('OUTPUT_LANGUAGE', 'en')
 
-    for index, video in enumerate(videos, 1):
-        print(f"Waiting for {RATE_LIMIT_PERIOD_SECONDS} seconds before processing the next video...")
-        print_progress_separator(index, len(videos), video.title)
-
+    for index, video in enumerate(videos, 1): # Start from 1
         # Skip if article already exists
         if check_article_exists(video.title):
             print(f"Already exists locally. Skipping '{video.title}'")
             continue
+
+        print(f"Waiting for {RATE_LIMIT_PERIOD_SECONDS} seconds before processing the next video...")
+        print_progress_separator(index, len(videos), video.title)
 
         try:
             transcript = get_video_transcript(video.id, language=source_language)
