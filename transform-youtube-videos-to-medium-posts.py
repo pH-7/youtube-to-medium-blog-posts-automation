@@ -323,6 +323,7 @@ def generate_tags(article_content: str, title: str, output_language: str = 'en')
         'en': f'''Generate exactly 5 unique and relevant tags for this article. Return them as a JSON object with a "tags" key containing the array.
 
 Title: "{title}"
+Subtitle: "A concise appealing (attractive) subtitle here"
 Content: {article_content[:1000]}
 
 The response should look exactly like this:
@@ -331,6 +332,7 @@ The response should look exactly like this:
         'fr': f'''Génère exactement 5 tags uniques et pertinents pour cet article. Renvoie-les sous forme d'objet JSON avec une clé "tags" contenant le tableau.
 
 Titre : "{title}"
+Sous-titre : "Un sous-titre ici"
 Contenu : {article_content[:1000]}
 
 La réponse doit ressembler exactement à ceci :
