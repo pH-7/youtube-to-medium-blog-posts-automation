@@ -78,6 +78,8 @@ def get_authenticated_service():
             token.write(creds.to_json())
     return build("youtube", "v3", credentials=creds)
 
+@sleep_and_retry
+@limits(calls=1, period=120) # 1 call for every 2 minutes
 def get_video_transcript(video_id: str, language: str) -> Optional[str]:
     """
     Get video transcript in specified language.
@@ -116,8 +118,6 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     Returns:
         List[VideoData]: List of published video data
     """
-    @sleep_and_retry
-    @limits(calls=1, period=1)  # Rate limit: 1 call per second
     def get_videos_page(youtube, uploads_playlist_id: str, page_token: Optional[str] = None):
         return youtube.playlistItems().list(
             part="snippet",
@@ -233,7 +233,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         'en': f"""{{instruction}} removing filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
-    End the article with short bullet points recap, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions preceded by Markdown separator. 
+    End the article with short bullet points recap, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions preceded by Markdown separator.
     Lastly, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my book" or "my latest published book" and emphasize/bold it) and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (use anchor text), preceded by Markdown separator.
 
     Title: {title}
@@ -584,8 +584,6 @@ tags: {formatted_tags}
     print(f"✓ Article successfully saved locally: {file_name}")
     return file_name
 
-@sleep_and_retry
-@limits(calls=1, period=120) # 1 call for every 2 minutes
 def post_to_medium(title: str, content: str, tags: List[str], output_language: str) -> Optional[str]:
     """
     Post article to Medium with support for publication posting.
