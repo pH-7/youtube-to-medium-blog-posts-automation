@@ -314,18 +314,24 @@ def generate_tags(article_content: str, title: str, output_language: str = 'en')
     openai.api_key = config['OPENAI_API_KEY']
 
     prompts = {
-        'en': f'''Return ONLY a JSON array with exactly 5 tags for this article. The response must contain exactly 5 tags, no more, no less.
-Title: "{title}"
-Content: {article_content[:1000]}''',
+        'en': f'''Generate exactly 5 relevant tags for this article, formatted as a valid JSON array of strings. The response should be parseable JSON that looks exactly like this: ["tag1","tag2","tag3","tag4","tag5"].
 
-        'fr': f'''Renvoie UNIQUEMENT un tableau JSON avec exactement 5 tags pour cet article. La réponse doit contenir exactement 5 tags, ni plus, ni moins.
+Title: "{title}"
+Content: {article_content[:1000]}
+
+Return only the JSON array, no additional text or formatting.''',
+
+        'fr': f'''Génère exactement 5 tags pertinents pour cet article, formatés comme un tableau JSON valide de chaînes. La réponse doit être du JSON analysable qui ressemble exactement à ceci : ["tag1","tag2","tag3","tag4","tag5"].
+
 Titre : "{title}"
-Contenu : {article_content[:1000]}'''
+Contenu : {article_content[:1000]}
+
+Renvoie uniquement le tableau JSON sans texte ni formatage supplémentaire'''
     }
 
     system_messages = {
-        'en': 'You are a tag generator. Only output JSON arrays with exactly 5 tags like ["tag1","tag2","tag3","tag4","tag5"]',
-        'fr': 'Tu es un générateur de tags. Renvoie uniquement des tableaux JSON avec exactement 5 tags comme ["tag1","tag2","tag3","tag4","tag5"]'
+        'en': 'You are a tag generator that only outputs valid JSON arrays containing exactly 5 tags. Format: ["tag1","tag2","tag3","tag4","tag5"]',
+        'fr': 'Tu es un générateur de tags qui ne produit que des tableaux JSON valides contenant exactement 5 tags. Format : ["tag1","tag2","tag3","tag4","tag5"]'
     }
 
     # Default tags for each language
@@ -335,7 +341,7 @@ Contenu : {article_content[:1000]}'''
     }
 
     # Get the appropriate prompt and system message based on the output language
-    prompt = prompts.get(output_language, prompts['en'])  # Default to English if language not found
+    prompt = prompts.get(output_language, prompts['en'])
     system_message = system_messages.get(output_language, system_messages['en'])
 
     try:
@@ -345,14 +351,35 @@ Contenu : {article_content[:1000]}'''
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=100
+            max_completion_tokens=100,
+            temperature=0.3,
+            response_format={"type": "json_object"},
         )
 
-        # Clean and parse response
-        content = response.choices[0].message.content.strip().strip('`')
-        tags = json.loads(content)
-        return tags[:5] if isinstance(tags, list) else default_tags[output_language]
-    except (json.JSONDecodeError, Exception) as e:
+        # Get the response content and clean it
+        content = response.choices[0].message.content.strip()
+
+        # Remove any markdown formatting or extra characters
+        content = content.replace('```json', '').replace('```', '').strip()
+
+        # Try to parse the JSON
+        try:
+            tags = json.loads(content)
+
+            # Validate that we got a list with exactly 5 strings
+            if (isinstance(tags, list) and
+                    len(tags) == 5 and
+                    all(isinstance(tag, str) for tag in tags)):
+                return tags
+            else:
+                print(f"Invalid tags format. Using default tags. Got: {tags}")
+                return default_tags[output_language]
+
+        except json.JSONDecodeError as je:
+            print(f"JSON parsing error: {je}. Response content: {content}")
+            return default_tags[output_language]
+
+    except Exception as e:
         print(f"Error generating tags: {e}")
         return default_tags[output_language]
 
