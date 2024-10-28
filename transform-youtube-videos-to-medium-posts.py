@@ -424,7 +424,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Assure-toi que le titre attire l'attention et donne envie aux lecteurs de Medium.com de cliquer et de lire l'histoire. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
     Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] Sans [Point de Friction] ?".
 
-    N'utilise pas d'adjectifs non pertinents comme Débloquer, Embrasser, Dévoiler, Démasquer, Révéler, Rationaliser, Rapide, Révolutionnaire."""
+    N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Rapide, Révolutionnaire."""
     }
 
     system_messages = {
