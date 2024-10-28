@@ -245,9 +245,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcript: {transcript[:12000]}
 
-    Don't use any irrelevant or complicated adjective like Unlock, Insights, Today's Digital World, Dive into, Evolving, Embrace, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer.
-
-    Structured as a Medium.com article in English while keeping the same voice tone as in the original transcript. Use Markdown format for headings, links, bold, italic, etc:""",
+    Structured as a Medium.com article in English while keeping the same voice tone as in the original transcript.
+    Use simple words, and don't use any irrelevant or complicated adjective like Unlock, Insights, Today's Digital World, Dive into, Refine, Evolving, Embrace, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge.
+    Use Markdown format for headings, links, bold, italic, etc:""",
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
     Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
@@ -278,7 +278,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcription: {transcript[:12000]}
 
-    Structur en tant qu'article Medium.com en français tout en gardant le même ton de voix que dans la transcription originale. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    Structur en tant qu'article Medium.com en français tout en gardant le même ton de voix que dans la transcription originale et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
     }
 
     # Get the appropriate instruction based on source and output languages
@@ -415,7 +415,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
     Whenever possible, use one of the following formats: "How [Action|Benefit] WITHOUT [Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] Without [Friction Point]", "Use/Adopt [Skill|Action] or [Consequence]".
 
-    Don't use irrelevant adjective like Unlock, Embrace, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer.""",
+    Don't use irrelevant adjective like Unlock, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer.""",
 
         'fr': f"""Tu es un expert en rédaction de contenu. À partir du contenu fourni ci-dessous, génère un titre accrocheur pour un article Medium.com.
 
@@ -424,7 +424,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Assure-toi que le titre attire l'attention et donne envie aux lecteurs de Medium.com de cliquer et de lire l'histoire. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
     Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] Sans [Point de Friction]", "Faites [Compétence/Action] ou [Conséquence]".
 
-    N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Rapide, Révolutionnaire."""
+    N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Révolutionnaire."""
     }
 
     system_messages = {
