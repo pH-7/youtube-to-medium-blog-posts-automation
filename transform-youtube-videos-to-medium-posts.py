@@ -241,7 +241,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Kicker: Optional very short article kicker text in h2 bold font.
     Title: {title}
-    Subtitle: An optional concise appealing (attractive) subtitle in h2 italic font.
+    Subtitle: An optional concise appealing (spoiler) subtitle in h2 italic font.
 
     Transcript: {transcript[:12000]}
 
@@ -274,7 +274,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Kicker: Très courte phrase d'accroche optionnelle en police h2 gras.
     Titre: {title}
-    Sous-titre: Un sous-titre optionnel en police h2 italique, qui donne une promesse concise qui intrigue davantage.
+    Sous-titre: Un sous-titre optionnel en police h2 italique, qui donne une promesse concise qui aguiche/intrigue davantage.
 
     Transcription: {transcript[:12000]}
 
@@ -413,7 +413,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
     Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
-    Whenever possible, use one of the following formats: "How to [Action|Benefit] WITHOUT [Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] Without [Friction Point]?".
+    Whenever possible, use one of the following formats: "How [Action|Benefit] WITHOUT [Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] Without [Friction Point]", "Use/Adopt [Skill|Action] or [Consequence]".
 
     Don't use irrelevant adjective like Unlock, Embrace, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer.""",
 
@@ -422,7 +422,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Contenu: {article_content[:1000]}  # Limite le contenu envoyé au modèle
     
     Assure-toi que le titre attire l'attention et donne envie aux lecteurs de Medium.com de cliquer et de lire l'histoire. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
-    Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] Sans [Point de Friction] ?".
+    Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] Sans [Point de Friction]", "Faites [Compétence/Action] ou [Conséquence]".
 
     N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Rapide, Révolutionnaire."""
     }
