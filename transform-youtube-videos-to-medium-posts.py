@@ -245,7 +245,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcript: {transcript[:12000]}
 
-    Don't use any irrelevant or complicated adjective like Unlock, Today's Digital World, Dive into, Evolving, Embrace, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer.
+    Don't use any irrelevant or complicated adjective like Unlock, Today's Digital World, Dive into, Evolving, Embrace, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer.
 
     Structured as a Medium.com article in English while keeping the same voice tone as in the original transcript. Use Markdown format for headings, links, bold, italic, etc:""",
 
