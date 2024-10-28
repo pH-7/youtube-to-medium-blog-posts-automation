@@ -697,7 +697,7 @@ def main():
             optimized_title = generate_article_title(article)
 
             # Retrieve images. Number of images depends if the article is long or short
-            images_per_article = 3 if len(article) > 2400 else 2
+            images_per_article = 3 if len(article) > 2450 else 2
             images = fetch_images_from_unsplash(tags[0], images_per_article)  # Use first tag for image search
             if images:
                 article = embed_images_in_content(article, images, optimized_title)
