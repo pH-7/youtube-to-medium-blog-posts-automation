@@ -442,7 +442,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.4,
+        temperature=0.3,
         max_completion_tokens=100
     )
 
