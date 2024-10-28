@@ -239,9 +239,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     End the article with short bullet points recap, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions preceded by Markdown separator.
     Lastly, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my book" or "my latest published book" and emphasize/bold it) and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (use anchor text), preceded by another Markdown separator.
 
-    Kicker: Optional very short article kicker text in bold font
+    Kicker: Optional very short article kicker text in h2 bold font
     Title: {title}
-    Subtitle: An optional concise appealing (attractive) subtitle in italic font
+    Subtitle: An optional concise appealing (attractive) subtitle in h2 italic font
 
     Transcript: {transcript[:12000]}
 
@@ -272,9 +272,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Puis, termine l'article avec un bref récapitulatif sous forme de points et liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     En dernier, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
-    Kicker: Très courte phrase d'accroche optionnelle en gras
+    Kicker: Très courte phrase d'accroche optionnelle en police h2 gras
     Titre: {title}
-    Sous-titre: Un sous-titre optionnel en italique, qui donne une promesse concise qui intrigue davantage 
+    Sous-titre: Un sous-titre optionnel en police h2 italique, qui donne une promesse concise qui intrigue davantage
 
     Transcription: {transcript[:12000]}
 
