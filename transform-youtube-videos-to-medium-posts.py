@@ -237,15 +237,15 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
     End the article with short bullet points recap, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions preceded by Markdown separator.
-    Lastly, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my book" or "my latest published book" and emphasize/bold it) and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (use anchor text), preceded by another Markdown separator.
+    Lastly, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my book" or "my latest book" and emphasize/bold it) and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (use anchor text), preceded by another Markdown separator.
 
-    Kicker: Optional very short article kicker text in h2 font.
+    Kicker: Right before Title, optional very short article kicker text in h2 font.
     Title: {title}
-    Subtitle: An optional concise appealing (spoiler) subtitle in h2 font.
+    Subtitle: Right after Title, optional concise appealing (spoiler) subtitle in h2 font.
 
     Transcript: {transcript[:12000]}
 
-    Don't use any irrelevant or complicated adjective like Unlock, Today's Digital World, Dive into, Evolving, Embrace, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer.
+    Don't use any irrelevant or complicated adjective like Unlock, Insights, Today's Digital World, Dive into, Evolving, Embrace, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer.
 
     Structured as a Medium.com article in English while keeping the same voice tone as in the original transcript. Use Markdown format for headings, links, bold, italic, etc:""",
 
@@ -272,9 +272,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Puis, termine l'article avec un bref récapitulatif sous forme de points et liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     En dernier, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
-    Kicker: Très courte phrase d'accroche optionnelle en police h2.
+    Kicker: Juste avant le Titre, très courte phrase d'accroche optionnelle en police h2.
     Titre: {title}
-    Sous-titre: Un sous-titre optionnel en police h2, qui donne une promesse concise qui aguiche/intrigue davantage.
+    Sous-titre: Juste après le Titre, sous-titre optionnel en police h2, qui donne une promesse concise qui aguiche/intrigue davantage.
 
     Transcription: {transcript[:12000]}
 
