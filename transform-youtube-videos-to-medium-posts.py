@@ -96,9 +96,11 @@ def get_video_transcript(video_id: str, language: str) -> Optional[str]:
     """
     try:
         transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
+        print(f"✓ Transcript fetched for video {video_id} in {language}")
+
         return " ".join([entry["text"] for entry in transcript])
     except Exception as e:
-        print(f"Error fetching transcript for video {video_id} in {language}: {e}")
+        print(f"✗ Error fetching transcript for video {video_id} in {language}: {e}")
         return None
 
 def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
@@ -307,6 +309,8 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         max_completion_tokens=5000 # Increased max tokens to allow longer responses
     )
 
+    print(f"✓ Article generated from transcript for '{title}' from {source_language} to {output_language}")
+
     return response.choices[0].message.content
 
 def generate_tags(article_content: str, title: str, output_language: str = 'en') -> List[str]:
@@ -381,9 +385,10 @@ La réponse doit ressembler exactement à ceci :
 
                 # Validate that we got a list of strings
                 if isinstance(tags, list) and len(tags) > 0 and all(isinstance(tag, str) for tag in tags):
+                    print(f"✓ Relevant tags (topics) generated: {tags[:5]}")
                     return tags[:5]  # Ensure we return exactly 5 tags
 
-            print(f"Invalid tags format. Using default tags. Got: {parsed_response}")
+            print(f"Invalid tags format. Using default tags instead. Error: {parsed_response}")
             return default_tags[output_language]
 
         except json.JSONDecodeError as je:
@@ -446,6 +451,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
         max_completion_tokens=100
     )
 
+    print(f"✓ Title generated for the article")
     return response.choices[0].message.content.strip('"')
 
 def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[UnsplashImage]]:
@@ -472,6 +478,7 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         response.raise_for_status()
         results = response.json()['results']
 
+        print(f"✓ Fetched {len(results)} images from Unsplash for query: {query}")
         return [
             UnsplashImage(
                 url=result['urls']['regular'],
@@ -591,7 +598,7 @@ tags: {formatted_tags}
         print(f"Error saving article: {e}")
         raise
 
-    print(f"✓ Article successfully saved locally: {file_name}")
+    print(f"✓ Article saved locally at: {file_name}")
     return file_name
 
 def post_to_medium(title: str, content: str, tags: List[str], output_language: str) -> Optional[str]:
@@ -650,6 +657,8 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
             )
 
         response.raise_for_status()
+
+        print(f"✓ Article posted to Medium")
         return response.json()["data"]["url"]
 
     except Exception as e:
@@ -717,8 +726,7 @@ def main():
             )
 
             if medium_url and path_saved_file:
-                print(f"✓ Article added at: {medium_url}")
-                print(f"✓ Generated tags added to the post: {tags}")
+                print(f"✓ Article available at: {medium_url}")
             else:
                 print(f"✗ Failed to post article to Medium")
 
