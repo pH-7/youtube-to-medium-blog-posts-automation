@@ -367,7 +367,7 @@ La réponse doit ressembler exactement à ceci :
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.8,
+            temperature=0.9,
             max_completion_tokens=100,
             response_format={"type": "json_object"}
         )
