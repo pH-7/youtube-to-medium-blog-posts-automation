@@ -224,7 +224,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     instructions = {
         'en': {
             'fr': "Translate the following French YouTube video transcript into English,",
-            'en': "Translate the following YouTube video transcript and remove any promotional content, Subscribe to my channel, introductions, and conclusions,",
+            'en': "Translate the following YouTube video transcript and remove any promotional content, 'Subscribe to my channel', introductions, and conclusions,",
             'other': lambda lang: f"Translate the following {lang} YouTube video transcript into English,"
         },
         'fr': {
@@ -239,7 +239,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
     End the article with short bullet points recap, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions preceded by Markdown separator.
-    Lastly, in same voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my book" or "my latest book" and emphasize/bold it) and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (use anchor text), preceded by another Markdown separator.
+    Lastly, in exactly same personal voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my book" or "my latest book" and emphasize/bold it) and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (use anchor text), preceded by another Markdown separator.
 
     Kicker: Right before Title, optional very short article kicker text in h2 font.
     Title: {title}
@@ -248,7 +248,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Transcript: {transcript[:12000]}
 
     Structured as a Medium.com article in English while keeping the same voice tone as in the original transcript.
-    Use simple words, and don't use any irrelevant or complicated adjective like Unlock, Insights, Today's Digital World, Dive into, Refine, Evolving, Embrace, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge.
+    Use simple words, and don't use any irrelevant or complicated adjective like Unlock, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
@@ -280,7 +280,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcription: {transcript[:12000]}
 
-    Structur en tant qu'article Medium.com en français tout en gardant le même ton de voix que dans la transcription originale et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription originale et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
     }
 
     # Get the appropriate instruction based on source and output languages
@@ -309,7 +309,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         max_completion_tokens=5000 # Increased max tokens to allow longer responses
     )
 
-    print(f"✓ Article generated from transcript for '{title}' from {source_language} to {output_language}")
+    print(f"✓ Article generated from transcript for '{title}' from '{source_language}' to '{output_language}'")
 
     return response.choices[0].message.content
 
