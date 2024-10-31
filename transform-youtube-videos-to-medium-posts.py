@@ -561,8 +561,8 @@ def save_article_locally(
         OSError: If there are problems creating the directory or writing the file
         UnicodeEncodeError: If there are problems encoding the content
     """
-    # Create 'articles' directory if it doesn't exist
-    # os.makedirs('articles', exist_ok=True)
+    # Create the base_dir directory if it doesn't exist
+    os.makedirs(base_dir, exist_ok=True)
 
     # Create a safe filename from the original title
     safe_title: str = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
@@ -666,10 +666,21 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
         print(f"Response: {response.text if 'response' in locals() else 'No response'}")
         return None
 
-def check_article_exists(title: str) -> Optional[str]:
+def check_article_exists(title: str, base_dir: str = 'articles') -> Optional[str]:
+    """
+    Check if an article already exists locally based on the title.
+
+    Args:
+        title (str): The title of the article
+        base_dir (str, optional): The base directory to search for articles. Defaults to 'articles'.
+
+    Returns:
+        Optional[str]: The path of the existing article file or None if it doesn't exist.
+    """
     safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-    file_name = os.path.join('articles', f"{safe_title}.md")
+    file_name = os.path.join(base_dir, f"{safe_title}.md")
     return file_name if os.path.exists(file_name) else None
+
 
 def main():
     youtube = get_authenticated_service()
@@ -683,7 +694,10 @@ def main():
 
     for index, video in enumerate(videos, 1): # Start from 1
         # Skip if article already exists
-        if check_article_exists(video.title):
+        if check_article_exists(
+            video.title,
+            base_dir=f"articles/{output_language}" if output_language != 'en' else 'articles'
+        ):
             print(f"Already exists locally. Skipping '{video.title}'")
             continue
 
@@ -722,7 +736,8 @@ def main():
                 optimized_title,
                 tags,
                 article,
-                medium_url
+                medium_url,
+                base_dir=f"articles/{output_language}" if output_language != 'en' else 'articles'
             )
 
             if medium_url and path_saved_file:
