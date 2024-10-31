@@ -255,7 +255,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
     Assure-toi que le texte se lit comme un véritable article, pas comme une transcription de vidéo, et mets en valeur les idées personnelles qui fascineraient les lecteurs.
 
-    Si le texte le permet, utilise la structure suivante:
+    Si le texte le permet, utilise la structure suivante de manière invisible pour le lecteur sans que la structure soit évidente :
     1. Annonce / Présentation de la lecture
     (Dans les lignes qui suivent, vous allez apprendre comment...)
     2. Problèmes
@@ -717,7 +717,7 @@ def main():
                 output_language=output_language
             )
             tags = generate_tags(article, video.title, output_language=output_language)
-            optimized_title = generate_article_title(article)
+            optimized_title = generate_article_title(article, output_language=output_language)
 
             # Retrieve images. Number of images depends if the article is long or short
             images_per_article = 3 if len(article) > 2450 else 2
