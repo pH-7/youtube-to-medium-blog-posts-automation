@@ -486,7 +486,7 @@ def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page
 
         captions = {
             'en': lambda name, photo_url, profile_url: f"Photo by [{name}]({profile_url}) on [Unsplash]({photo_url})",
-            'fr': lambda name, photo_url, profile_url: f"Photo par [{name}]({profile_url}) sur [Unsplash]({photo_url})"
+            'fr': lambda name, photo_url, profile_url: f"Photo de [{name}]({profile_url}) sur [Unsplash]({photo_url})"
         }
 
         caption_formatter = captions.get(output_language, captions['en'])
