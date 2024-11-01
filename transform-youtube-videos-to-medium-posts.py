@@ -18,7 +18,7 @@ import youtube_transcript_api
 import openai
 import requests
 
-RATE_LIMIT_PERIOD_SECONDS = 180
+RATE_LIMIT_PERIOD_SECONDS = 240
 MAX_CALLS_IN_PERIOD = 1
 
 @dataclass
