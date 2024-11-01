@@ -460,13 +460,14 @@ def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page
     Supports both English and French captions.
 
     Args:
-        query: Search query for images
+        query: Search query string for images (can be multiple terms separated by spaces)
         output_language: Target language ('en' or 'fr')
         per_page: Number of images to fetch (default: 2)
     Returns:
         Optional[List[UnsplashImage]]: List of UnsplashImage objects with URLs, alt text, and attribution captions in Markdown
     """
     unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
+
     url = (
         f"https://api.unsplash.com/search/photos"
         f"?query={query}"
