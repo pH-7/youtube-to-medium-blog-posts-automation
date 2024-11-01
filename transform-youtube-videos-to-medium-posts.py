@@ -454,12 +454,14 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     print(f"✓ Title generated for the article")
     return response.choices[0].message.content.strip('"')
 
-def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[UnsplashImage]]:
+def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
     Fetch images from Unsplash - one for header, and 1-2 for content.
+    Supports both English and French captions.
 
     Args:
         query: Search query for images
+        output_language: Target language ('en' or 'fr')
         per_page: Number of images to fetch (default: 2)
     Returns:
         Optional[List[UnsplashImage]]: List of UnsplashImage objects with URLs, alt text, and attribution captions in Markdown
@@ -478,12 +480,26 @@ def fetch_images_from_unsplash(query: str, per_page: int = 2) -> Optional[List[U
         response.raise_for_status()
         results = response.json()['results']
 
-        print(f"✓ Fetched {len(results)} images from Unsplash for query: {query}")
+        print(f"✓ Fetched {len(results)} images from Unsplash using query: {query}")
+
+        captions = {
+            'en': lambda name, photo_url, profile_url: f"Photo by [{name}]({profile_url}) on [Unsplash]({photo_url})",
+            'fr': lambda name, photo_url, profile_url: f"Photo par [{name}]({profile_url}) sur [Unsplash]({photo_url})"
+        }
+
+        caption_formatter = captions.get(output_language, captions['en'])
+
         return [
             UnsplashImage(
                 url=result['urls']['regular'],
-                alt=result['description'] if result.get('description') else f"Photo by {result['user']['name']}",
-                caption=f"Photo by [{result['user']['name']}]({result['user']['links']['html']}) on [Unsplash]({result['links']['html']})"
+                alt=result['description'] if result.get('description') else (
+                    f"Photo par {result['user']['name']}" if output_language == 'fr' else f"Photo by {result['user']['name']}"
+                ),
+                caption=caption_formatter(
+                    result['user']['name'],
+                    result['links']['html'],
+                    result['user']['links']['html']
+                )
             )
             for result in results
         ]
@@ -721,7 +737,13 @@ def main():
 
             # Retrieve images. Number of images depends if the article is long or short
             images_per_article = 3 if len(article) > 2450 else 2
-            images = fetch_images_from_unsplash(tags[0], images_per_article)  # Use first tag for image search
+            # Create search query from first 3 tags
+            search_query = ' '.join(tags[:3])
+            images = fetch_images_from_unsplash(
+                query=search_query,
+                output_language=output_language,
+                per_page=images_per_article
+            )
             if images:
                 article = embed_images_in_content(article, images, optimized_title)
 
