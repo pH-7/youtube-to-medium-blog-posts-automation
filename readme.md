@@ -75,8 +75,8 @@ python transform-youtube-videos-to-medium-posts.py
 **The script will:**
 1. Fetch recent videos from your YouTube channel
 2. Transcribe each video
-3. Generate an article for each video transcript
-4. Create 5 best relevant tags for the article
+3. Generate an exceptional well-written article for each video transcript
+4. Create 5 most relevant tags for the article
 5. Generate an engaging article title
 6. Fetch relevant images from Unsplash for the article (one for article header, and 1-2 for content)
 7. Embed a few images in the article content using Medium-compatible Markdown format.
