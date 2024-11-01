@@ -451,8 +451,9 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
         max_completion_tokens=100
     )
 
-    print(f"✓ Title generated for the article")
-    return response.choices[0].message.content.strip('"')
+    title = response.choices[0].message.content.strip('"')
+    print(f"✓ Generated article title: {title}")
+    return title
 
 def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
