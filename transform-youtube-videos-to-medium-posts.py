@@ -248,7 +248,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Transcript: {transcript[:12000]}
 
     Structured as a Medium.com article in English while keeping the same voice tone as in the original transcript.
-    Use simple words, and don't use any irrelevant or complicated adjective like Unlock, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge.
+    Use simple words, and don't use any irrelevant or complicated adjective like Unlock, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
@@ -269,7 +269,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     6. En pratique / Mode d'emploi
     (Liste d'étapes concrètes pour faire la même chose chez vous).
     7. Étendre - Aller plus loin
-    (Amener le livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre publié" et met le lien en gras) ou inviter à ma chaîne YouTube https://www.youtube.com/@pHBonheur (utiliser texte d'ancrage)
+    (Amener le livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre publié" et met le lien en gras) ou inviter à ma chaîne YouTube https://fr-youtube.ph7.me (utiliser texte d'ancrage)
 
     Puis, termine l'article avec un bref récapitulatif sous forme de points et liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
