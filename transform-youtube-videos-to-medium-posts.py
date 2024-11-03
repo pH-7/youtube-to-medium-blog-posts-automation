@@ -418,7 +418,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
     Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
-    Whenever possible, use one of the following formats: "How [Action|Benefit] WITHOUT [Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] Without [Friction Point]", "Use/Adopt [Skill|Action] or [Consequence]".
+    Whenever possible, use one of the following formats: "How [Action|Benefit] WITHOUT [Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] With No [Friction Point]", "Use/Adopt [Skill|Action] or [Consequence]".
 
     Don't use irrelevant adjective like Unlock, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer.""",
 
@@ -427,7 +427,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Contenu: {article_content[:1000]}  # Limite le contenu envoyé au modèle
     
     Assure-toi que le titre attire l'attention et donne envie aux lecteurs de Medium.com de cliquer et de lire l'histoire. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
-    Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] Sans [Point de Friction]", "Faites [Compétence/Action] ou [Conséquence]".
+    Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] SANS [Point de Friction]", "Faites [Compétence/Action] ou [Conséquence]".
 
     N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Révolutionnaire."""
     }
