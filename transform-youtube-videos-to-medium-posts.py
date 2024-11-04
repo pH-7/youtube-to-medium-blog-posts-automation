@@ -44,7 +44,7 @@ def print_progress_separator(index: int, total: int, title: str) -> None:
     progress = f"[{index}/{total}]"
     separator = f"{'=' * 20} {progress} {timestamp} {'=' * 20}"
     print(f"\n{separator}")
-    print(f"Processing Video: {title}")
+    print(f"Start Processing: {title}")
     print("=" * len(separator))
 
 def load_config() -> Dict[str, Any]:
@@ -96,7 +96,7 @@ def get_video_transcript(video_id: str, language: str) -> Optional[str]:
     """
     try:
         transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
-        print(f"✓ Transcript fetched for video {video_id} in {language}")
+        print(f"✓ Transcript fetched for video ID '{video_id}' in '{language}'")
 
         return " ".join([entry["text"] for entry in transcript])
     except Exception as e:
