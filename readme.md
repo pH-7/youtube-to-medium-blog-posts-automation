@@ -5,7 +5,7 @@
 
 This program not only converts video transcripts extremely well into articles, but also removes any "transcript-like" writing. It produces a real, professional article from a video instead.
 
-https://github.com/pH-7/youtube-to-medium-blog-posts-automation/blob/main/promo-assets/demo-transform-videos-to-medium-posts.mov
+https://github.com/pH-7/youtube-to-medium-blog-posts-automation/blob/main/promo-assets/demo-turn-videos-to-medium-posts.mp4?raw=true
 
 - [⚙️ Requirements](#%EF%B8%8F-requirements)
 - [📦 Installation](#-installation)
