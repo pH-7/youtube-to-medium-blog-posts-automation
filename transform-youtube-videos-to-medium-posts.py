@@ -254,7 +254,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
     Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
-    Assure-toi que le texte se lit comme un véritable article, pas comme une transcription de vidéo, et mets en valeur les idées personnelles qui fascineraient les lecteurs.
+    Rédige la transcription vidéo sous forme d'un article facile à lire. Mets en valeur les idées personnelles qui peuvent fasciner.
 
     Si le texte le permet, utilise la structure suivante de manière invisible pour le lecteur sans que la structure soit évidente :
     1. Annonce / Présentation de la lecture
@@ -281,7 +281,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcription: {transcript[:12000]}
 
-    Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription originale et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription originale, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
     }
 
     # Get the appropriate instruction based on source and output languages
