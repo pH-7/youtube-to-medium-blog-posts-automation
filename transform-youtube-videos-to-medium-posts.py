@@ -20,6 +20,7 @@ import requests
 
 RATE_LIMIT_PERIOD_SECONDS = 240
 MAX_CALLS_IN_PERIOD = 1
+LONG_ARTICLE_THRESHOLD = 2499
 
 @dataclass
 class UnsplashImage:
@@ -738,7 +739,7 @@ def main():
             optimized_title = generate_article_title(article, output_language=output_language)
 
             # Retrieve images. Number of images depends if the article is long or short
-            images_per_article = 3 if len(article) > 2450 else 2
+            images_per_article = 3 if len(article) > LONG_ARTICLE_THRESHOLD else 2
             # Create search query from first 3 tags
             search_query = ' '.join(tags[:3])
             images = fetch_images_from_unsplash(
