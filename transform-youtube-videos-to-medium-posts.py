@@ -240,7 +240,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending (e.g. au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
     End the article with short bullet points recap, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions preceded by Markdown separator.
-    Lastly, in exactly same personal voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my new book" and emphasize/bold it) and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (use anchor text), preceded by another Markdown separator.
+    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my new book" and emphasize/bold it) and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (use anchor text), preceded by another Markdown separator.
 
     Kicker: Right before Title, optional very short article kicker text in h3 font.
     Title: {title}
@@ -248,8 +248,8 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcript: {transcript[:12000]}
 
-    Structured as a Medium.com article in English while keeping the same voice tone as in the original transcript.
-    Use simple words, and don't use any irrelevant or complicated adjective like Unlock, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge.
+    Structured as a Medium.com article in English while keeping the exact same voice tone as in the original transcript.
+    Use simple words, and don't use any irrelevant or complicated adjective like Unlock, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
@@ -270,7 +270,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     6. En pratique / Mode d'emploi
     (Liste d'étapes concrètes pour faire la même chose chez vous)
     7. Étendre - Aller plus loin
-    (Amener le lecteur à mon livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me (utiliser texte d'ancrage).
+    (Amener le lecteur au livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me (utiliser texte d'ancrage).
 
     Termine l'article avec un bref récap sous forme de points et/ou liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
@@ -281,7 +281,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Transcription: {transcript[:12000]}
 
-    Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription originale, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    Structure le texte en tant qu'article Medium.com français tout en gardant exactement le même ton de voix que dans la transcription originale, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
     }
 
     # Get the appropriate instruction based on source and output languages
