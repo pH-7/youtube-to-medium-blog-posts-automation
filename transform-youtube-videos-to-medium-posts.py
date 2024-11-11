@@ -329,7 +329,7 @@ def generate_tags(article_content: str, title: str, output_language: str = 'en')
     openai.api_key = config['OPENAI_API_KEY']
 
     prompts = {
-        'en': f'''Generate exactly 5 unique and relevant tags for this article. Return them as a JSON object with a "tags" key containing the array.
+        'en': f'''Generate exactly 5 unique and relevant tags in English for this article. Return them as a JSON object with a "tags" key containing the array.
 
 Title: "{title}"
 Content: {article_content[:1000]}
@@ -337,7 +337,7 @@ Content: {article_content[:1000]}
 The response should look exactly like this:
 {{"tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]}}''',
 
-        'fr': f'''Génère exactement 5 tags uniques et pertinents pour cet article. Renvoie-les sous forme d'objet JSON avec une clé "tags" contenant le tableau.
+        'fr': f'''Génère exactement 5 tags uniques et pertinents en français pour cet article. Renvoie-les sous forme d'objet JSON avec une clé "tags" contenant le tableau.
 
 Titre: "{title}"
 Contenu : {article_content[:1000]}
