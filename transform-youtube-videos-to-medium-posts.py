@@ -256,7 +256,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
     Rédige la transcription vidéo sous forme d'un article facile à lire. Mets en valeur les idées personnelles qui peuvent fasciner.
 
-    Si le texte le permet, utilise la structure suivante de manière invisible pour le lecteur sans que la structure soit évidente :
+    Si le texte le permet, utilise la structure suivante, MAIS en l'incorporant au texte de façon invisible pour le lecteur sans que la structure soit évidente
     1. Annonce / Présentation de la lecture
     (Dans les lignes qui suivent, vous allez apprendre comment...)
     2. Problèmes
