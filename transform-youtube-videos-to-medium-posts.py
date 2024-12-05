@@ -457,7 +457,8 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
 
 def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
-    Fetch images from Unsplash - one for header, and 1-2 for content.
+    Fetch images from Unsplash, prioritizing images from the preferred photographer if available.
+    One image for header, and 1-2 for content.
     Supports both English and French captions.
 
     Args:
@@ -468,21 +469,41 @@ def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page
         Optional[List[UnsplashImage]]: List of UnsplashImage objects with URLs, alt text, and attribution captions in Markdown
     """
     unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
-
-    url = (
-        f"https://api.unsplash.com/search/photos"
-        f"?query={query}"
-        f"&client_id={unsplash_access_key}"
+    
+    # First try to get images from preferred photographer
+    user_url = (
+        f"https://api.unsplash.com/users/{config['UNSPLASH_PREFERRED_PHOTOGRAPHER']}/photos"
+        f"?client_id={unsplash_access_key}"
         f"&per_page={per_page}"
-        f"&orientation=landscape" # Prefer landscape orientation for better Medium display
+        f"&orientation=landscape"
     )
-
+    
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        results = response.json()['results']
+        # First attempt to get images from preferred photographer
+        user_response = requests.get(user_url)
+        user_response.raise_for_status()
+        user_results = user_response.json()
+        
+        # If we don't get enough images from preferred photographer, fall back to general search
+        if len(user_results) < per_page:
+            search_url = (
+                f"https://api.unsplash.com/search/photos"
+                f"?query={query}"
+                f"&client_id={unsplash_access_key}"
+                f"&per_page={per_page - len(user_results)}"
+                f"&orientation=landscape"
+            )
+            
+            search_response = requests.get(search_url)
+            search_response.raise_for_status()
+            search_results = search_response.json()['results']
+            
+            # Combine results, prioritizing preferred photographer's images
+            results = user_results + search_results
+        else:
+            results = user_results[:per_page]
 
-        print(f"✓ Fetched {len(results)} images from Unsplash using query: {query}")
+        print(f"✓ Fetched {len(results)} images from Unsplash (including {len(user_results)} from preferred photographer)")
 
         captions = {
             'en': lambda name, photo_url, profile_url: f"Photo by [{name}]({profile_url}) on [Unsplash]({photo_url})",
@@ -493,17 +514,19 @@ def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page
 
         return [
             UnsplashImage(
-                url=result['urls']['regular'],
-                alt=result['description'] if result.get('description') else (
-                    f"Photo par {result['user']['name']}" if output_language == 'fr' else f"Photo by {result['user']['name']}"
+                url=result.get('urls', {}).get('regular'),
+                alt=result.get('description') or (
+                    f"Photo par {result.get('user', {}).get('name')}" if output_language == 'fr' 
+                    else f"Photo by {result.get('user', {}).get('name')}"
                 ),
                 caption=caption_formatter(
-                    result['user']['name'],
-                    result['links']['html'],
-                    result['user']['links']['html']
+                    result.get('user', {}).get('name'),
+                    result.get('links', {}).get('html'),
+                    result.get('user', {}).get('links', {}).get('html')
                 )
             )
-            for result in results
+            for result in results[:per_page]
+            if result.get('urls') and result.get('user')
         ]
     except Exception as e:
         print(f"Failed to fetch images from Unsplash: {e}")

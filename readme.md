@@ -48,6 +48,7 @@ https://github.com/pH-7/youtube-to-medium-blog-posts-automation/blob/main/promo-
        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
        "OPENAI_MODEL": "gpt-4o-mini",
        "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
+       "UNSPLASH_PREFERRED_PHOTOGRAPHER": "pierrehenry",
        "PUBLISH_STATUS": "draft", // "draft" or "publish"
        "SOURCE_LANGUAGE": "en",
        "OUTPUT_LANGUAGE": "en"
