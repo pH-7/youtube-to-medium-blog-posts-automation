@@ -284,7 +284,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     (Vous avez peut-être essayé de X ou Y... mais...)
     4 Théorie / L'explication
     (La méthode dont je vais vous parler, elle consiste à...)
-    5. Preuve(s) et/ou exemple(s)
+    5. Preuve / Exemple
     (Voici comment j'ai utilisé cette méthode...)
     6. En pratique / Mode d'emploi
     (Liste d'étapes concrètes pour faire la même chose chez vous)
