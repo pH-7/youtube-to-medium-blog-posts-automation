@@ -86,8 +86,8 @@ def get_authenticated_service():
 
 def get_video_transcript(video_id: str, language: str) -> Optional[str]:
     """
-    Get video transcript in specified language, with fallback to auto-generated source language.
-    Then the article generator will handle the translation if needed.
+    Get video transcript in specified language. If not available directly,
+    fetch auto-generated transcript and translate it.
 
     Args:
         video_id: YouTube video ID
@@ -97,26 +97,31 @@ def get_video_transcript(video_id: str, language: str) -> Optional[str]:
         Optional[str]: Combined transcript text or None if not available
     """
     try:
-        # First try to get the transcript in the requested language
-        transcript = youtube_transcript_api.YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
-        print(f"✓ Transcript fetched for video ID '{video_id}' in '{language}'")
+        transcript_list = youtube_transcript_api.YouTubeTranscriptApi.list_transcripts(video_id)
 
-        return " ".join([entry["text"] for entry in transcript])
-    except Exception as e:
         try:
-            # If that fails, try to get auto-generated transcript in the source language
-            transcript_list = youtube_transcript_api.YouTubeTranscriptApi.list_transcripts(video_id)
-            auto_transcript = transcript_list.find_generated_transcript([language])
+            # First try to get transcript in requested language
+            transcript = transcript_list.find_transcript([language])
+            print(f"✓ Found direct transcript in {language}")
+        except Exception:
+            try:
+                # If not found, get auto-generated French transcript and translate it
+                transcript = transcript_list.find_generated_transcript(['fr'])
+                if language != 'fr':  # Only translate if target language is not French
+                    transcript = transcript.translate(language)
+                    print(f"✓ Using translated transcript from French to {language}")
+                else:
+                    print("✓ Using French auto-generated transcript")
+            except Exception as e:
+                print(f"✗ No transcript available in any format: {e}")
+                return None
 
-            if auto_transcript:
-                transcript = auto_transcript.fetch()
-                print(f"✓ Auto-generated transcript fetched for video ID '{video_id}' in '{language}'")
-                return " ".join([entry["text"] for entry in transcript])
+        text = transcript.fetch()
+        return " ".join([entry["text"] for entry in text])
 
-            return None
-        except Exception as e:
-            print(f"✗ Error fetching transcript for video {video_id} in {language}: {e}")
-            return None
+    except Exception as e:
+        print(f"✗ Error fetching transcript for video {video_id} in {language}: {e}")
+        return None
 
 def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     """
