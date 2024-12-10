@@ -474,14 +474,15 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     print(f"✓ Generated article title: {title}")
     return title
 
-def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
+def fetch_images_from_unsplash(query: str, article_title: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
     Fetch images from Unsplash, prioritizing images from the preferred photographer if available.
     One image for header, and 1-2 for content.
-    Supports both English and French captions.
+    Supports both English and French captions with article title.
 
     Args:
         query: Search query string for images (can be multiple terms separated by spaces)
+        article_title: The title of the article to use in captions
         output_language: Target language ('en' or 'fr')
         per_page: Number of images to fetch (default: 2)
     Returns:
@@ -525,8 +526,8 @@ def fetch_images_from_unsplash(query: str, output_language: str = 'en', per_page
         print(f"✓ Fetched {len(results)} images from Unsplash (including {len(user_results)} from preferred photographer)")
 
         captions = {
-            'en': lambda name, photo_url, profile_url: f"Photo by [{name}]({profile_url}) on [Unsplash]({photo_url})",
-            'fr': lambda name, photo_url, profile_url: f"Photo de [{name}]({profile_url}) sur [Unsplash]({photo_url})"
+            'en': lambda name, photo_url, profile_url: f"{article_title} - Photo by [{name}]({profile_url}) on [Unsplash]({photo_url})",
+            'fr': lambda name, photo_url, profile_url: f"{article_title} - Photo de [{name}]({profile_url}) sur [Unsplash]({photo_url})"
         }
 
         caption_formatter = captions.get(output_language, captions['en'])
@@ -785,6 +786,7 @@ def main():
             search_query = ' '.join(tags[:3])
             images = fetch_images_from_unsplash(
                 query=search_query,
+                article_title=optimized_title,
                 output_language=output_language,
                 per_page=images_per_article
             )
