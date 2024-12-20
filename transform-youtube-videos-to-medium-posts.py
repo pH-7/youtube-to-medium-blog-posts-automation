@@ -238,7 +238,7 @@ def parse_duration(duration_str: str) -> int:
         return 0
 
 def generate_article_from_transcript(transcript: str, title: str, source_language: str = 'fr', output_language: str = 'en') -> str:
-    openai.api_key = config['OPENAI_API_KEY']
+    client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
 
     # Define instructions and prompts for both English and French languages
     instructions = {
@@ -319,7 +319,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         'fr': "Tu es un traducteur professionnel, éditeur et rédacteur de contenu."
     }
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=config['OPENAI_MODEL'],
         messages=[
             {"role": "system", "content": system_messages[output_language]},
@@ -345,7 +345,7 @@ def generate_tags(article_content: str, title: str, output_language: str = 'en')
     Returns:
         List[str]: List of exactly 5 tags in the specified language
     """
-    openai.api_key = config['OPENAI_API_KEY']
+    client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
 
     prompts = {
         'en': f'''Generate exactly 5 unique and relevant tags in English for this article. Return them as a JSON object with a "tags" key containing the array.
@@ -381,7 +381,7 @@ La réponse doit ressembler exactement à ceci :
     system_message = system_messages.get(output_language, system_messages['en'])
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model=config['OPENAI_MODEL'],
             messages=[
                 {"role": "system", "content": system_message},
@@ -430,7 +430,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Returns:
         str: Generated title in the specified language
     """
-    openai.api_key = config['OPENAI_API_KEY']
+    client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
 
     prompts = {
         'en': f"""You are an expert content writer. Based on the content provided below, generate an engaging title for a Medium.com article.
@@ -460,7 +460,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     prompt = prompts.get(output_language, prompts['en'])  # Default to English if language not found
     system_message = system_messages.get(output_language, system_messages['en'])
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=config['OPENAI_MODEL'],
         messages=[
             {"role": "system", "content": system_message},
@@ -797,7 +797,7 @@ def main():
             medium_url = post_to_medium(optimized_title, article, tags, output_language)
 
             ## Second, save article locally to safely keep a copy ##
-            # add prefix if not published otherwise it will not be resubmitted to Medium
+            # add "not_published" prefix if not published otherwise it will not be resubmitted to Medium
             video_title_name = video.title if medium_url else f"not_published_{video.title}"
             path_saved_file = save_article_locally(
                 video_title_name,
