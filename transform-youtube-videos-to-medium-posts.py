@@ -793,10 +793,19 @@ def main():
             if images:
                 article = embed_images_in_content(article, images, optimized_title)
 
-            # Try to post to Medium, but save locally regardless
-            medium_url = post_to_medium(optimized_title, article, tags, output_language) or "not_published"
+            # Set default medium_url
+            medium_url = "not_published"
 
-            # Save locally with the article status (published or not) reflected in the filename
+            # Try to post to Medium, but continue if it fails
+            try:
+                medium_result = post_to_medium(optimized_title, article, tags, output_language)
+                if medium_result:
+                    medium_url = medium_result
+                    print(f"✓ Article available at: {medium_url}")
+            except Exception as e:
+                print(f"✗ Failed to post to Medium: {e}")
+
+            # Always save locally
             save_article_locally(
                 "not_published_" + video.title if medium_url == "not_published" else video.title,
                 optimized_title,
@@ -806,10 +815,8 @@ def main():
                 base_dir=f"articles/{output_language}" if output_language != 'en' else 'articles'
             )
 
-            if medium_url != "not_published":
-                print(f"✓ Article available at: {medium_url}")
-            else:
-                print(f"✗ Failed to post article to Medium, but saved locally")
+            if medium_url == "not_published":
+                print("✓ Article saved locally")
 
         except Exception as e:
             print(f"Error processing video {video.title}: {e}")
