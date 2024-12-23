@@ -18,7 +18,7 @@ import youtube_transcript_api
 import openai
 import requests
 
-RATE_LIMIT_PERIOD_SECONDS = 240
+RATE_LIMIT_PERIOD_SECONDS = 300
 MAX_CALLS_IN_PERIOD = 1
 LONG_ARTICLE_THRESHOLD = 2499
 
