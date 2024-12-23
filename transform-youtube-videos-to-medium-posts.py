@@ -815,9 +815,6 @@ def main():
                 base_dir=f"articles/{output_language}" if output_language != 'en' else 'articles'
             )
 
-            if medium_url == "not_published":
-                print("✓ Article saved locally")
-
         except Exception as e:
             print(f"Error processing video {video.title}: {e}")
 
