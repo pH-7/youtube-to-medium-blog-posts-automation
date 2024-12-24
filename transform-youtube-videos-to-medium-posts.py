@@ -796,7 +796,7 @@ def main():
             # Set default medium_url
             medium_url = "not_published"
 
-            # Try to post to Medium, but continue if it fails
+            # Try to post to Medium, but continue saving article locally if fails
             try:
                 medium_result = post_to_medium(optimized_title, article, tags, output_language)
                 if medium_result:
@@ -805,7 +805,6 @@ def main():
             except Exception as e:
                 print(f"✗ Failed to post to Medium: {e}")
 
-            # Always save locally
             save_article_locally(
                 "not_published_" + video.title if medium_url == "not_published" else video.title,
                 optimized_title,
