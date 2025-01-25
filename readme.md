@@ -7,6 +7,8 @@ This program not only converts video transcripts extremely well into articles, b
 
 https://github.com/pH-7/youtube-to-medium-blog-posts-automation/blob/main/promo-assets/demo-turn-videos-to-medium-posts.mp4?raw=true
 
+![Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.gif)
+
 - [⚙️ Requirements](#%EF%B8%8F-requirements)
 - [📦 Installation](#-installation)
 - [🪄 Usage](#-usage)
