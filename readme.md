@@ -121,7 +121,7 @@ Contributions to this project are welcome! Please fork the repository and submit
 
 ## ⚠️ Disclaimer
 
-This project is for educational purposes only. Ensure you comply with YouTube's terms of service and Medium's API usage guidelines when using this script.
+Please keep in mind that this **Videos to Posts Converter** project is for educational purposes only. Ensure you comply with YouTube's terms of service and Medium's API usage guidelines when using this script.
 
 <!-- GitHub's Markdown reference links -->
 [twitter-icon]: https://img.shields.io/badge/x-000000?style=for-the-badge&logo=x
