@@ -1,9 +1,10 @@
 # YouTube to Medium Automation
+
 ## ⚡️ The Game-Changer Script You Will Always Be Grateful For!
 
 **Automate the process of converting YouTube video content into Medium articles 🎥📝**
 
-This program not only converts video transcripts extremely well into articles, but also removes any "transcript-like" writing. It produces a real, professional article from a video instead.
+This program not only converts video transcripts extremely well into beautiful, SEO-optimized articles with images and captions, but also removes any "transcript-like" writing. It produces a real, professional article from a video instead.
 
 - [⚙️ Requirements](#%EF%B8%8F-requirements)
 - [📦 Installation](#-installation)
@@ -13,7 +14,7 @@ This program not only converts video transcripts extremely well into articles, b
 - [🤝 Contributing](#-contributing)
 - [⚖️ License](#%EF%B8%8F-license)
 
-![Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.gif)
+![Automation: Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.gif)
 
 
 ## ⚙️ Requirements
