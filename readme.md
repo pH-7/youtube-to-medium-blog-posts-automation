@@ -5,7 +5,7 @@
 
 This program not only converts video transcripts extremely well into articles, but also removes any "transcript-like" writing. It produces a real, professional article from a video instead.
 
-![Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.gif)
+gif)
 
 - [⚙️ Requirements](#%EF%B8%8F-requirements)
 - [📦 Installation](#-installation)
@@ -15,11 +15,15 @@ This program not only converts video transcripts extremely well into articles, b
 - [🤝 Contributing](#-contributing)
 - [⚖️ License](#%EF%B8%8F-license)
 
+![Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.
+
+
 ## ⚙️ Requirements
  * [Python v3.7](https://www.python.org/downloads/) or higher 🐍
  * A Google account with YouTube API access 🎬
  * An OpenAI API key 🧠
  * A Medium account with an integration token ✍️
+
 
 ## 📦 Installation
 
@@ -65,6 +69,7 @@ This program not only converts video transcripts extremely well into articles, b
 
 5. Lastly, get your Unsplash API key: https://unsplash.com/oauth/applications/new
 
+
 ## 🪄 Usage
 
 To run the script, use the following command in the project root directory:
@@ -93,12 +98,14 @@ python transform-youtube-videos-to-medium-posts.py
 
 ![Script running, converting YouTube videos to Medium articles](promo-assets/example-script-converter-running.png "Example how the videos to blog posts convertor works")
 
+
 ## 🛠️ Configuration
 
 You can modify the following in the script:
 - The number of videos to process (change `maxResults` in `get_channel_videos` function)
 - The length of the generated article (change `max_tokens` in `generate_article` function)
 - The number of tags to generate (modify the prompt in `generate_tags` function)
+
 
 ## 👨‍🍳 Who created this awesome script?
 
@@ -115,13 +122,15 @@ You can modify the following in the script:
 
 Contributions to this project are welcome! Please fork the repository and submit a pull request with your changes.
 
+
 ## ⚖️ License
 
 **YouTube to Medium Automation** script is generously distributed under the *[MIT License](https://opensource.org/licenses/MIT)* 🎉 Enjoy!
 
+
 ## ⚠️ Disclaimer
 
-Please keep in mind that this **Videos to Posts Converter** project is for educational purposes only. Ensure you comply with YouTube's terms of service and Medium's API usage guidelines when using this script.
+Please keep in mind that this **Videos to (Medium) Posts Converter** project is for educational purposes only. Ensure you always comply with YouTube's terms of service and Medium's API usage guidelines and policy when using this script.
 
 <!-- GitHub's Markdown reference links -->
 [twitter-icon]: https://img.shields.io/badge/x-000000?style=for-the-badge&logo=x
