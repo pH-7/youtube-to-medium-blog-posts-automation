@@ -5,8 +5,6 @@
 
 This program not only converts video transcripts extremely well into articles, but also removes any "transcript-like" writing. It produces a real, professional article from a video instead.
 
-gif)
-
 - [⚙️ Requirements](#%EF%B8%8F-requirements)
 - [📦 Installation](#-installation)
 - [🪄 Usage](#-usage)
@@ -15,7 +13,7 @@ gif)
 - [🤝 Contributing](#-contributing)
 - [⚖️ License](#%EF%B8%8F-license)
 
-![Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.
+![Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.gif)
 
 
 ## ⚙️ Requirements
