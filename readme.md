@@ -13,6 +13,7 @@ This program not only converts video transcripts extremely well into beautiful, 
 - [🎬 Demo](#-demo)
 - [👨‍🍳 Who is the creator?](#-who-created-this)
 - [🤝 Contributing](#-contributing)
+- [⚠️ Disclaimer](#-disclaimer)
 - [⚖️ License](#%EF%B8%8F-license)
 
 ![Automation: Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.gif)
@@ -136,14 +137,14 @@ https://github.com/user-attachments/assets/f951fd14-aec6-4c75-860c-c4297aba254d
 Contributions to this project are welcome! Please fork the repository and submit a pull request with your changes.
 
 
-## ⚖️ License
-
-**YouTube to Medium Automation** script is generously distributed under the *[MIT License](https://opensource.org/licenses/MIT)* 🎉 Enjoy!
-
-
 ## ⚠️ Disclaimer
 
 Please keep in mind that this **Videos to (Medium) Posts Converter** project is for educational purposes only. Ensure you always comply with YouTube's terms of service and Medium's API usage guidelines and policy when using this script.
+
+
+## ⚖️ License
+
+**YouTube to Medium Automation** script is generously distributed under the *[MIT License](https://opensource.org/licenses/MIT)* 🎉 Enjoy!
 
 <!-- GitHub's Markdown reference links -->
 [twitter-icon]: https://img.shields.io/badge/x-000000?style=for-the-badge&logo=x
