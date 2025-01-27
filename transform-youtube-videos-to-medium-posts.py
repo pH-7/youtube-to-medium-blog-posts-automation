@@ -476,7 +476,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
 
 def fetch_images_from_unsplash(query: str, article_title: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
-    Fetch images from Unsplash, prioritizing images from the preferred photographer if available.
+    Fetch images from Unsplash, optionally prioritizing images from the preferred photographer if configured.
     One image for header, and 1-2 for content.
     Supports both English and French captions with article title.
 
@@ -489,28 +489,33 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
         Optional[List[UnsplashImage]]: List of UnsplashImage objects with URLs, alt text, and attribution captions in Markdown
     """
     unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
-    
-    # First try to get images from preferred photographer
-    user_url = (
-        f"https://api.unsplash.com/users/{config['UNSPLASH_PREFERRED_PHOTOGRAPHER']}/photos"
-        f"?client_id={unsplash_access_key}"
-        f"&per_page={per_page}"
-        f"&orientation=landscape"
-    )
+    preferred_photographer = config.get('UNSPLASH_PREFERRED_PHOTOGRAPHER')
+    results = []
     
     try:
-        # First attempt to get images from preferred photographer
-        user_response = requests.get(user_url)
-        user_response.raise_for_status()
-        user_results = user_response.json()
+        # If preferred photographer is configured, try to get their images first
+        if preferred_photographer:
+            user_url = (
+                f"https://api.unsplash.com/users/{preferred_photographer}/photos"
+                f"?client_id={unsplash_access_key}"
+                f"&per_page={per_page}"
+                f"&orientation=landscape"
+            )
+            
+            user_response = requests.get(user_url)
+            user_response.raise_for_status()
+            results = user_response.json()
+            
+            print(f"✓ Fetched {len(results)} images from preferred photographer")
         
-        # If we don't get enough images from preferred photographer, fall back to general search
-        if len(user_results) < per_page:
+        # If we need more images (either no preferred photographer or not enough images from them)
+        if len(results) < per_page:
+            remaining_images = per_page - len(results)
             search_url = (
                 f"https://api.unsplash.com/search/photos"
                 f"?query={query}"
                 f"&client_id={unsplash_access_key}"
-                f"&per_page={per_page - len(user_results)}"
+                f"&per_page={remaining_images}"
                 f"&orientation=landscape"
             )
             
@@ -518,12 +523,10 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
             search_response.raise_for_status()
             search_results = search_response.json()['results']
             
-            # Combine results, prioritizing preferred photographer's images
-            results = user_results + search_results
-        else:
-            results = user_results[:per_page]
+            results.extend(search_results)
+            print(f"✓ Fetched {len(search_results)} additional images from general search")
 
-        print(f"✓ Fetched {len(results)} images from Unsplash (including {len(user_results)} from preferred photographer)")
+        results = results[:per_page]  # Ensure we don't exceed the requested number of images
 
         captions = {
             'en': lambda name, photo_url, profile_url: f"{article_title} - Photo by [{name}]({profile_url}) on [Unsplash]({photo_url})",
@@ -545,7 +548,7 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
                     result.get('user', {}).get('links', {}).get('html')
                 )
             )
-            for result in results[:per_page]
+            for result in results
             if result.get('urls') and result.get('user')
         ]
     except Exception as e:
