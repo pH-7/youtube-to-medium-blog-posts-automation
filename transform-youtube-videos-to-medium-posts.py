@@ -506,7 +506,7 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
             user_response.raise_for_status()
             results = user_response.json()
             
-            print(f"✓ Fetched {len(results)} images from preferred photographer")
+            print(f"✓ Fetched {len(results)} images from preferred photographer (@{preferred_photographer})")
         
         # If we need more images (either no preferred photographer or not enough images from them)
         if len(results) < per_page:
