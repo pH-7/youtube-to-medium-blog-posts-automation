@@ -13,7 +13,7 @@ This program not only converts video transcripts extremely well into beautiful, 
 - [🎬 Demo](#-demo)
 - [👨‍🍳 Who is the creator?](#-who-created-this)
 - [🤝 Contributing](#-contributing)
-- [⚠️ Disclaimer](#-disclaimer)
+- [⚠️ Disclaimer](#%EF%B8%8F-disclaimer)
 - [⚖️ License](#%EF%B8%8F-license)
 
 ![Automation: Convert videos into articles](promo-assets/demo-turn-videos-to-medium-posts.gif)
