@@ -1,4 +1,4 @@
-# YouTube to Medium Automation
+# 📝 YouTube to Medium Automation
 
 ## ⚡️ The Game-Changer Script You Will Always Be Grateful For!
 
