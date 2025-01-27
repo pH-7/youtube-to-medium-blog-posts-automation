@@ -10,6 +10,7 @@ This program not only converts video transcripts extremely well into beautiful, 
 - [📦 Installation](#-installation)
 - [🪄 Usage](#-usage)
 - [🛠️ Configuration](#%EF%B8%8F-configuration)
+- [🎬 Demo](#-demo)
 - [👨‍🍳 Who is the creator?](#-who-created-this)
 - [🤝 Contributing](#-contributing)
 - [⚖️ License](#%EF%B8%8F-license)
@@ -104,6 +105,17 @@ You can modify the following in the script:
 - The number of videos to process (change `maxResults` in `get_channel_videos` function)
 - The length of the generated article (change `max_tokens` in `generate_article` function)
 - The number of tags to generate (modify the prompt in `generate_tags` function)
+
+
+## 🎬 Demo
+
+See the script in action with these demonstration videos:
+
+>  Articles conversion in French language
+https://github.com/user-attachments/assets/0799a526-9d98-44e1-b875-7b5d510804c6
+
+> Article conversion from English videos
+https://github.com/user-attachments/assets/f951fd14-aec6-4c75-860c-c4297aba254d
 
 
 ## 👨‍🍳 Who created this awesome script?
