@@ -1,7 +1,8 @@
+## Articles folder ##
 articles/*
 !articles/.gitkeep
 
-## config ##
+## Config ##
 config.json
 
 ## IDE - PyCharm ##
