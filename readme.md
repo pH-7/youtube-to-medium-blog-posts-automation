@@ -51,7 +51,7 @@ This program not only converts video transcripts extremely well into beautiful, 
        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
        "OPENAI_MODEL": "gpt-4o-mini",
        "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
-       "UNSPLASH_PREFERRED_PHOTOGRAPHER": "pierrehenry", // mention a preferred Unsplash photographer (e.g. pierrehenry)
+       "UNSPLASH_PREFERRED_PHOTOGRAPHER": "pierrehenry", // Optional. Mention a preferred Unsplash photographer (e.g. pierrehenry)
        "PUBLISH_STATUS": "draft", // "draft" or "publish"
        "SOURCE_LANGUAGE": "en",
        "OUTPUT_LANGUAGE": "en"
