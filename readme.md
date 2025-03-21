@@ -30,7 +30,7 @@ This program not only converts video transcripts extremely well into beautiful, 
 
 1. Clone this repository:
    ```console
-   git clone https://github.com/pH-7/youtube-to-medium-blog-posts-automation.git
+   git clone https://github.com/pH-7/youtube-to-medium-blog-posts-automation.git &&
    cd youtube-to-medium-blog-posts-automation
    ```
 
