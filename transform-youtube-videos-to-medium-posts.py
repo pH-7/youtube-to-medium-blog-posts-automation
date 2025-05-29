@@ -474,49 +474,58 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     print(f"✓ Generated article title: {title}")
     return title
 
-def fetch_images_from_unsplash(query: str, article_title: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
+def fetch_images_from_unsplash(query, article_title: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
-    Fetch images from Unsplash, optionally prioritizing images from the preferred photographer if configured.
-    One image for header, and 1-2 for content.
-    Supports both English and French captions with article title.
-
+    Fetch images from Unsplash with recursive fallback for better search results.
+    
     Args:
-        query: Search query string for images (can be multiple terms separated by spaces)
+        query: Can be a string or list of tags
         article_title: The title of the article to use in captions
         output_language: Target language ('en' or 'fr')
         per_page: Number of images to fetch (default: 2)
     Returns:
         Optional[List[UnsplashImage]]: List of UnsplashImage objects with URLs, alt text, and attribution captions in Markdown
     """
+    if isinstance(query, list):
+        # If it's a list of tags, join the first 3
+        search_query = ' '.join(query[:3])
+    else:
+        # If it's a string, use it as is
+        search_query = query
+    
     unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
     preferred_photographer = config.get('UNSPLASH_PREFERRED_PHOTOGRAPHER')
     results = []
     
     try:
-        print(f"✓ Fetching images from Unsplash for query: '{query}")
+        print(f"✓ Fetching images from Unsplash for query: '{search_query}'")
 
         # If preferred photographer is configured, try to get their images first
         if preferred_photographer:
-            user_url = (
-                f"https://api.unsplash.com/users/{preferred_photographer}/photos"
-                f"?query={query}"
-                f"?client_id={unsplash_access_key}"
+            # Search for images by preferred photographer with the query
+            user_search_url = (
+                f"https://api.unsplash.com/search/photos"
+                f"?query={search_query}"
+                f"&username={preferred_photographer}"
+                f"&client_id={unsplash_access_key}"
                 f"&per_page={per_page}"
                 f"&orientation=landscape"
             )
             
-            user_response = requests.get(user_url)
-            user_response.raise_for_status()
-            results = user_response.json()
-            
-            print(f"✓ Fetched {len(results)} images from preferred photographer (@{preferred_photographer})")
+            user_response = requests.get(user_search_url)
+            if user_response.status_code == 200:
+                user_search_results = user_response.json()
+                results = user_search_results.get('results', [])
+                print(f"✓ Fetched {len(results)} images from preferred photographer (@{preferred_photographer}) for query '{search_query}'")
+            else:
+                print(f"✗ Failed to fetch from preferred photographer. Status: {user_response.status_code}")
         
         # If we need more images (either no preferred photographer or not enough images from them)
         if len(results) < per_page:
             remaining_images = per_page - len(results)
             search_url = (
                 f"https://api.unsplash.com/search/photos"
-                f"?query={query}"
+                f"?query={search_query}"
                 f"&client_id={unsplash_access_key}"
                 f"&per_page={remaining_images}"
                 f"&orientation=landscape"
@@ -530,7 +539,32 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
             results.extend(search_photos)
             print(f"✓ Fetched {len(search_photos)} additional images from general search")
 
+        # If no results found and we have a complex query, try with fewer keywords
+        if not results and isinstance(query, list) and len(query) > 1:
+            print(f"✗ No images found for '{search_query}'. Trying with fewer keywords...")
+            # Try with fewer tags recursively
+            return fetch_images_from_unsplash(
+                query=query[:-1],  # Remove the last tag
+                article_title=article_title,
+                output_language=output_language,
+                per_page=per_page
+            )
+        elif not results and isinstance(query, str) and ' ' in search_query:
+            print(f"✗ No images found for '{search_query}'. Trying with simpler query...")
+            # Split the query and try with the first word only
+            simplified_query = search_query.split()[0]
+            return fetch_images_from_unsplash(
+                query=simplified_query,
+                article_title=article_title,
+                output_language=output_language,
+                per_page=per_page
+            )
+
         results = results[:per_page]  # Ensure we don't exceed the requested number of images
+
+        if not results:
+            print(f"✗ No images found for any search variation")
+            return None
 
         captions = {
             'en': lambda name, photo_url, profile_url: f"{article_title} - Photo by [{name}]({profile_url}) on [Unsplash]({photo_url})",
@@ -539,7 +573,7 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
 
         caption_formatter = captions.get(output_language, captions['en'])
 
-        return [
+        processed_images = [
             UnsplashImage(
                 url=result.get('urls', {}).get('regular'),
                 alt=result.get('description') or (
@@ -555,6 +589,10 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
             for result in results
             if result.get('urls') and result.get('user')
         ]
+        
+        print(f"✓ Successfully processed {len(processed_images)} images")
+        return processed_images if processed_images else None
+        
     except Exception as e:
         print(f"✗ Failed to fetch images from Unsplash: {e}")
         return None
@@ -789,10 +827,10 @@ def main():
 
             # Retrieve images. Number of images depends if the article is long or short
             images_per_article = 3 if len(article) > LONG_ARTICLE_THRESHOLD else 2
-            # Create search query from first 3 tags
-            search_query = ' '.join(tags[:3])
+
+            # Fetch images from Unsplash using the tags
             images = fetch_images_from_unsplash(
-                query=search_query,
+                query=tags,
                 article_title=optimized_title,
                 output_language=output_language,
                 per_page=images_per_article
