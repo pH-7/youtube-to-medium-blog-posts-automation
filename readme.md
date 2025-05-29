@@ -41,7 +41,7 @@ This program not only converts video transcripts extremely well into beautiful, 
 
 3. Set up your configuration file:
    - Create a file named `config.json` in the project root directory
-   - Add your API keys and YouTube channel ID to the file as followed:
+   - Add your API keys and [YouTube channel ID](https://www.youtube.com/account_advanced) to the file as followed:
      ```json
      {
        "MEDIUM_ACCESS_TOKEN": "YOUR_MEDIUM_ACCESS_TOKEN",
