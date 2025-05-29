@@ -493,10 +493,13 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
     results = []
     
     try:
+        print(f"Fetching images from Unsplash for query: '{query}")
+
         # If preferred photographer is configured, try to get their images first
         if preferred_photographer:
             user_url = (
                 f"https://api.unsplash.com/users/{preferred_photographer}/photos"
+                f"?query={query}"
                 f"?client_id={unsplash_access_key}"
                 f"&per_page={per_page}"
                 f"&orientation=landscape"
@@ -521,10 +524,11 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
             
             search_response = requests.get(search_url)
             search_response.raise_for_status()
-            search_results = search_response.json()['results']
-            
-            results.extend(search_results)
-            print(f"✓ Fetched {len(search_results)} additional images from general search")
+            search_results = search_response.json()
+
+            search_photos = search_results.get('results', [])
+            results.extend(search_photos)
+            print(f"✓ Fetched {len(search_photos)} additional images from general search")
 
         results = results[:per_page]  # Ensure we don't exceed the requested number of images
 
