@@ -408,7 +408,7 @@ La réponse doit ressembler exactement à ceci :
                     print(f"✓ Relevant tags (topics) generated: {tags[:5]}")
                     return tags[:5]  # Ensure we return exactly 5 tags
 
-            print(f"Invalid tags format. Using default tags instead. Error: {parsed_response}")
+            print(f"✗ Invalid tags format. Using default tags instead. Error: {parsed_response}")
             return default_tags[output_language]
 
         except json.JSONDecodeError as je:
@@ -416,7 +416,7 @@ La réponse doit ressembler exactement à ceci :
             return default_tags[output_language]
 
     except Exception as e:
-        print(f"Error generating tags: {e}")
+        print(f"✗ Error generating tags: {e}")
         return default_tags[output_language]
 
 def generate_article_title(article_content: str, output_language: str = 'en') -> str:
@@ -493,7 +493,7 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
     results = []
     
     try:
-        print(f"Fetching images from Unsplash for query: '{query}")
+        print(f"✓ Fetching images from Unsplash for query: '{query}")
 
         # If preferred photographer is configured, try to get their images first
         if preferred_photographer:
@@ -556,7 +556,7 @@ def fetch_images_from_unsplash(query: str, article_title: str, output_language: 
             if result.get('urls') and result.get('user')
         ]
     except Exception as e:
-        print(f"Failed to fetch images from Unsplash: {e}")
+        print(f"✗ Failed to fetch images from Unsplash: {e}")
         return None
 
 def embed_images_in_content(article_content: str, images: List[UnsplashImage], article_title: str) -> str:
@@ -663,7 +663,7 @@ tags: {formatted_tags}
             # Write article content
             file.write(article)
     except (OSError, UnicodeEncodeError) as e:
-        print(f"Error saving article: {e}")
+        print(f"✗ Error saving article: {e}")
         raise
 
     print(f"✓ Article saved locally at: {file_name}")
@@ -730,7 +730,7 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
         return response.json()["data"]["url"]
 
     except Exception as e:
-        print(f"Failed to post article: {e}")
+        print(f"✗ Failed to post article: {e}")
         print(f"Response: {response.text if 'response' in locals() else 'No response'}")
         return None
 
@@ -822,7 +822,7 @@ def main():
             )
 
         except Exception as e:
-            print(f"Error processing video {video.title}: {e}")
+            print(f"✗ Error processing video {video.title}: {e}")
 
 if __name__ == "__main__":
     main()
