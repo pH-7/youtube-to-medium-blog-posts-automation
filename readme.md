@@ -103,7 +103,7 @@ python transform-youtube-videos-to-medium-posts.py
 ## 🛠️ Configuration
 
 You can modify the following in the script:
-- The number of videos to process (change `maxResults` in `get_channel_videos` function)
+- The number of videos to process (change `maxResults` in ``get_videos_page` functio, which is declared in `get_channel_videos`)
 - The length of the generated article (change `max_tokens` in `generate_article` function)
 - The number of tags to generate (modify the prompt in `generate_tags` function)
 
