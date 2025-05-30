@@ -265,9 +265,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Title: {title}
     Subtitle: Right after Title, optional concise appealing (spoiler) subtitle in h3 font.
 
-    Transcript: {transcript[:12000]}
+    Transcript: {transcript[:25000]}
 
-    Structured as a Medium.com article in English while keeping the exact same voice tone as in the original transcript.
+    Structured as a Medium.com article in English while keeping the identical same voice tone as in the original transcript.
     Use simple words, and DO NOT use any irrelevant or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
@@ -298,9 +298,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Titre: {title}
     Sous-titre: Juste après le Titre, sous-titre optionnel en police h3, qui donne une promesse concise qui aguiche/intrigue davantage.
 
-    Transcription: {transcript[:12000]}
+    Transcription: {transcript[:25000]}
 
-    Structure le texte en tant qu'article Medium.com français tout en gardant exactement le même ton de voix que dans la transcription originale, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
     }
 
     # Get the appropriate instruction based on source and output languages
