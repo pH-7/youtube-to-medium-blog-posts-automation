@@ -315,8 +315,8 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     # Set the system message based on output language
     system_messages = {
-        'en': "You are a professional translator, editor, and content writer.",
-        'fr': "Tu es un traducteur professionnel, éditeur et rédacteur de contenu."
+        'en': "You are a translator and content writer expert",
+        'fr': "Tu es un expert en rédaction de contenu en ligne"
     }
 
     response = client.chat.completions.create(
@@ -366,8 +366,8 @@ La réponse doit ressembler exactement à ceci :
     }
 
     system_messages = {
-        'en': 'You are a tag generator that only outputs valid JSON objects with a "tags" array containing exactly 5 tags.',
-        'fr': 'Tu es un générateur de tags qui ne produit que des objets JSON valides avec un tableau "tags" contenant exactement 5 tags.'
+        'en': 'You are a tag generator that only outputs valid JSON objects with a "tags" array containing exactly 5 tags',
+        'fr': 'Tu es un générateur de tags qui ne produit que des objets JSON valides avec un tableau "tags" contenant exactement 5 tags'
     }
 
     # Default tags for each language
@@ -433,7 +433,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
 
     prompts = {
-        'en': f"""You are an expert content writer. Based on the content provided below, generate an engaging title for a Medium.com article.
+        'en': f"""Based on the content provided below, generate an engaging title for a Medium.com article.
 
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
@@ -442,18 +442,18 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
 
     Don't use irrelevant adjective like Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer, ... and prioritize simple words.""",
 
-        'fr': f"""Tu es un expert en rédaction de contenu. À partir du contenu fourni ci-dessous, génère un titre accrocheur pour un article Medium.com.
+        'fr': f"""À partir du contenu fourni ci-dessous, génère un titre accrocheur pour un article Medium.com.
 
     Contenu: {article_content[:1000]}  # Limite le contenu envoyé au modèle
     
-    Assure-toi que le titre attire l'attention et donne envie aux lecteurs de Medium.com de cliquer et de lire l'histoire. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
+    Assure-toi que le titre attire l'attention des lecteurs. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
     Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] SANS [Point de Friction]", "Faites [Compétence/Action] ou [Conséquence]".
     Utilise le tutoiement et utilise des mots simples. N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Révolutionnaire."""
     }
 
     system_messages = {
-        'en': "You are a content writer and SEO headings expert",
-        'fr': "Tu es un expert en rédaction de contenu Medium.com"
+        'en': "You are a SEO copywriter expert for writing article headings",
+        'fr': "Tu es un expert SEO en rédaction de titres pour articles de blog"
     }
 
     # Use the appropriate prompt and system message based on the output language
