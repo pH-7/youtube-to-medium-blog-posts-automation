@@ -41,7 +41,7 @@ This program not only converts video transcripts extremely well into beautiful, 
 
 3. Set up your configuration file:
    - Create a file named `config.json` in the project root directory
-   - Add your API keys and [YouTube channel ID](https://www.youtube.com/account_advanced) to the file as followed:
+   - Add your API keys and the [YouTube channel ID](https://www.youtube.com/account_advanced) to the file as followed:
      ```json
      {
        "MEDIUM_ACCESS_TOKEN": "YOUR_MEDIUM_ACCESS_TOKEN",
@@ -68,7 +68,7 @@ This program not only converts video transcripts extremely well into beautiful, 
    - Create credentials (OAuth 2.0 Client ID) for a desktop application. Select **External** for **Use Type**
    - Download the client configuration and save it as `client_secrets.json` in the project root directory
 
-5. Lastly, get your Unsplash API key: https://unsplash.com/oauth/applications/new
+5. Lastly, get your Unsplash Access Key at https://unsplash.com/oauth/applications/new
 
 
 ## 🪄 Usage
