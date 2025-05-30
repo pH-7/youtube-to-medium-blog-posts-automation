@@ -51,7 +51,7 @@ This program not only converts video transcripts extremely well into beautiful, 
        "YOUTUBE_API_KEY": "YOUR_YOUTUBE_API_KEY",
        "YOUTUBE_CHANNEL_ID": "YOUR_CHANNEL_ID",
        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
-       "OPENAI_MODEL": "gpt-4.1-mini", // "gpt-4.1-mini", "gpt-4.1-nano", ...
+       "OPENAI_MODEL": "gpt-4.1-mini", // "gpt-4.1", "gpt-4.1-mini", ...
        "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
        "UNSPLASH_PREFERRED_PHOTOGRAPHER": "pierrehenry", // Optional. Mention a preferred Unsplash photographer (e.g. pierrehenry)
        "PUBLISH_STATUS": "draft", // "draft" or "publish"
