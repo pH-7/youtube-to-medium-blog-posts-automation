@@ -452,8 +452,8 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     }
 
     system_messages = {
-        'en': "You are an expert content writer and title generator.",
-        'fr': "Tu es un expert en rédaction de contenu et en génération de titres."
+        'en': "You are a content writer and SEO headings expert",
+        'fr': "Tu es un expert en rédaction de contenu Medium.com"
     }
 
     # Use the appropriate prompt and system message based on the output language
