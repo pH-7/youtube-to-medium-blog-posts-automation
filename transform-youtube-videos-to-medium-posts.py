@@ -244,13 +244,13 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     instructions = {
         'en': {
             'fr': "Translate the following French YouTube video transcript into English,",
-            'en': "Translate the following YouTube video transcript and remove any promotional content, 'Subscribe to my channel', introductions, and conclusions,",
-            'other': lambda lang: f"Translate the following {lang} YouTube video transcript into English,"
+            'en': "Translate the following YouTube video transcript and remove all promotional content, superfluous, 'Subscribe to my channel', introductions, conclusions,",
+            'other': lambda lang: f"Translate the following {lang} YouTube video transcript into English and remove all promotional content, superfluous, 'Subscribe to my channel', introductions, conclusions,"
         },
         'fr': {
             'fr': "Reformule la transcription vidéo YouTube suivante en français,",
-            'en': "Traduis la transcription vidéo YouTube suivante en français et supprime tout contenu promotionnel, les appels à s'abonner, les introductions et les conclusions,",
-            'other': lambda lang: f"Traduis la transcription vidéo YouTube suivante du {lang} vers le français,"
+            'en': "Traduis la transcription vidéo YouTube suivante en français et supprime tout contenu superflus, promotionnel, les appels à s'abonner, les introductions et les conclusions,",
+            'other': lambda lang: f"Traduis la transcription vidéo YouTube suivante du {lang} vers le français, supprime tout contenu superflus, promotionnel, les appels à s'abonner, les introductions et les conclusions,",
         }
     }
 
@@ -259,11 +259,11 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
     End the article with short bullet points TL;DR, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions in italic font preceded by Markdown separator.
-    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my new book" and emphasize/bold it), and/or suggest my podcast https://podcasts.ph7.me, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
+    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my self-help book" and emphasize/bold it), and/or suggest my podcast https://podcasts.ph7.me, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
-    Kicker: Right before Title, optional very short article kicker text in h3 font.
+    Kicker: Right before Title, optional very short article kicker text in h4 font.
     Title: {title}
-    Subtitle: Right after Title, optional concise appealing (spoiler) subtitle in h3 font.
+    Subtitle: Right after Title, optional concise appealing (spoiler) subtitle in h4 font.
 
     Transcript: {transcript[:25000]}
 
