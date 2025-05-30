@@ -764,7 +764,7 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
 
         response.raise_for_status()
 
-        print(f"✓ Article posted to Medium")
+        print(f"✓ Article posted to Medium.com")
         return response.json()["data"]["url"]
 
     except Exception as e:
