@@ -121,6 +121,11 @@ https://github.com/user-attachments/assets/0799a526-9d98-44e1-b875-7b5d510804c6
 https://github.com/user-attachments/assets/f951fd14-aec6-4c75-860c-c4297aba254d
 
 
+### I show you EVERYTHING
+
+[![I've built a script that automatically publishes my videos to well-written English articles](https://i1.ytimg.com/vi/5JA2rq6TFwM/sddefault.jpg)](https://youtu.be/5JA2rq6TFwM)
+
+
 ## 👨‍🍳 Who created this awesome script?
 
 [![Pierre-Henry Soria](https://s.gravatar.com/avatar/a210fe61253c43c869d71eaed0e90149?s=200)](https://PH7.me 'Pierre-Henry Soria personal website')
@@ -129,7 +134,7 @@ https://github.com/user-attachments/assets/f951fd14-aec6-4c75-860c-c4297aba254d
 
 ☕️ Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (spoiler alert: I love almond flat white 😋)
 
-[![@phenrysay][twitter-icon]](https://x.com/phenrysay) [![YouTube Tech Videos][youtube-icon]](https://www.youtube.com/@pH7Programming "My YouTube Tech Channel") [![pH-7][github-icon]](https://github.com/pH-7)
+[![@phenrysay][twitter-icon]](https://x.com/phenrysay) [![YouTube Tech Videos][youtube-icon]](https://youtu.be/5JA2rq6TFwM "My YouTube Tech Channel") [![pH-7][github-icon]](https://github.com/pH-7)
 
 
 ## 🤝 Contributing
