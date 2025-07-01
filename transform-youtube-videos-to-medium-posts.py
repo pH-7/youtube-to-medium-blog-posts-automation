@@ -260,13 +260,13 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         'en': f"""{{instruction}} removing filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
     Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
-    End the article with short bullet points TL;DR, Actions List, and/or "Ask Yourself" / "What About You ?" styled questions in italic font preceded by Markdown separator.
+    End the article with short bullet points TL;DR/Key Takeways, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
     If relevant to article's theme, include between 1 to 3 impactful quotes that deeply resonate with the article's message. Format each quote in Markdown using > in italic font and don't surround it with quotation marks, then, followed it by author's name on separate line, preceded by em dash.
-    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my self-help book" and emphasize/bold it), and/or suggest my podcast https://podcasts.ph7.me that I co-host with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
+    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my self-help book" and emphasize/bold it), and/or suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
-    Kicker: Right before Title, optional very short article kicker text in h4 font.
+    Kicker: Right before Title, optional very short article kicker text in h3 font.
     Title: {title}
-    Subtitle: Right after Title, optional concise appealing (spoiler) subtitle in h4 font.
+    Subtitle: Right after Title, optional concise appealing (spoiler) subtitle in h3 font.
 
     Transcript: {transcript[:25000]}
 
@@ -294,6 +294,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     7. Étendre - Aller plus loin
     (Amener le lecteur au livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me ou sur mon podcast https://podcast.ph7.me (utiliser texte d'ancrage).
 
+    Si cela est pertinent avec l’article, inclue 1 à 3 citations percutantes qui résonnent profondément avec le message de l’article. Formate chaque citation en Markdown en utilisant > en italique, sans l’entourer de guillemets, puis ajoute le nom de l’auteur sur une ligne séparée, précédé d’un tiret cadratin.
     Termine l'article avec un bref récap sous forme de points et/ou liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
