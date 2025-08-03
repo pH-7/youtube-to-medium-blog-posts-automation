@@ -1,8 +1,9 @@
-google-api-python-client==2.177.0
-google-auth==2.40.3
-google-auth-oauthlib==1.2.2
-youtube-transcript-api==1.2.1
-openai==1.97.1
-requests==2.32.4
-isodate==0.7.2
-ratelimit==2.2.1
+google-api-python-client>=2.177.0
+google-auth>=2.40.3
+google-auth-oauthlib>=1.2.2
+youtube-transcript-api>=1.2.1
+openai>=1.98.0
+requests>=2.32.4
+isodate>=0.7.2
+ratelimit>=2.2.1
+yt-dlp>=2025.7.21
