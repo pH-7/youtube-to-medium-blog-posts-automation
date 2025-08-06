@@ -252,7 +252,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         'fr': {
             'fr': "Reformule la transcription vidéo YouTube suivante en français,",
             'en': "Traduis la transcription vidéo YouTube suivante en français et supprime tout contenu superflus, promotionnel, les appels à s'abonner, les introductions et les conclusions,",
-            'other': lambda lang: f"Traduis la transcription vidéo YouTube suivante du {lang} vers le français, supprime tout contenu superflus, promotionnel, les appels à s'abonner, les introductions et les conclusions,",
+            'other': lambda lang: f"Traduis la transcription vidéo YouTube suivante du {lang} vers le français, supprime tout contenu superflu, promotionnel, les appels à s'abonner, les introductions et les conclusions,",
         }
     }
 
@@ -330,12 +330,14 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
             {"role": "user", "content": prompt}
         ],
         temperature=0.2,
-        max_completion_tokens=5000 # Increased max tokens to allow longer responses
+        max_completion_tokens=5000  # Increased max tokens to allow longer responses
     )
 
-    print(f"✓ Article generated from transcript for '{title}' from '{source_language}' to '{output_language}'")
+    print(
+        f"✓ Article generated from transcript for '{title}' from '{source_language}' to '{output_language}'")
 
     return response.choices[0].message.content
+
 
 def generate_tags(article_content: str, title: str, output_language: str = 'en') -> List[str]:
     """
@@ -412,7 +414,8 @@ La réponse doit ressembler exactement à ceci :
                     print(f"✓ Relevant tags (topics) generated: {tags[:5]}")
                     return tags[:5]  # Ensure we return exactly 5 tags
 
-            print(f"✗ Invalid tags format. Using default tags instead. Error: {parsed_response}")
+            print(
+                f"✗ Invalid tags format. Using default tags instead. Error: {parsed_response}")
             return default_tags[output_language]
 
         except json.JSONDecodeError as je:
