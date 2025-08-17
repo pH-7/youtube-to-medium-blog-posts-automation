@@ -99,31 +99,42 @@ def get_video_transcript(video_id: str, language: str) -> Optional[str]:
         Optional[str]: Combined transcript text or None if not available
     """
     try:
-        transcript_list = youtube_transcript_api.YouTubeTranscriptApi.list_transcripts(video_id)
+        # Use the new API (v1.2.0+): create instance and use fetch() method directly
+        ytt_api = youtube_transcript_api.YouTubeTranscriptApi()
 
         try:
-            # First try to get transcript in requested language
-            transcript = transcript_list.find_transcript([language])
+            # First try to get transcript in the requested language directly
+            fetched_transcript = ytt_api.fetch(video_id, languages=[language])
             print(f"✓ Found direct transcript in {language}")
+            # Convert to raw data format (list of dicts with 'text' key)
+            transcript_data = fetched_transcript.to_raw_data()
+            return " ".join([entry["text"] for entry in transcript_data])
         except Exception:
             try:
-                # If not found, get auto-generated French transcript and translate it
-                transcript = transcript_list.find_generated_transcript(['fr'])
-                if language != 'fr':  # Only translate if target language is not French
+                # If not found, try to get French auto-generated transcript first
+                fetched_transcript = ytt_api.fetch(video_id, languages=['fr'])
+                if language != 'fr':
+                    # Use the list/translate approach for translation
+                    transcript_list = ytt_api.list(video_id)
+                    transcript = transcript_list.find_generated_transcript([
+                                                                           'fr'])
                     transcript = transcript.translate(language)
-                    print(f"✓ Using translated transcript from French to {language}")
+                    transcript_data = transcript.fetch().to_raw_data()
+                    print(
+                        f"✓ Using translated transcript from French to {language}")
                 else:
+                    transcript_data = fetched_transcript.to_raw_data()
                     print("✓ Using French auto-generated transcript")
+                return " ".join([entry["text"] for entry in transcript_data])
             except Exception as e:
                 print(f"✗ No transcript available in any format: {e}")
                 return None
 
-        text = transcript.fetch()
-        return " ".join([entry["text"] for entry in text])
-
     except Exception as e:
-        print(f"✗ Error fetching transcript for video {video_id} in {language}: {e}")
+        print(
+            f"✗ Error fetching transcript for video {video_id} in {language}: {e}")
         return None
+
 
 def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
     """
@@ -170,7 +181,8 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
 
         while True:
             try:
-                response = get_videos_page(youtube, uploads_playlist_id, next_page_token)
+                response = get_videos_page(
+                    youtube, uploads_playlist_id, next_page_token)
 
                 video_ids = [
                     item["snippet"]["resourceId"]["videoId"]
@@ -584,7 +596,7 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
             UnsplashImage(
                 url=result.get('urls', {}).get('regular'),
                 alt=result.get('description') or (
-                    f"Photo par {result.get('user', {}).get('name')}" if output_language == 'fr' 
+                    f"Photo par {result.get('user', {}).get('name')}" if output_language == 'fr'
                     else f"Photo by {result.get('user', {}).get('name')}"
                 ),
                 caption=caption_formatter(
