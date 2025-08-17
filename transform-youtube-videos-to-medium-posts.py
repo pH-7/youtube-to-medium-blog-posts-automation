@@ -456,8 +456,8 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
 
     Content: {article_content[:1000]}  # Limit the content sent to the model
     
-    Ensure the title grabs attention and would entice readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
-    Whenever possible, use one of the following formats: "How [Action|Benefit] WITHOUT [Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] With No [Friction Point]", "Use/Adopt [Skill|Action] or [Consequence]".
+    Ensure the title grabs attention and intrigues readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
+    Whenever possible, use one of these following formats: "Use/Adopt [Skill|Action] or [Consequence]", "How [Action|Benefit] WITHOUT [Related Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] With No [Friction Point]".
 
     Don't use irrelevant adjective like Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer, ... and prioritize simple words.""",
 
