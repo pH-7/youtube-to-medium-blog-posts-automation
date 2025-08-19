@@ -269,8 +269,8 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     }
 
     prompts = {
-        'en': f"""{{instruction}} removing filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
-    Rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
+        'en': f"""{{instruction}} removing all filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
+    While avoiding em dashes as much as possible, rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
     End the article with short bullet points TL;DR/Key Takeaways, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
     If relevant to article's theme, include between 1 to 3 impactful quotes that deeply resonate with the article's message. Format each quote in Markdown using > in italic font and don't surround it with quotes, then, follow it by author's name on separate line, preceded by em dash.
