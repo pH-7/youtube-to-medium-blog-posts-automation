@@ -134,7 +134,7 @@ https://github.com/user-attachments/assets/f951fd14-aec6-4c75-860c-c4297aba254d
 
 ☕️ Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (spoiler alert: I love almond flat white 😋)
 
-[![@phenrysay][twitter-icon]](https://x.com/phenrysay) [![YouTube Tech Videos][youtube-icon]](https://youtu.be/5JA2rq6TFwM "My YouTube Tech Channel") [![pH-7][github-icon]](https://github.com/pH-7)
+[![@phenrysay][x-icon]](https://x.com/phenrysay) [![YouTube Tech Videos][youtube-icon]](https://youtu.be/5JA2rq6TFwM "My YouTube Tech Channel") [![pH-7][github-icon]](https://github.com/pH-7) [![BlueSky][bsky-icon]](https://bsky.app/profile/ph7s.bsky.social "Follow Me on BlueSky")
 
 
 ## 🤝 Contributing
@@ -151,7 +151,9 @@ Please keep in mind that this **Videos to (Medium) Posts Converter** project is 
 
 **YouTube to Medium Automation** script is generously distributed under the *[MIT License](https://opensource.org/licenses/MIT)* 🎉 Enjoy!
 
+
 <!-- GitHub's Markdown reference links -->
-[twitter-icon]: https://img.shields.io/badge/x-000000?style=for-the-badge&logo=x
+[x-icon]: https://img.shields.io/badge/x-000000?style=for-the-badge&logo=x
+[bsky-icon]: https://img.shields.io/badge/BlueSky-00A8E8?style=for-the-badge&logo=bluesky&logoColor=white
 [github-icon]: https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white
 [youtube-icon]: https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white
