@@ -280,7 +280,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Title: {title}
     Subtitle: Right after Title, optional concise appealing (spoiler) subtitle in h3 font.
 
-    Transcript: {transcript[:40000]}
+    Transcript: {transcript[:40800]}
 
     Structured as a Medium.com article in English while keeping the identical same voice tone as in the original transcript.
     Use simple words, and DO NOT use any irrelevant or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
@@ -314,7 +314,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Titre: {title}
     Sous-titre: Juste après le Titre, sous-titre optionnel en police h3, qui donne une promesse concise qui aguiche/intrigue davantage.
 
-    Transcription: {transcript[:40000]}
+    Transcription: {transcript[:40800]}
 
     Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
     }
@@ -369,7 +369,7 @@ def generate_tags(article_content: str, title: str, output_language: str = 'en')
         'en': f'''Generate exactly 5 unique and relevant tags in English for this article. Return them as a JSON object with a "tags" key containing the array.
 
 Title: "{title}"
-Content: {article_content[:1000]}
+Content: {article_content[:300]}
 
 The response should look exactly like this:
 {{"tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]}}''',
@@ -377,7 +377,7 @@ The response should look exactly like this:
         'fr': f'''Génère exactement 5 tags uniques et pertinents en français pour cet article. Renvoie-les sous forme d'objet JSON avec une clé "tags" contenant le tableau.
 
 Titre: "{title}"
-Contenu : {article_content[:1000]}
+Contenu : {article_content[:300]}
 
 La réponse doit ressembler exactement à ceci :
 {{"tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]}}'''
@@ -454,7 +454,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     prompts = {
         'en': f"""Based on the content provided below, generate an engaging title for a Medium.com article.
 
-    Content: {article_content[:1000]}  # Limit the content sent to the model
+    Content: {article_content[:550]}  # Limit the content sent to the model
     
     Ensure the title grabs attention and intrigues readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
     Whenever possible, use one of these following formats: "Use/Adopt [Skill|Action] or [Consequence]", "How [Action|Benefit] WITHOUT [Related Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] With No [Friction Point]".
@@ -463,7 +463,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
 
         'fr': f"""À partir du contenu fourni ci-dessous, génère un titre accrocheur pour un article Medium.com.
 
-    Contenu: {article_content[:1000]}  # Limite le contenu envoyé au modèle
+    Contenu: {article_content[:550]}  # Limite le contenu envoyé au modèle
     
     Assure-toi que le titre attire l'attention des lecteurs. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
     Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] SANS [Point de Friction]", "Faites [Compétence/Action] ou [Conséquence]".
