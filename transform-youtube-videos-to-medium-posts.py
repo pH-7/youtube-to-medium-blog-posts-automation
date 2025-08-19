@@ -283,7 +283,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Transcript: {transcript[:40800]}
 
     Structured as a Medium.com article in English while keeping the identical same voice tone as in the original transcript.
-    Use simple words, and DO NOT use any irrelevant or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
+    Use simple words, no em dashes, and DO NOT use any irrelevant or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
@@ -459,7 +459,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Ensure the title grabs attention and intrigues readers on Medium.com to click and read the story. The title should be creative and concise, ideally under 60 characters.
     Whenever possible, use one of these following formats: "Use/Adopt [Skill|Action] or [Consequence]", "How [Action|Benefit] WITHOUT [Related Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] With No [Friction Point]".
 
-    Don't use irrelevant adjective like Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer, ... and prioritize simple words.""",
+    Don't use em dashes and irrelevant adjective like Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer, ... and prioritize simple words.""",
 
         'fr': f"""À partir du contenu fourni ci-dessous, génère un titre accrocheur pour un article Medium.com.
 
