@@ -23,7 +23,7 @@ This program not only converts video transcripts extremely well into beautiful, 
  * [Python v3.7](https://www.python.org/downloads/) or higher 🐍
  * A Google account with YouTube API access 🎬
  * An OpenAI API key 🧠
- * A Medium account with an integration token ✍️
+ * A Medium account with [an integration token](https://medium.com/me/settings/security) ✍️
 
 
 ## 📦 Installation
