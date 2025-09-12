@@ -257,9 +257,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     # Define instructions and prompts for both English and French languages
     instructions = {
         'en': {
-            'fr': "Translate the following French YouTube video transcript into English,",
-            'en': "Translate the following YouTube video transcript and remove all promotional content, superfluous, 'Subscribe to my channel', introductions, conclusions,",
-            'other': lambda lang: f"Translate the following {lang} YouTube video transcript into English and remove all promotional content, superfluous, 'Subscribe to my channel', introductions, conclusions,"
+            'fr': "Translate the following French YouTube video transcript into English. Remove all promotional content, superfluous, 'Subscribe to my channel', introductions, conclusions.",
+            'en': "Translate the following YouTube video transcript and remove all promotional content, superfluous, 'Subscribe to my channel', introductions, conclusions.",
+            'other': lambda lang: f"Translate the following {lang} YouTube video transcript into English and remove all promotional content, superfluous, 'Subscribe to my channel', introductions, conclusions."
         },
         'fr': {
             'fr': "Reformule la transcription vidéo YouTube suivante en français,",
@@ -269,21 +269,21 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     }
 
     prompts = {
-        'en': f"""{{instruction}} removing all filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
-    While avoiding em dashes as much as possible, rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), and exclude any promotions, related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
-    Ensure it reads well like an original article, not a transcript of a video, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
+        'en': f"""{{instruction}} remove all filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
+    While removing em dashes as much as possible, rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), CTA related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
+    Ensure it reads well and doesn't sound like a transcript, though the article must have the exact same personal and motivational voice tone as the transcript, and emphasise or highlight the personal ideas that would fascinate the readers. Pay attention to French idioms and expressions, translating them to natural English equivalents.
     End the article with short bullet/numbered points of a TL;DR / Key Takeaways or Key Lessons, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
     If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote in Markdown using blockquote syntax (>) in italic font without surrounding quotation marks, followed by the author's name on a separate line, preceded by an em dash.
-    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary Amazon book at https://book.ph7.me (use anchor text like "my self-help book" and emphasize/bold it), and/or suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
+    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
-    Kicker: Right before Title, optional very short article kicker text in h3 font.
+    Kicker: Right before Title, very short article's kicker formatted as subheading.
     Title: {title}
-    Subtitle: Right after Title, optional concise appealing (spoiler) subtitle in h3 font.
+    Subtitle: Right after Title, optional concise appealing / clickbait formatted as subheading.
 
     Transcript: {transcript[:40800]}
 
     Structured as a Medium.com article in English while keeping the identical same voice tone as in the original transcript.
-    Use simple words, no em dashes, and DO NOT use any irrelevant or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
+    Use simple words, no em dashes, and DO NOT use any unnecessary or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
         'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
@@ -306,7 +306,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     7. Étendre - Aller plus loin
     (Amener le lecteur au livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me ou sur mon podcast https://podcast.ph7.me (utiliser texte d'ancrage).
 
-    Si cela est pertinent avec l’article, inclue 1 à 3 citations percutantes qui résonnent profondément avec le message de l’article. Formate chaque citation en Markdown en utilisant > en italique, sans l’entourer de guillemets, puis ajoute le nom de l’auteur sur une ligne séparée, précédé d’un tiret cadratin.
+    Si cela est pertinent avec l’article, inclue 1 à 3 citations dispercées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation en Markdown blockquote en utilisant (>) et en italique, sans entourer la citation entre guillemets, puis ajoute le nom de l'auteur sur une ligne séparée, précédé d’un tiret cadratin.
     Termine l'article avec un bref récap sous forme de points et/ou liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
