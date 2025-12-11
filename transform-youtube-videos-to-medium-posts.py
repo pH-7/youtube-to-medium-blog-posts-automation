@@ -23,6 +23,19 @@ MAX_CALLS_IN_PERIOD = 1
 LONG_ARTICLE_THRESHOLD = 2499
 VERY_LONG_ARTICLE_THRESHOLD = 5800
 
+# Video duration thresholds (in seconds)
+SHORT_VIDEO_DURATION = 600  # 10 minutes
+MEDIUM_VIDEO_DURATION = 1800  # 30 minutes
+LONG_VIDEO_DURATION = 2400  # 40 minutes - optimal threshold for extended articles
+VERY_LONG_VIDEO_DURATION = 3600  # 60 minutes
+
+# Transcript character limits based on video duration
+# Balance between context capture and API costs
+SHORT_VIDEO_TRANSCRIPT_LIMIT = 40800  # ~8k-10k words
+MEDIUM_VIDEO_TRANSCRIPT_LIMIT = 102000  # ~20k-25k words (2.5x base)
+LONG_VIDEO_TRANSCRIPT_LIMIT = 204000  # ~40k-50k words (5x base) - for 40min videos
+VERY_LONG_VIDEO_TRANSCRIPT_LIMIT = 306000  # ~60k-75k words (7.5x base) - for 60min+ videos
+
 
 @dataclass
 class UnsplashImage:
@@ -36,6 +49,7 @@ class VideoData:
     title: str
     description: str
     published_at: str
+    duration_seconds: int = 0
 
 @sleep_and_retry
 @limits(calls=MAX_CALLS_IN_PERIOD, period=RATE_LIMIT_PERIOD_SECONDS) # 1 call for every 3 minutes
@@ -215,7 +229,8 @@ def get_channel_videos(youtube, channel_id: str) -> List[VideoData]:
                                 id=item["id"],
                                 title=item["snippet"]["title"],
                                 description=item["snippet"]["description"],
-                                published_at=item["snippet"]["publishedAt"]
+                                published_at=item["snippet"]["publishedAt"],
+                                duration_seconds=duration_seconds
                             )
                             videos.append(video_data)
 
@@ -251,8 +266,65 @@ def parse_duration(duration_str: str) -> int:
         print(f"Error parsing duration {duration_str}: {e}")
         return 0
 
-def generate_article_from_transcript(transcript: str, title: str, source_language: str = 'fr', output_language: str = 'en') -> str:
+def generate_article_from_transcript(transcript: str, title: str, source_language: str = 'fr', output_language: str = 'en', video_duration: int = 0) -> str:
+    """
+    Generate article from transcript with dynamic handling based on video duration.
+    
+    Args:
+        transcript: Video transcript text
+        title: Video title
+        source_language: Source language code
+        output_language: Output language code
+        video_duration: Video duration in seconds
+    
+    Returns:
+        Generated article content
+    """
     client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
+    
+    # Determine transcript limit and max tokens based on video duration
+    # For 40+ minute videos, capture significantly more context for quality articles
+    if video_duration > VERY_LONG_VIDEO_DURATION:
+        transcript_limit = VERY_LONG_VIDEO_TRANSCRIPT_LIMIT
+        max_tokens = 16000
+        print(f"✓ Processing very long video ({video_duration//60} minutes) with maximum context capture")
+    elif video_duration > LONG_VIDEO_DURATION:
+        # Sweet spot for 40-60 minute videos
+        transcript_limit = LONG_VIDEO_TRANSCRIPT_LIMIT
+        max_tokens = 12000
+        print(f"✓ Processing long video ({video_duration//60} minutes) with extended context for in-depth article")
+    elif video_duration > MEDIUM_VIDEO_DURATION:
+        transcript_limit = MEDIUM_VIDEO_TRANSCRIPT_LIMIT
+        max_tokens = 8000
+        print(f"✓ Processing medium-long video ({video_duration//60} minutes) with enhanced context")
+    elif video_duration > SHORT_VIDEO_DURATION:
+        transcript_limit = MEDIUM_VIDEO_TRANSCRIPT_LIMIT
+        max_tokens = 7000
+        print(f"✓ Processing medium video ({video_duration//60} minutes)")
+    else:
+        transcript_limit = SHORT_VIDEO_TRANSCRIPT_LIMIT
+        max_tokens = 5000
+        print(f"✓ Processing short video ({video_duration//60} minutes)")
+
+    # For very long transcripts, use intelligent sampling to capture key content
+    transcript_to_use = transcript[:transcript_limit]
+    if len(transcript) > transcript_limit and video_duration > LONG_VIDEO_DURATION:
+        # Capture beginning (40%), middle (30%), and end (30%) for comprehensive coverage
+        beginning_size = int(transcript_limit * 0.4)
+        middle_size = int(transcript_limit * 0.3)
+        end_size = transcript_limit - beginning_size - middle_size
+
+        middle_start = (len(transcript) - middle_size) // 2
+        end_start = len(transcript) - end_size
+
+        transcript_to_use = (
+            transcript[:beginning_size] +
+            "\n\n[... middle section of video ...]\n\n" +
+            transcript[middle_start:middle_start + middle_size] +
+            "\n\n[... continuing to conclusion ...]\n\n" +
+            transcript[end_start:]
+        )
+        print(f"✓ Using intelligent sampling: capturing beginning, key middle section, and conclusion")
 
     # Define instructions and prompts for both English and French languages
     instructions = {
@@ -270,8 +342,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     prompts = {
         'en': f"""{{instruction}} Remove all filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
-    While removing em dashes as much as possible, rewrite it as a well-structured article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), CTA related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
+    While removing em dashes as much as possible, rewrite it as a well-structured, comprehensive article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), CTA related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well and doesn't sound like a transcript, though the article must keep the exact same personal, positive, and motivational voice tone and unique written style markers as the transcript, and emphasise or highlight personal ideas that could fascinate the readers. Pay special attention to French idioms and expressions, translating them to their natural English equivalents.
+    For longer content, develop each key concept thoroughly with examples, actionable steps, and deeper insights. Create a cohesive narrative that flows naturally from one idea to the next.
     End the article with short bullet/numbered points of a TL;DR / Key Takeaways or Key Lessons, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
     If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote in Markdown using blockquote syntax (>) in italic font without surrounding quotation marks, followed by the author's name on a separate line, preceded by an em dash.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
@@ -280,7 +353,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Title: {title}
     Subtitle: Right after Title, optional concise appealing / clickbait formatted as subheading.
 
-    Transcript: {transcript[:40800]}
+    Transcript: {transcript_to_use}
 
     Structured as a Medium.com article in English while keeping the identical same voice tone as in the original transcript.
     Use simple words, no em dashes, and DO NOT use any unnecessary or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
@@ -306,7 +379,8 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     7. Étendre - Aller plus loin
     (Amener le lecteur au livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me ou sur mon podcast https://podcast.ph7.me (utiliser texte d'ancrage).
 
-    Si cela est pertinent avec l’article, inclue 1 à 3 citations dispercées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation en Markdown blockquote en utilisant (>) et en italique, sans entourer la citation entre guillemets, puis ajoute le nom de l'auteur sur une ligne séparée, précédé d’un tiret cadratin.
+    Pour les contenus plus longs, développe chaque concept clé en profondeur avec des exemples, des étapes actionnables et des insights plus approfondis. Crée un récit cohérent qui s'enchaîne naturellement d'une idée à l'autre.
+    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispercées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation en Markdown blockquote en utilisant (>) et en italique, sans entourer la citation entre guillemets, puis ajoute le nom de l'auteur sur une ligne séparée, précédé d'un tiret cadratin.
     Termine l'article avec un bref récap sous forme de points et/ou liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
@@ -314,7 +388,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Titre: {title}
     Sous-titre: Juste après le Titre, sous-titre optionnel en police h3, qui donne une promesse concise qui aguiche/intrigue davantage.
 
-    Transcription: {transcript[:40800]}
+    Transcription: {transcript_to_use}
 
     Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
     }
@@ -342,15 +416,16 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
             {"role": "user", "content": prompt}
         ],
         temperature=0.2,
-        max_completion_tokens=5000  # Increased max tokens to allow longer responses
+        max_completion_tokens=max_tokens
     )
+
+    article_content = response.choices[0].message.content
 
     print(
         f"✓ Article generated from transcript for '{title}' from '{source_language}' to '{output_language}'")
+    print(f"✓ Article length: {len(article_content)} characters, used {len(transcript_to_use)} chars of transcript (from {len(transcript)} total)")
 
-    return response.choices[0].message.content
-
-
+    return article_content
 def generate_tags(article_content: str, title: str, output_language: str = 'en') -> List[str]:
     """
     Generate tags for an article in either English or French.
@@ -839,7 +914,8 @@ def main():
                 transcript,
                 video.title,
                 source_language=source_language,
-                output_language=output_language
+                output_language=output_language,
+                video_duration=video.duration_seconds
             )
             tags = generate_tags(article, video.title,
                                  output_language=output_language)
