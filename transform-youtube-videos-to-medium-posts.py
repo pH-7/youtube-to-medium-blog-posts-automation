@@ -472,7 +472,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     print(f"✓ Article length: {len(article_content)} characters, used {len(transcript_to_use)} chars of transcript (from {len(transcript)} total)")
 
     return article_content
-def generate_tags(article_content: str, title: str, output_language: str = 'en') -> List[str]:
+def generate_tags(article_content: str, title: str, output_language: str = 'en', niche: str = 'self-help') -> List[str]:
     """
     Generate tags for an article in either English or French.
 
@@ -480,6 +480,7 @@ def generate_tags(article_content: str, title: str, output_language: str = 'en')
         article_content: The content of the article
         title: The title of the article
         output_language: Target language ('en' or 'fr')
+        niche: Content niche ('self-help' or 'tech')
 
     Returns:
         List[str]: List of exactly 5 tags in the specified language
@@ -509,10 +510,16 @@ La réponse doit ressembler exactement à ceci :
         'fr': 'Tu es un générateur de tags qui ne produit que des objets JSON valides avec un tableau "tags" contenant exactement 5 tags'
     }
 
-    # Default tags for each language
+    # Default tags for each language and niche
     default_tags = {
-        'en': ["self help", "psychology", "self improvement", "personal development", "personal growth"],
-        'fr': ["développement personnel", "psychologie", "croissance personnelle", "motivation", "bien-être"]
+        'self-help': {
+            'en': ["Self Help", "Psychology", "Self Improvement", "Personal Development", "Personal Growth"],
+            'fr': ["Développement Personnel", "Psychologie", "Croissance Personnelle", "Motivation", "Bien-Être"]
+        },
+        'tech': {
+            'en': ["Programming", "Software Development", "Coding", "Technology", "Developer Tools"],
+            'fr': ["Programmation", "Développement Logiciel", "Codage", "Technologie", "Outils Développeur"]
+        }
     }
 
     # Get the appropriate prompt and system message based on the output language
@@ -549,15 +556,15 @@ La réponse doit ressembler exactement à ceci :
 
             print(
                 f"✗ Invalid tags format. Using default tags instead. Error: {parsed_response}")
-            return default_tags[output_language]
+            return default_tags.get(niche, default_tags['self-help'])[output_language]
 
         except json.JSONDecodeError as je:
             print(f"JSON parsing error: {je}. Response content: {content}")
-            return default_tags[output_language]
+            return default_tags.get(niche, default_tags['self-help'])[output_language]
 
     except Exception as e:
         print(f"✗ Error generating tags: {e}")
-        return default_tags[output_language]
+        return default_tags.get(niche, default_tags['self-help'])[output_language]
 
 def generate_article_title(article_content: str, output_language: str = 'en') -> str:
     """
@@ -1145,7 +1152,7 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                         niche=niche_name
                     )
                     
-                    tags = generate_tags(article, video.title, output_language=output_language)
+                    tags = generate_tags(article, video.title, output_language=output_language, niche=niche_name)
                     optimized_title = generate_article_title(article, output_language=output_language)
 
                     # Retrieve images. Number of images depends if the article is long or short
