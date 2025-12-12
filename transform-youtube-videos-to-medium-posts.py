@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import random
 import isodate
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
@@ -266,7 +267,7 @@ def parse_duration(duration_str: str) -> int:
         print(f"Error parsing duration {duration_str}: {e}")
         return 0
 
-def generate_article_from_transcript(transcript: str, title: str, source_language: str = 'fr', output_language: str = 'en', video_duration: int = 0) -> str:
+def generate_article_from_transcript(transcript: str, title: str, source_language: str = 'fr', output_language: str = 'en', video_duration: int = 0, niche: str = 'self-help') -> str:
     """
     Generate article from transcript with dynamic handling based on video duration.
     
@@ -276,6 +277,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         source_language: Source language code
         output_language: Output language code
         video_duration: Video duration in seconds
+        niche: Content niche ('self-help' or 'tech')
     
     Returns:
         Generated article content
@@ -340,9 +342,52 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         }
     }
 
-    prompts = {
-        'en': f"""{{instruction}} Remove all filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
-    While removing em dashes as much as possible, rewrite it as a well-structured, comprehensive article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), CTA related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
+    # Define niche-specific prompts
+    if niche == 'tech':
+        # Tech CTAs - randomly select 2-3 platforms to avoid overwhelming readers
+        tech_ctas = [
+            "🤖 Get inspired by [open-source projects I've built](https://github.com/pH-7) over the years",
+            "🔥 Follow my [AI & tech journey on Substack](https://substack.com/@pierrehenry)",
+            "⚡️ Check out [my book on PRO coding practices](https://github.com/pH-7/GoodJsCode)",
+            "🤔 [Learn more about me on Dev.to](https://dev.to/pierre)",
+            "👋 [Support my work with a coffee](https://ko-fi.com/phenry) if this helped you",
+            "📺 [Subscribe to my YouTube channel](https://www.youtube.com/@pH7Programming) for weekly programming videos"
+        ]
+        
+        # Randomly select 2-3 CTAs
+        num_ctas = random.randint(2, 3)
+        selected_ctas = random.sample(tech_ctas, num_ctas)
+        tech_cta_section = '\n'.join(selected_ctas)
+        
+        prompts = {
+            'en': f"""{{instruction}} Remove all filler sounds and verbal tics.
+    Rewrite this as a well-structured technical article for "NextGen Dev: AI & Software Development", skipping video intro/outro and promotional content.
+    
+    CRITICAL: Preserve the speaker's EXACT voice, tone, and personality. Match their speaking style precisely:
+    - Keep their casual/formal tone, first-person perspective, directness, and enthusiasm
+    - Maintain their teaching style, analogies, and personal experiences
+    - Avoid generic corporate tech blog voice - write as the speaker would write
+    
+    For longer content, develop technical concepts with code examples and practical insights. Create natural narrative flow.
+    End with "Key Takeaways" bullet points. Include 1-2 relevant technical quotes if appropriate.
+    
+    After a Markdown separator, add this CTA section in the same voice as the article:
+    {tech_cta_section}
+
+    Kicker: Short article kicker as subheading
+    Title: {title}
+    Subtitle: Optional concise technical subtitle as subheading
+
+    Transcript: {transcript_to_use}
+
+    Format as Medium.com article. Use clear technical language matching the speaker's natural style.
+    Avoid unnecessary buzzwords and corporate jargon unless the speaker uses them. Hilight a few important sentences if any.
+    Use Markdown for headings, code blocks, links, bold, italic:"""
+        }
+    else:  # self-help niche
+        prompts = {
+            'en': f"""{{instruction}} Remove all filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
+    While ensuring em dashes aren't used, rewrite it as a well-structured, comprehensive article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), CTA related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well and doesn't sound like a transcript, though the article must keep the exact same personal, positive, and motivational voice tone and unique written style markers as the transcript, and emphasise or highlight personal ideas that could fascinate the readers. Pay special attention to French idioms and expressions, translating them to their natural English equivalents.
     For longer content, develop each key concept thoroughly with examples, actionable steps, and deeper insights. Create a cohesive narrative that flows naturally from one idea to the next.
     End the article with short bullet/numbered points of a TL;DR / Key Takeaways or Key Lessons, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
@@ -359,7 +404,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Use simple words, no em dashes, and DO NOT use any unnecessary or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
-        'fr': f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
+        }
+        if output_language == 'fr':  # Only self-help niche has French output
+            prompts['fr'] = f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
     Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir,  code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
     Rédige la transcription vidéo sous forme d'un article facile à lire. Mets en valeur les idées personnelles qui peuvent fasciner.
 
@@ -391,7 +438,6 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Transcription: {transcript_to_use}
 
     Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
-    }
 
     # Get the appropriate instruction based on source and output languages
     instruction_map = instructions[output_language]
@@ -801,13 +847,14 @@ tags: {formatted_tags}
     print(f"✓ Article saved locally at: {file_name}")
     return file_name
 
-def post_to_medium(title: str, content: str, tags: List[str], output_language: str) -> Optional[str]:
+def post_to_medium(title: str, content: str, tags: List[str], output_language: str, niche: str = 'self-help') -> Optional[str]:
     """
     Post article to Medium with support for publication posting.
     """
     config = load_config()
     en_publication_id = config.get('MEDIUM_EN_PUBLICATION_ID')
     fr_publication_id = config.get('MEDIUM_FR_PUBLICATION_ID')
+    tech_publication_id = config.get('MEDIUM_TECH_PUBLICATION_ID')
     post_to_publication = config.get('POST_TO_PUBLICATION', False)
     token = config['MEDIUM_ACCESS_TOKEN']
     publish_status = config['PUBLISH_STATUS']
@@ -831,8 +878,14 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
     }
 
     try:
-        if post_to_publication and (en_publication_id or fr_publication_id):
+        # Select publication based on niche and language
+        if niche == 'tech':
+            publication_id = tech_publication_id
+        else:
             publication_id = fr_publication_id if output_language == 'fr' else en_publication_id
+
+        # Only post to publication if we have a valid publication ID
+        if post_to_publication and publication_id:
             # Post to publication
             response = requests.post(
                 f"https://api.medium.com/v1/publications/{publication_id}/posts",
@@ -882,83 +935,291 @@ def check_article_exists(title: str, base_dir: str = 'articles') -> Optional[str
     return file_name if os.path.exists(file_name) else None
 
 
-def main():
-    youtube = get_authenticated_service()
-    channel_id = config['YOUTUBE_CHANNEL_ID']
+def check_unpublished_article(title: str, base_dir: str = 'articles') -> Optional[str]:
+    """
+    Check if an unpublished article exists locally for the given video title.
+
+    Args:
+        title (str): The original video title
+        base_dir (str, optional): The base directory to search. Defaults to 'articles'.
+
+    Returns:
+        Optional[str]: Path to the unpublished article file or None if not found
+    """
+    safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+    unpublished_file = os.path.join(base_dir, f"not_published_{safe_title}.md")
+    return unpublished_file if os.path.exists(unpublished_file) else None
+
+
+def extract_article_from_file(file_path: str) -> Optional[Dict[str, Any]]:
+    """
+    Extract article content and metadata from a saved markdown file.
+
+    Args:
+        file_path (str): Path to the markdown file
+
+    Returns:
+        Optional[Dict[str, Any]]: Dictionary containing 'title', 'tags', 'content', or None if parsing fails
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Split metadata from article content
+        parts = content.split('---\n')
+        if len(parts) < 3:
+            print(f"✗ Invalid article format in {file_path}")
+            return None
+        
+        metadata_section = parts[1]
+        article_content = '---\n'.join(parts[2:]).strip()
+        
+        # Parse metadata
+        metadata = {}
+        for line in metadata_section.split('\n'):
+            if ':' in line:
+                key, value = line.split(':', 1)
+                metadata[key.strip()] = value.strip()
+        
+        # Extract required fields
+        optimized_title = metadata.get('optimized_title', '')
+        tags_str = metadata.get('tags', '')
+        tags = [tag.strip() for tag in tags_str.split(',') if tag.strip()]
+        
+        if not optimized_title or not article_content:
+            print(f"✗ Missing required fields in {file_path}")
+            return None
+        
+        return {
+            'title': optimized_title,
+            'tags': tags,
+            'content': article_content
+        }
+    
+    except Exception as e:
+        print(f"✗ Error reading article from {file_path}: {e}")
+        return None
+
+
+def rename_published_article(old_path: str, original_title: str, base_dir: str) -> Optional[str]:
+    """
+    Rename an unpublished article file to a published one after successful Medium post.
+
+    Args:
+        old_path (str): Current path of the unpublished article
+        original_title (str): Original video title (without 'not_published_' prefix)
+        base_dir (str): Base directory where the file is located
+
+    Returns:
+        Optional[str]: New file path or None if rename fails
+    """
+    try:
+        safe_title = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+        new_path = os.path.join(base_dir, f"{safe_title}.md")
+        
+        os.rename(old_path, new_path)
+        print(f"✓ Renamed article: {os.path.basename(old_path)} → {os.path.basename(new_path)}")
+        return new_path
+    
+    except Exception as e:
+        print(f"✗ Error renaming article: {e}")
+        return None
+
+
+def update_article_medium_url(file_path: str, medium_url: str) -> bool:
+    """
+    Update the medium_url field in an article's metadata.
+
+    Args:
+        file_path (str): Path to the article file
+        medium_url (str): New Medium URL to set
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Replace the medium_url in metadata
+        updated_content = content.replace('medium_url: not_published', f'medium_url: {medium_url}')
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(updated_content)
+        
+        return True
+    
+    except Exception as e:
+        print(f"✗ Error updating medium_url in {file_path}: {e}")
+        return False
+
+
+def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
+    """
+    Process videos for a specific niche.
+    
+    Args:
+        youtube: YouTube API service instance
+        niche_name: Name of the niche ('self-help' or 'tech')
+        niche_config: Configuration dictionary for the niche
+    """
+    channel_id = niche_config['YOUTUBE_CHANNEL_ID']
+    source_language = niche_config.get('SOURCE_LANGUAGE', 'en')
+    output_languages = niche_config.get('OUTPUT_LANGUAGES', ['en'])
+    base_dir = niche_config.get('ARTICLES_BASE_DIR', 'articles')
+    
+    print(f"\n{'='*60}")
+    print(f"Processing niche: {niche_name.upper()}")
+    print(f"Channel ID: {channel_id}")
+    print(f"Source language: {source_language}")
+    print(f"Output languages: {', '.join(output_languages)}")
+    print(f"{'='*60}\n")
+    
     videos = get_channel_videos(youtube, channel_id)
+    print(f"Found {len(videos)} videos in the {niche_name} channel")
 
-    print(f"Found {len(videos)} videos in the channel")
-
-    source_language = config.get('SOURCE_LANGUAGE', 'fr')
-    output_language = config.get('OUTPUT_LANGUAGE', 'en')
-
-    for index, video in enumerate(videos, 1): # Start from 1
-        # Skip if article already exists
-        if check_article_exists(
-            video.title,
-            base_dir=f"articles/{output_language}" if output_language != 'en' else 'articles'
-        ):
-            print(f"Already exists locally. Skipping '{video.title}'")
-            continue
-
+    for index, video in enumerate(videos, 1):
         print(f"Waiting for {RATE_LIMIT_PERIOD_SECONDS} seconds before processing the next video...")
         print_progress_separator(index, len(videos), video.title)
-
+        
         try:
-            transcript = get_video_transcript(video.id, language=source_language)
-            if not transcript:
-                print(f"No transcript available for: {video.title}")
-                continue
+            # Process for each output language
+            for output_language in output_languages:
+                try:
+                    # Determine article directory
+                    if niche_name == 'self-help' and output_language != 'en':
+                        article_dir = f"{base_dir}/{output_language}"
+                    else:
+                        article_dir = base_dir
+                    
+                    # Skip if article already exists and is published
+                    if check_article_exists(video.title, base_dir=article_dir):
+                        print(f"Already exists locally. Skipping '{video.title}' for {output_language}")
+                        continue
+                    
+                    # Check for unpublished article and try to publish it first (saves OpenAI credits)
+                    unpublished_path = check_unpublished_article(video.title, base_dir=article_dir)
+                    if unpublished_path:
+                        print(f"✓ Found unpublished article: {os.path.basename(unpublished_path)}")
+                        print(f"✓ Attempting to publish existing article to Medium (avoiding OpenAI regeneration)...")
+                        
+                        article_data = extract_article_from_file(unpublished_path)
+                        if article_data:
+                            try:
+                                medium_url = post_to_medium(
+                                    article_data['title'],
+                                    article_data['content'],
+                                    article_data['tags'],
+                                    output_language,
+                                    niche=niche_name
+                                )
+                                
+                                if medium_url:
+                                    print(f"✓ Successfully published! URL: {medium_url}")
+                                    # Update the medium_url in the file
+                                    if update_article_medium_url(unpublished_path, medium_url):
+                                        # Rename file to remove 'not_published_' prefix
+                                        new_path = rename_published_article(unpublished_path, video.title, article_dir)
+                                        if new_path:
+                                            print(f"✓ Article optimization complete - saved OpenAI API credits!")
+                                            continue
+                                else:
+                                    print(f"✗ Publication failed again, will keep as unpublished")
+                                    continue
+                            except Exception as e:
+                                print(f"✗ Error publishing existing article: {e}")
+                                continue
+                    
+                    # If no unpublished article exists, generate new content from transcript
+                    transcript = get_video_transcript(video.id, language=source_language)
+                    if not transcript:
+                        print(f"No transcript available for: {video.title}")
+                        continue
+                    
+                    article = generate_article_from_transcript(
+                        transcript,
+                        video.title,
+                        source_language=source_language,
+                        output_language=output_language,
+                        video_duration=video.duration_seconds,
+                        niche=niche_name
+                    )
+                    
+                    tags = generate_tags(article, video.title, output_language=output_language)
+                    optimized_title = generate_article_title(article, output_language=output_language)
 
-            article = generate_article_from_transcript(
-                transcript,
-                video.title,
-                source_language=source_language,
-                output_language=output_language,
-                video_duration=video.duration_seconds
-            )
-            tags = generate_tags(article, video.title,
-                                 output_language=output_language)
-            optimized_title = generate_article_title(
-                article, output_language=output_language)
+                    # Retrieve images. Number of images depends if the article is long or short
+                    images_per_article = 4 if len(article) > VERY_LONG_ARTICLE_THRESHOLD else (
+                        3 if len(article) > LONG_ARTICLE_THRESHOLD else 2)
 
-            # Retrieve images. Number of images depends if the article is long or short
-            images_per_article = 4 if len(article) > VERY_LONG_ARTICLE_THRESHOLD else (
-                3 if len(article) > LONG_ARTICLE_THRESHOLD else 2)
+                    # Fetch images from Unsplash using the tags
+                    images = fetch_images_from_unsplash(
+                        query=tags,
+                        article_title=optimized_title,
+                        output_language=output_language,
+                        per_page=images_per_article
+                    )
+                    if images:
+                        article = embed_images_in_content(article, images, optimized_title)
 
-            # Fetch images from Unsplash using the tags
-            images = fetch_images_from_unsplash(
-                query=tags,
-                article_title=optimized_title,
-                output_language=output_language,
-                per_page=images_per_article
-            )
-            if images:
-                article = embed_images_in_content(article, images, optimized_title)
+                    # Set default medium_url
+                    medium_url = "not_published"
 
-            # Set default medium_url
-            medium_url = "not_published"
+                    # Try to post to Medium, but continue saving article locally if fails
+                    try:
+                        medium_result = post_to_medium(optimized_title, article, tags, output_language, niche=niche_name)
+                        if medium_result:
+                            medium_url = medium_result
+                            print(f"✓ Article available at: {medium_url}")
+                    except Exception as e:
+                        print(f"✗ Failed to post to Medium: {e}")
 
-            # Try to post to Medium, but continue saving article locally if fails
-            try:
-                medium_result = post_to_medium(optimized_title, article, tags, output_language)
-                if medium_result:
-                    medium_url = medium_result
-                    print(f"✓ Article available at: {medium_url}")
-            except Exception as e:
-                print(f"✗ Failed to post to Medium: {e}")
+                    save_article_locally(
+                        "not_published_" + video.title if medium_url == "not_published" else video.title,
+                        optimized_title,
+                        tags,
+                        article,
+                        medium_url,
+                        base_dir=article_dir
+                    )
 
-            save_article_locally(
-                "not_published_" + video.title if medium_url == "not_published" else video.title,
-                optimized_title,
-                tags,
-                article,
-                medium_url,
-                base_dir=f"articles/{output_language}" if output_language != 'en' else 'articles'
-            )
-
+                except Exception as e:
+                    print(f"✗ Error processing video {video.title} for {output_language}: {e}")
+        
         except Exception as e:
             print(f"✗ Error processing video {video.title}: {e}")
+
+def main():
+    """
+    Main function to process all configured niches.
+    """
+    youtube = get_authenticated_service()
+
+    niches_config = config.get('NICHES', {})
+    active_niche = config.get('ACTIVE_NICHE', 'all')
+
+    if not niches_config:
+        print("✗ No niches configured in config.json")
+        return
+
+    # Determine which niches to process
+    if active_niche == 'all':
+        niches_to_process = niches_config.items()
+    elif active_niche in niches_config:
+        niches_to_process = [(active_niche, niches_config[active_niche])]
+    else:
+        print(f"✗ Invalid ACTIVE_NICHE: {active_niche}")
+        return
+
+    # Process each niche
+    for niche_name, niche_config in niches_to_process:
+        try:
+            process_niche(youtube, niche_name, niche_config)
+        except Exception as e:
+            print(f"✗ Error processing {niche_name} niche: {e}")
+            continue
+
+    print("\n✓ All niches processed successfully!")
 
 if __name__ == "__main__":
     main()

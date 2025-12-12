@@ -41,24 +41,45 @@ This program not only converts video transcripts extremely well into beautiful, 
 
 3. Set up your configuration file:
    - Create a file named `config.json` in the project root directory
-   - Add your API keys and the [YouTube channel ID](https://www.youtube.com/account_advanced) to the file as followed:
+   - Add your API keys and YouTube [Channel ID](https://www.youtube.com/account_advanced) to the file as followed:
      ```json
      {
        "MEDIUM_ACCESS_TOKEN": "YOUR_MEDIUM_ACCESS_TOKEN",
        "MEDIUM_EN_PUBLICATION_ID": "OPTIONAL_ENGLISH_PUBLICATION_ID",
        "MEDIUM_FR_PUBLICATION_ID": "OPTIONAL_FRENCH_PUBLICATION_ID",
-       "POST_TO_PUBLICATION": true,
-       "YOUTUBE_API_KEY": "YOUR_YOUTUBE_API_KEY",
-       "YOUTUBE_CHANNEL_ID": "YOUR_CHANNEL_ID",
+       "MEDIUM_TECH_PUBLICATION_ID": "OPTIONAL_TECH_PUBLICATION_ID",
+       "POST_TO_PUBLICATION": true, // Whenever we want the post to be published to a specified Medium's publication ID or not
        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
        "OPENAI_MODEL": "gpt-4.1", // non-reasoning models like "gpt-4.1", "gpt-4.1-mini"
        "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
-       "UNSPLASH_PREFERRED_PHOTOGRAPHER": "pierrehenry", // Optional. Mention a preferred Unsplash photographer (e.g. pierrehenry)
-       "PUBLISH_STATUS": "draft", // "draft" or "publish"
-       "SOURCE_LANGUAGE": "en",
-       "OUTPUT_LANGUAGE": "en"
+       "PUBLISH_STATUS": "draft", // "draft" or "publish
+
+       "NICHES": {
+         "self-help": {
+           "YOUTUBE_CHANNEL_ID": "YOUR_SELF_HELP_CHANNEL_ID",
+           "SOURCE_LANGUAGE": "fr",
+           "OUTPUT_LANGUAGES": ["en", "fr"],
+           "UNSPLASH_PREFERRED_PHOTOGRAPHER": "pierrehenry", // Optional. Mention a preferred Unsplash photographer (e.g. pierrehenry)
+           "ARTICLES_BASE_DIR": "articles"
+         },
+         "tech": {
+           "YOUTUBE_CHANNEL_ID": "YOUR_TECH_CHANNEL_ID",
+           "SOURCE_LANGUAGE": "en",
+           "OUTPUT_LANGUAGES": ["en"],
+           "UNSPLASH_PREFERRED_PHOTOGRAPHER": null,
+           "ARTICLES_BASE_DIR": "articles/tech"
+         }
+       },
+
+       "ACTIVE_NICHE": "all"
      }
      ```
+
+     **Multi-Niche Support:**
+     - The script now supports multiple content niches (self-help and tech)
+     - Each niche has its own YouTube channel, languages, and custom prompts
+     - Set `ACTIVE_NICHE` to `"all"`, `"self-help"`, or `"tech"` to control which niches to process
+     - Tech niche is optimized for "NextGen Dev: AI & Code" technical content
 
      Alternatively, you can refer to `example.config.json` in the project.
 
@@ -79,8 +100,14 @@ To run the script, use the following command in the project root directory:
 python transform-youtube-videos-to-medium-posts.py
 ```
 
+**Selecting which niche to process:**
+- Edit `ACTIVE_NICHE` in `config.json`:
+  - `"all"` - processes all configured niches
+  - `"self-help"` - processes only self-help niche
+  - `"tech"` - processes only tech niche
+
 **The script will:**
-1. Fetch recent videos from your YouTube channel
+1. Fetch recent videos from your YouTube channel(s)
 2. Transcribe each video
 3. Generate an exceptional well-written article for each video transcript
 4. Create 5 most relevant tags for the article
