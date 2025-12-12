@@ -381,7 +381,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Transcript: {transcript_to_use}
 
     Format as Medium.com article. Use clear technical language matching the speaker's natural style.
-    Avoid unnecessary buzzwords and corporate jargon unless the speaker uses them. Hilight a few important sentences if any.
+    DO NOT use em dashes. Avoid unnecessary buzzwords and corporate jargon unless the speaker uses them. Highlight a few important sentences if any.
     Use Markdown for headings, code blocks, links, bold, italic:"""
         }
     else:  # self-help niche
