@@ -587,7 +587,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     Ensure the title grabs attention and intrigues readers to absolutely read the article. The title should be creative and concise, ideally under 60 characters.
     When it relevant, use one of these following title formats: "Use/Adopt [Skill|Action] or [Bad Consequence]", "How [Action|Benefit] WITHOUT [Related Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] With No [Friction Point]".
 
-    Do not use em dashes and irrelevant adjective like Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer, ... and prioritize simple words.""",
+    Do not use em dashes, hyphens, or dashes. Avoid irrelevant adjective like Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer, ... and prioritize simple words.""",
 
         'fr': f"""À partir du contenu fourni ci-dessous, génère un titre accrocheur pour un article Medium.com.
 
@@ -595,7 +595,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     
     Assure-toi que le titre attire l'attention des lecteurs. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
     Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] SANS [Point de Friction]", "Faites [Compétence/Action] ou [Conséquence]".
-    Utilise le tutoiement et utilise des mots simples. N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Révolutionnaire."""
+    N'utilise pas de tirets cadratins, tirets, ou traits d'union. Utilise le tutoiement et utilise des mots simples. N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Révolutionnaire."""
     }
 
     system_messages = {
@@ -790,6 +790,7 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
     return '\n\n'.join(result)
 
 def save_article_locally(
+        video_id: str,
         original_title: str,
         title: str,
         tags: List[str],
@@ -801,6 +802,7 @@ def save_article_locally(
     Save the generated article locally as a Markdown file.
 
     Args:
+        video_id (str): The unique video ID from YouTube
         original_title (str): The original title from the video
         title (str): The optimized title for the article
         tags (List[str]): List of tags for the article
@@ -819,7 +821,7 @@ def save_article_locally(
 
     # Create a safe filename from the original title
     safe_title: str = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-    file_name: str = os.path.join(base_dir, f"{safe_title}.md")
+    file_name: str = os.path.join(base_dir, f"{video_id}_{safe_title}.md")
 
     # Create directory if it doesn't exist
     os.makedirs(base_dir, exist_ok=True)
@@ -832,6 +834,7 @@ def save_article_locally(
     formatted_tags: str = ', '.join(tags)
 
     metadata_header: str = f"""---
+video_id: {video_id}
 original_title: {original_title}
 optimized_title: {title}
 medium_url: {medium_url}
@@ -926,35 +929,37 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
         print(f"Response: {response.text if 'response' in locals() else 'No response'}")
         return None
 
-def check_article_exists(title: str, base_dir: str = 'articles') -> Optional[str]:
+def check_article_exists(video_id: str, original_title: str, base_dir: str = 'articles') -> Optional[str]:
     """
-    Check if an article already exists locally based on the title.
+    Check if an article already exists locally based on the video ID and title.
 
     Args:
-        title (str): The title of the article
+        video_id (str): The unique video ID from YouTube
+        original_title (str): The title of the article
         base_dir (str, optional): The base directory to search for articles. Defaults to 'articles'.
 
     Returns:
         Optional[str]: The path of the existing article file or None if it doesn't exist.
     """
-    safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-    file_name = os.path.join(base_dir, f"{safe_title}.md")
+    safe_title = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+    file_name = os.path.join(base_dir, f"{video_id}_{safe_title}.md")
     return file_name if os.path.exists(file_name) else None
 
 
-def check_unpublished_article(title: str, base_dir: str = 'articles') -> Optional[str]:
+def check_unpublished_article(video_id: str, original_title: str, base_dir: str = 'articles') -> Optional[str]:
     """
-    Check if an unpublished article exists locally for the given video title.
+    Check if an unpublished article exists locally for the given video ID and title.
 
     Args:
-        title (str): The original video title
+        video_id (str): The unique video ID from YouTube
+        original_title (str): The original video title
         base_dir (str, optional): The base directory to search. Defaults to 'articles'.
 
     Returns:
         Optional[str]: Path to the unpublished article file or None if not found
     """
-    safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-    unpublished_file = os.path.join(base_dir, f"not_published_{safe_title}.md")
+    safe_title = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+    unpublished_file = os.path.join(base_dir, f"not_published_{video_id}_{safe_title}.md")
     return unpublished_file if os.path.exists(unpublished_file) else None
 
 
@@ -1008,12 +1013,13 @@ def extract_article_from_file(file_path: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def rename_published_article(old_path: str, original_title: str, base_dir: str) -> Optional[str]:
+def rename_published_article(old_path: str, video_id: str, original_title: str, base_dir: str) -> Optional[str]:
     """
     Rename an unpublished article file to a published one after successful Medium post.
 
     Args:
         old_path (str): Current path of the unpublished article
+        video_id (str): The unique video ID from YouTube
         original_title (str): Original video title (without 'not_published_' prefix)
         base_dir (str): Base directory where the file is located
 
@@ -1022,7 +1028,7 @@ def rename_published_article(old_path: str, original_title: str, base_dir: str) 
     """
     try:
         safe_title = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-        new_path = os.path.join(base_dir, f"{safe_title}.md")
+        new_path = os.path.join(base_dir, f"{video_id}_{safe_title}.md")
         
         os.rename(old_path, new_path)
         print(f"✓ Renamed article: {os.path.basename(old_path)} → {os.path.basename(new_path)}")
@@ -1100,12 +1106,12 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                         article_dir = base_dir
                     
                     # Skip if article already exists and is published
-                    if check_article_exists(video.title, base_dir=article_dir):
+                    if check_article_exists(video.id, video.title, base_dir=article_dir):
                         print(f"Already exists locally. Skipping '{video.title}' for {output_language}")
                         continue
                     
                     # Check for unpublished article and try to publish it first (saves OpenAI credits)
-                    unpublished_path = check_unpublished_article(video.title, base_dir=article_dir)
+                    unpublished_path = check_unpublished_article(video.id, video.title, base_dir=article_dir)
                     if unpublished_path:
                         print(f"✓ Found unpublished article: {os.path.basename(unpublished_path)}")
                         print(f"✓ Attempting to publish existing article to Medium (avoiding OpenAI regeneration)...")
@@ -1126,7 +1132,7 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                                     # Update the medium_url in the file
                                     if update_article_medium_url(unpublished_path, medium_url):
                                         # Rename file to remove 'not_published_' prefix
-                                        new_path = rename_published_article(unpublished_path, video.title, article_dir)
+                                        new_path = rename_published_article(unpublished_path, video.id, video.title, article_dir)
                                         if new_path:
                                             print(f"✓ Article optimization complete - saved OpenAI API credits!")
                                             continue
@@ -1182,6 +1188,7 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                         print(f"✗ Failed to post to Medium: {e}")
 
                     save_article_locally(
+                        video.id,
                         "not_published_" + video.title if medium_url == "not_published" else video.title,
                         optimized_title,
                         tags,

@@ -54,6 +54,7 @@ This program not only converts video transcripts extremely well into beautiful, 
        "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
        "PUBLISH_STATUS": "draft", // "draft" or "publish
 
+       // Niche configurations
        "NICHES": {
          "self-help": {
            "YOUTUBE_CHANNEL_ID": "YOUR_SELF_HELP_CHANNEL_ID",
@@ -71,6 +72,7 @@ This program not only converts video transcripts extremely well into beautiful, 
          }
        },
 
+       // Active niche to process ("self-help" or "tech" or "all")
        "ACTIVE_NICHE": "all"
      }
      ```

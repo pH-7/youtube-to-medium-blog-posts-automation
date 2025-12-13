@@ -5,11 +5,10 @@
     "MEDIUM_TECH_PUBLICATION_ID": "OPTIONAL_TECH_PUBLICATION_ID",
     "POST_TO_PUBLICATION": true,
     "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
-    "OPENAI_MODEL": "gpt-4.1", // non-reasoning models like "gpt-4.1", "gpt-4.1-mini"
+    "OPENAI_MODEL": "gpt-4.1",
     "UNSPLASH_ACCESS_KEY": "YOUR_UNSPLASH_KEY",
-    "PUBLISH_STATUS": "draft", // "draft" or "publish"
+    "PUBLISH_STATUS": "draft",
 
-    // Niche configurations
     "NICHES": {
         "self-help": {
             "YOUTUBE_CHANNEL_ID": "YOUR_SELF_HELP_CHANNEL_ID",
@@ -27,6 +26,5 @@
         }
     },
 
-    // Active niche to process ("self-help" or "tech" or "all")
     "ACTIVE_NICHE": "all"
 }
