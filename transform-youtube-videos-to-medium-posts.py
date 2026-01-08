@@ -1132,10 +1132,31 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
     print(f"Found {len(videos)} videos in the {niche_name} channel")
 
     for index, video in enumerate(videos, 1):
-        print(f"Waiting for {RATE_LIMIT_PERIOD_SECONDS} seconds before processing the next video...")
-        print_progress_separator(index, len(videos), video.title)
-        
         try:
+            # Quick check: if article exists for all output languages, skip without waiting
+            all_exist = True
+            for output_language in output_languages:
+                # Determine article directory
+                if niche_name == 'self-help' and output_language != 'en':
+                    article_dir = f"{base_dir}/{output_language}"
+                else:
+                    article_dir = base_dir
+                
+                # Check if article exists or if unpublished version exists
+                if not (check_article_exists(video.id, video.title, base_dir=article_dir) or 
+                        check_unpublished_article(video.id, video.title, base_dir=article_dir)):
+                    all_exist = False
+                    break
+            
+            # If all articles exist, skip immediately without rate limiting
+            if all_exist:
+                print(f"[{index}/{len(videos)}] Already exists locally. Skipping '{video.title}' (no wait)")
+                continue
+            
+            # Apply rate limiting only for videos that need processing
+            print(f"Waiting for {RATE_LIMIT_PERIOD_SECONDS} seconds before processing the next video...")
+            print_progress_separator(index, len(videos), video.title)
+            
             # Process for each output language
             for output_language in output_languages:
                 try:
