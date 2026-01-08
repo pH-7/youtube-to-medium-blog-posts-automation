@@ -789,6 +789,20 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
 
     return '\n\n'.join(result)
 
+def embed_youtube_video(article_content: str, video_id: str) -> str:
+    """
+    Embed YouTube video at the beginning of the article content using Medium-compatible format.
+
+    Args:
+        article_content: The main article content
+        video_id: YouTube video ID
+
+    Returns:
+        str: Article content with embedded YouTube video at the top
+    """
+    youtube_embed = f"https://www.youtube.com/watch?v={video_id}\n\n"
+    return youtube_embed + article_content
+
 def save_article_locally(
         video_id: str,
         original_title: str,
@@ -833,8 +847,12 @@ def save_article_locally(
     # Format tags with comma and space separation
     formatted_tags: str = ', '.join(tags)
 
+    # Generate YouTube video URL
+    youtube_url: str = f"https://www.youtube.com/watch?v={video_id}"
+
     metadata_header: str = f"""---
 video_id: {video_id}
+youtube_url: {youtube_url}
 original_title: {original_title}
 optimized_title: {title}
 medium_url: {medium_url}
@@ -1174,6 +1192,11 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                     )
                     if images:
                         article = embed_images_in_content(article, images, optimized_title)
+
+                    # Embed YouTube video for tech niche only
+                    if niche_name == 'tech':
+                        article = embed_youtube_video(article, video.id)
+                        print(f"✓ Embedded YouTube video in article")
 
                     # Set default medium_url
                     medium_url = "not_published"
