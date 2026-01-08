@@ -791,17 +791,40 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
 
 def embed_youtube_video(article_content: str, video_id: str) -> str:
     """
-    Embed YouTube video at the beginning of the article content using Medium-compatible format.
+    Embed YouTube video randomly within the article content using Medium-compatible format.
+    Medium automatically converts YouTube URLs into embedded video players.
+    The video is placed at a random position (1/4, 1/2, or 3/4) through the article.
 
     Args:
         article_content: The main article content
         video_id: YouTube video ID
 
     Returns:
-        str: Article content with embedded YouTube video at the top
+        str: Article content with embedded YouTube video at a random position
     """
-    youtube_embed = f"https://www.youtube.com/watch?v={video_id}\n\n"
-    return youtube_embed + article_content
+    # Split content into paragraphs
+    paragraphs = article_content.split('\n\n')
+    
+    # If article is too short, place at the beginning
+    if len(paragraphs) < 4:
+        youtube_embed = f"https://www.youtube.com/watch?v={video_id}\n\n---\n\n"
+        return youtube_embed + article_content
+    
+    # Randomly choose insertion point: 1/4, 1/2, or 3/4 of the way through
+    position_options = [
+        len(paragraphs) // 4,      # 25% through
+        len(paragraphs) // 2,      # 50% through
+        (len(paragraphs) * 3) // 4  # 75% through
+    ]
+    insertion_point = random.choice(position_options)
+    
+    # Create YouTube embed block with separators
+    youtube_block = f"---\n\nhttps://www.youtube.com/watch?v={video_id}\n\n---"
+    
+    # Insert the video at the chosen position
+    result = paragraphs[:insertion_point] + [youtube_block] + paragraphs[insertion_point:]
+    
+    return '\n\n'.join(result)
 
 def save_article_locally(
         video_id: str,
@@ -888,12 +911,11 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
     publish_status = config['PUBLISH_STATUS']
 
     # Prepare article in Markdown format
-    full_content = f"# {title}\n\n{content}"
-
+    # Note: Medium API handles title separately, so we don't include it in content
     article = {
         "title": title,
         "contentFormat": "markdown",
-        "content": full_content,
+        "content": content,
         "tags": tags[:5],  # Medium allows up to 5 tags
         "publishStatus": publish_status
     }
