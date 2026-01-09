@@ -1143,7 +1143,7 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                     article_dir = base_dir
                 
                 # Check if article exists or if unpublished version exists
-                if not (check_article_exists(video.id, video.title, base_dir=article_dir) or 
+                if not (check_article_exists(video.id, video.title, base_dir=article_dir) or
                         check_unpublished_article(video.id, video.title, base_dir=article_dir)):
                     all_exist = False
                     break
