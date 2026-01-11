@@ -5,6 +5,10 @@ articles/*
 ## Config ##
 config.json
 
+## Google/YouTube API Credentials ##
+client_secrets.json
+token.json
+
 ## IDE - PyCharm ##
 .idea
 
