@@ -723,10 +723,7 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
         processed_images = [
             UnsplashImage(
                 url=result.get('urls', {}).get('regular'),
-                alt=result.get('description') or (
-                    f"Photo par {result.get('user', {}).get('name')}" if output_language == 'fr'
-                    else f"Photo by {result.get('user', {}).get('name')}"
-                ),
+                alt=article_title.strip(),
                 caption=caption_formatter(
                     result.get('user', {}).get('name'),
                     result.get('links', {}).get('html'),
@@ -762,8 +759,7 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
         return article_content
 
     def create_image_block(image: UnsplashImage) -> str:
-        return f"""![{image.alt}]({image.url} "{article_title}")
-*{image.caption}*\n\n"""
+        return f"![{image.alt}]({image.url})\n\n_{image.caption}_"
 
     # Split content into paragraphs
     paragraphs = article_content.split('\n\n')
