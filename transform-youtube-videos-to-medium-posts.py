@@ -743,14 +743,14 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
 
 def embed_images_in_content(article_content: str, images: List[UnsplashImage], article_title: str) -> str:
     """
-    Embed 1-3 images in the article content using Medium-compatible Markdown format.
-    First image is always placed as the header image, additional images (if any)
-    are distributed through the content at 1/3 and 2/3 positions.
+    Embed images in the article content using Medium-compatible Markdown format.
+    First image is always placed as the header image, additional images
+    are evenly distributed through the content.
 
     Args:
         article_content: The main article content
-        images: List of UnsplashImage objects (1-3 images)
-        article_title: Title of the article for image title attribute
+        images: List of UnsplashImage objects
+        article_title: Title of the article
 
     Returns:
         str: Article content with embedded images and their captions
@@ -764,24 +764,21 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
     # Split content into paragraphs
     paragraphs = article_content.split('\n\n')
 
-    # Calculate insertion points for additional images
-    one_third = len(paragraphs) // 3
-    two_thirds = (len(paragraphs) * 2) // 3
-
     # Start with header image
     result = [create_image_block(images[0])]
 
-    # Add content with additional images if available
+    # Evenly distribute remaining images through the content
+    extra_images = images[1:]
+    insertion_points = {
+        (len(paragraphs) * (i + 1)) // (len(extra_images) + 1): img
+        for i, img in enumerate(extra_images)
+    } if extra_images else {}
+
     for i, paragraph in enumerate(paragraphs):
         result.append(paragraph)
 
-        # Add second image at 1/3 point if available
-        if i == one_third and len(images) >= 2:
-            result.append(create_image_block(images[1]))
-
-        # Add third image at 2/3 point if available
-        if i == two_thirds and len(images) >= 3:
-            result.append(create_image_block(images[2]))
+        if i in insertion_points:
+            result.append(create_image_block(insertion_points[i]))
 
     return '\n\n'.join(result)
 
@@ -855,9 +852,6 @@ def save_article_locally(
     # Create a safe filename from the original title
     safe_title: str = "".join([c for c in original_title if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
     file_name: str = os.path.join(base_dir, f"{video_id}_{safe_title}.md")
-
-    # Create directory if it doesn't exist
-    os.makedirs(base_dir, exist_ok=True)
 
     # Check if article already exists
     if os.path.exists(file_name):
