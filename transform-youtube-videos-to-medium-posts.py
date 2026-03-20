@@ -375,13 +375,13 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     After a Markdown separator, add this CTA section in the same voice as the article:
     {tech_cta_section}
 
-    Kicker: Short article kicker in bold
+    Kicker: Very short bold text above the title (use **bold**, never a heading).
     Title: {title}
-    Subtitle: Optional concise technical subtitle as subheading
+    Subtitle: Optional concise technical subtitle as ### H3 heading.
 
     Transcript: {transcript_to_use}
 
-    Format as Medium.com article. Use clear technical language matching the speaker's natural style.
+    Format as Medium.com article. Use ## for section headings and ### for subsection headings only (Medium ignores #### and below).
     DO NOT use em dashes. Avoid unnecessary buzzwords and corporate jargon unless the speaker uses them. Highlight a few important sentences if any.
     Use Markdown for headings, code blocks, links, bold, italic:"""
         }
@@ -395,13 +395,14 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote in Markdown using blockquote syntax (>) in italic font without surrounding quotation marks, followed by the author's name on a separate line, preceded by a dash.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
-    Kicker: Right before Title, very short article's kicker formatted in bold.
+    Kicker: Right before Title, very short bold text (use **bold**, never a heading).
     Title: {title}
-    Subtitle: Right after Title, optional concise appealing / clickbait formatted as subheading.
+    Subtitle: Right after Title, optional concise appealing / clickbait as ### H3 heading.
 
     Transcript: {transcript_to_use}
 
     Structured as a Medium.com article in English while keeping the identical same voice tone as in the original transcript.
+    Use ## for section headings and ### for subsection headings only (Medium ignores #### and below).
     Use simple words, no em dashes, and DO NOT use any unnecessary or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
@@ -432,13 +433,15 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Termine l'article avec un bref récap sous forme de points et/ou liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
-    Kicker: Juste avant le Titre, très courte phrase d'accroche optionnelle en gras.
+    Kicker: Juste avant le Titre, très courte phrase d'accroche en gras (utilise **gras**, jamais un titre/heading).
     Titre: {title}
-    Sous-titre: Juste après le Titre, sous-titre optionnel en police h3, qui donne une promesse concise qui aguiche/intrigue davantage.
+    Sous-titre: Juste après le Titre, sous-titre optionnel en ### H3, qui donne une promesse concise qui aguiche/intrigue davantage.
 
     Transcription: {transcript_to_use}
 
-    Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription, utilise le tutoiement et prioritise les mots simples. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription, utilise le tutoiement et prioritise les mots simples.
+    Utilise ## pour les titres de section et ### pour les sous-titres de section uniquement (Medium ignore #### et en dessous).
+    Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
 
     # Get the appropriate instruction based on source and output languages
     instruction_map = instructions[output_language]
@@ -878,16 +881,36 @@ def clean_article_for_medium(content: str) -> str:
     lines = content.split('\n')
     cleaned_lines = []
     h1_removed = False
+    expect_subtitle = False
 
     for line in lines:
         stripped = line.strip()
 
+        # Skip blank lines right after H1 removal (before subtitle)
+        if expect_subtitle and stripped == '':
+            cleaned_lines.append(line)
+            continue
+
         # Remove first H1 (duplicate of the API title field)
         if not h1_removed and stripped.startswith('# ') and not stripped.startswith('## '):
             h1_removed = True
+            expect_subtitle = True
             continue
 
-        # Convert H4+ headings to bold text (Medium ignores H4 and below)
+        # Convert subtitle ## to ### if it appears right after the removed H1
+        # Medium renders ## as a large section heading, ### is better for subtitles
+        if expect_subtitle and stripped.startswith('## ') and not stripped.startswith('### '):
+            cleaned_lines.append(f'### {stripped[3:]}')
+            expect_subtitle = False
+            continue
+
+        if expect_subtitle and stripped != '':
+            expect_subtitle = False
+
+        # Convert H4+ headings to bold text (Medium only renders H1, H2, H3)
+        if stripped.startswith('###### '):
+            cleaned_lines.append(f'**{stripped[7:]}**')
+            continue
         if stripped.startswith('##### '):
             cleaned_lines.append(f'**{stripped[6:]}**')
             continue
