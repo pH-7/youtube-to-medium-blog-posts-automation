@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import time
 import random
 import isodate
@@ -374,7 +375,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     After a Markdown separator, add this CTA section in the same voice as the article:
     {tech_cta_section}
 
-    Kicker: Short article kicker as subheading
+    Kicker: Short article kicker in bold
     Title: {title}
     Subtitle: Optional concise technical subtitle as subheading
 
@@ -391,10 +392,10 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Ensure it reads well and doesn't sound like a transcript, though the article must keep the exact same personal, positive, and motivational voice tone and unique written style markers as the transcript, and emphasise or highlight personal ideas that could fascinate the readers. Pay special attention to French idioms and expressions, translating them to their natural English equivalents.
     For longer content, develop each key concept thoroughly with examples, actionable steps, and deeper insights. Create a cohesive narrative that flows naturally from one idea to the next.
     End the article with short bullet/numbered points of a TL;DR / Key Takeaways or Key Lessons, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
-    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote in Markdown using blockquote syntax (>) in italic font without surrounding quotation marks, followed by the author's name on a separate line, preceded by an em dash.
+    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote in Markdown using blockquote syntax (>) in italic font without surrounding quotation marks, followed by the author's name on a separate line, preceded by a dash.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
-    Kicker: Right before Title, very short article's kicker formatted as subheading.
+    Kicker: Right before Title, very short article's kicker formatted in bold.
     Title: {title}
     Subtitle: Right after Title, optional concise appealing / clickbait formatted as subheading.
 
@@ -427,11 +428,11 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     (Amener le lecteur au livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me ou sur mon podcast https://podcast.ph7.me (utiliser texte d'ancrage).
 
     Pour les contenus plus longs, développe chaque concept clé en profondeur avec des exemples, des étapes actionnables et des insights plus approfondis. Crée un récit cohérent qui s'enchaîne naturellement d'une idée à l'autre.
-    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispercées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation en Markdown blockquote en utilisant (>) et en italique, sans entourer la citation entre guillemets, puis ajoute le nom de l'auteur sur une ligne séparée, précédé d'un tiret cadratin.
+    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispercées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation en Markdown blockquote en utilisant (>) et en italique, sans entourer la citation entre guillemets, puis ajoute le nom de l'auteur sur une ligne séparée, précédé d'un tiret.
     Termine l'article avec un bref récap sous forme de points et/ou liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
-    Kicker: Juste avant le Titre, très courte phrase d'accroche optionnelle en police h3.
+    Kicker: Juste avant le Titre, très courte phrase d'accroche optionnelle en gras.
     Titre: {title}
     Sous-titre: Juste après le Titre, sous-titre optionnel en police h3, qui donne une promesse concise qui aguiche/intrigue davantage.
 
@@ -826,6 +827,53 @@ def embed_youtube_video(article_content: str, video_id: str) -> str:
     
     return '\n\n'.join(result)
 
+def clean_article_for_medium(content: str) -> str:
+    """
+    Clean article Markdown for optimal rendering in Medium's WYSIWYG rich text editor.
+
+    Fixes Medium API limitations:
+    - Removes H1 title from body (the API 'title' field handles it separately,
+      leaving it in the body creates a duplicate heading)
+    - Converts H4+ headings to bold (Medium only renders H1, H2, H3)
+    - Strips trailing 'Kicker:' sections (GPT prompt leakage)
+    - Collapses consecutive horizontal rules into one
+    - Trims excessive blank lines
+    """
+    lines = content.split('\n')
+    cleaned_lines = []
+    h1_removed = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Remove first H1 (duplicate of the API title field)
+        if not h1_removed and stripped.startswith('# ') and not stripped.startswith('## '):
+            h1_removed = True
+            continue
+
+        # Convert H4+ headings to bold text (Medium ignores H4 and below)
+        if stripped.startswith('##### '):
+            cleaned_lines.append(f'**{stripped[6:]}**')
+            continue
+        if stripped.startswith('#### '):
+            cleaned_lines.append(f'**{stripped[5:]}**')
+            continue
+
+        cleaned_lines.append(line)
+
+    content = '\n'.join(cleaned_lines)
+
+    # Remove trailing "Kicker:" sections (prompt leakage from GPT)
+    content = re.sub(r'\n+###?\s*Kicker:\s*\n.*$', '', content, flags=re.DOTALL)
+
+    # Collapse consecutive --- separators
+    content = re.sub(r'(---\s*\n\s*){2,}', '---\n\n', content)
+
+    # Clean up excessive blank lines (more than 2 consecutive)
+    content = re.sub(r'\n{4,}', '\n\n\n', content)
+
+    return content.strip()
+
 def save_article_locally(
         video_id: str,
         original_title: str,
@@ -909,6 +957,9 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
     post_to_publication = config.get('POST_TO_PUBLICATION', False)
     token = config['MEDIUM_ACCESS_TOKEN']
     publish_status = config['PUBLISH_STATUS']
+
+    # Clean article for optimal Medium WYSIWYG rendering
+    content = clean_article_for_medium(content)
 
     # Prepare article in Markdown format
     # Note: Medium API handles title separately, so we don't include it in content
@@ -1240,6 +1291,9 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                     if niche_name == 'tech':
                         article = embed_youtube_video(article, video.id)
                         print(f"✓ Embedded YouTube video in article")
+
+                    # Clean Markdown for Medium's WYSIWYG editor (remove duplicate H1 title, fix unsupported headings, etc.)
+                    article = clean_article_for_medium(article)
 
                     # Set default medium_url
                     medium_url = "not_published"
