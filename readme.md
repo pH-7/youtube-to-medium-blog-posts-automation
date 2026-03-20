@@ -34,12 +34,17 @@ This program not only converts video transcripts extremely well into beautiful, 
    cd youtube-to-medium-blog-posts-automation
    ```
 
-2. Install the required Python packages:
+2. Create and activate a virtual environment (required on macOS, which no longer ships Python by default; [PEP 668](https://peps.python.org/pep-0668/) protects system-managed packages from being overwritten):
+   ```console
+   python3 -m venv .venv && source .venv/bin/activate
+   ```
+
+3. Install the required Python packages:
    ```console
    pip install -r requirements.txt
    ```
 
-3. Set up your configuration file:
+4. Set up your configuration file:
    - Create a file named `config.json` in the project root directory
    - Add your API keys and YouTube [Channel ID](https://www.youtube.com/account_advanced) to the file as followed:
      ```json
@@ -85,13 +90,13 @@ This program not only converts video transcripts extremely well into beautiful, 
 
      Alternatively, you can refer to `example.config.json` in the project.
 
-4. Set up YouTube API credentials:
+5. Set up YouTube API credentials:
    - Go to the [Google Developers Console](https://console.developers.google.com/)
    - Create a new project and enable the **YouTube Data API v3**
    - Create credentials (OAuth 2.0 Client ID) for a desktop application. Select **External** for **Use Type**
    - Download the client configuration and save it as `client_secrets.json` in the project root directory
 
-5. Lastly, get your Unsplash Access Key at https://unsplash.com/oauth/applications/new
+6. Lastly, get your Unsplash Access Key at https://unsplash.com/oauth/applications/new
 
 
 ## 🪄 Usage
