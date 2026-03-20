@@ -625,28 +625,31 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
 def fetch_images_from_unsplash(query, article_title: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
     Fetch images from Unsplash with recursive fallback for better search results.
+    Uses the article title as primary search to get images unique to each article,
+    falling back to tags if the title yields no results.
     
     Args:
         query: Can be a string or list of tags
-        article_title: The title of the article to use in captions
+        article_title: The title of the article to use in captions and as primary search
         output_language: Target language ('en' or 'fr')
         per_page: Number of images to fetch (default: 2)
     Returns:
         Optional[List[UnsplashImage]]: List of UnsplashImage objects with URLs, alt text, and attribution captions in Markdown
     """
+    # Use article title as primary search (unique per article) for more relevant images
     if isinstance(query, list):
-        # If it's a list of tags, join the first 3
-        search_query = ' '.join(query[:3])
+        search_query = article_title if article_title else ' '.join(query[:3])
     else:
-        # If it's a string, use it as is
         search_query = query
     
     unsplash_access_key = config['UNSPLASH_ACCESS_KEY']
     preferred_photographer = config.get('UNSPLASH_PREFERRED_PHOTOGRAPHER')
     results = []
+    # Random page offset (1-3) so articles with similar queries still get different images
+    random_page = random.randint(1, 3)
     
     try:
-        print(f"✓ Fetching images from Unsplash for query: '{search_query}'")
+        print(f"✓ Fetching images from Unsplash for query: '{search_query}' (page {random_page})")
 
         # If preferred photographer is configured, try to get their images first
         if preferred_photographer:
@@ -657,6 +660,7 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
                 f"&username={preferred_photographer}"
                 f"&client_id={unsplash_access_key}"
                 f"&per_page={per_page}"
+                f"&page={random_page}"
                 f"&orientation=landscape"
             )
             
@@ -676,6 +680,7 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
                 f"?query={search_query}"
                 f"&client_id={unsplash_access_key}"
                 f"&per_page={remaining_images}"
+                f"&page={random_page}"
                 f"&orientation=landscape"
             )
             
@@ -687,12 +692,20 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
             results.extend(search_photos)
             print(f"✓ Fetched {len(search_photos)} additional images from general search")
 
-        # If no results found and we have a complex query, try with fewer keywords
-        if not results and isinstance(query, list) and len(query) > 1:
-            print(f"✗ No images found for '{search_query}'. Trying with fewer keywords...")
-            # Try with fewer tags recursively
+        # If no results found, fall back to tags (more generic, broader matches)
+        if not results and isinstance(query, list) and search_query == article_title:
+            print(f"✗ No images found for title '{search_query}'. Falling back to tags...")
+            tag_query = ' '.join(query[:3])
             return fetch_images_from_unsplash(
-                query=query[:-1],  # Remove the last tag
+                query=tag_query,
+                article_title=article_title,
+                output_language=output_language,
+                per_page=per_page
+            )
+        elif not results and isinstance(query, list) and len(query) > 1:
+            print(f"✗ No images found for '{search_query}'. Trying with fewer keywords...")
+            return fetch_images_from_unsplash(
+                query=query[:-1], # Remove the last tag
                 article_title=article_title,
                 output_language=output_language,
                 per_page=per_page
@@ -708,35 +721,52 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
                 per_page=per_page
             )
 
-        results = results[:per_page]  # Ensure we don't exceed the requested number of images
+        # Deduplicate images by Unsplash photo ID
+        seen_ids = set()
+        unique_results = []
+        for r in results:
+            photo_id = r.get('id')
+            if photo_id and photo_id not in seen_ids:
+                seen_ids.add(photo_id)
+                unique_results.append(r)
+        results = unique_results[:per_page]
 
         if not results:
             print(f"✗ No images found for any search variation")
             return None
 
         captions = {
-            'en': lambda name, photo_url, profile_url: f"{article_title} - Photo by [{name}]({profile_url}) on [Unsplash]({photo_url})",
-            'fr': lambda name, photo_url, profile_url: f"{article_title} - Photo de [{name}]({profile_url}) sur [Unsplash]({photo_url})"
+            'en': lambda desc, name, profile_url: f"{desc} - Photo by [{name}]({profile_url}) on Unsplash",
+            'fr': lambda desc, name, profile_url: f"{desc} - Photo de [{name}]({profile_url}) sur Unsplash"
         }
 
         caption_formatter = captions.get(output_language, captions['en'])
 
-        processed_images = [
-            UnsplashImage(
-                url=result.get('urls', {}).get('regular'),
-                alt=result.get('description') or (
-                    f"Photo par {result.get('user', {}).get('name')}" if output_language == 'fr'
-                    else f"Photo by {result.get('user', {}).get('name')}"
-                ),
-                caption=caption_formatter(
-                    result.get('user', {}).get('name'),
-                    result.get('links', {}).get('html'),
-                    result.get('user', {}).get('links', {}).get('html')
+        processed_images = []
+        for result in results:
+            if not (result.get('urls') and result.get('user')):
+                continue
+
+            # Use Unsplash's alt_description (unique per image, describes actual content)
+            # Falls back to description, then to a generic label
+            image_desc = (
+                result.get('alt_description')
+                or result.get('description')
+                or article_title
+            )
+            # Capitalize first letter for cleaner presentation
+            image_desc = image_desc[0].upper() + image_desc[1:] if image_desc else article_title
+
+            photographer_name = result.get('user', {}).get('name', 'Unknown')
+            profile_url = result.get('user', {}).get('links', {}).get('html', '')
+
+            processed_images.append(
+                UnsplashImage(
+                    url=result.get('urls', {}).get('regular'),
+                    alt=image_desc,
+                    caption=caption_formatter(image_desc, photographer_name, profile_url)
                 )
             )
-            for result in results
-            if result.get('urls') and result.get('user')
-        ]
         
         print(f"✓ Successfully processed {len(processed_images)} images")
         return processed_images if processed_images else None
@@ -762,9 +792,15 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
     if not images:
         return article_content
 
+    def strip_md_links(text: str) -> str:
+        """Convert Markdown links [text](url) to just text for use in alt attributes."""
+        return re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+
     def create_image_block(image: UnsplashImage) -> str:
-        return f"""![{image.alt}]({image.url} "{article_title}")
-*{image.caption}*\n\n"""
+        # Medium uses alt text as the native image caption,
+        # so we place the attribution caption there (plain text, no markdown links)
+        alt_caption = strip_md_links(image.caption)
+        return f"""![{alt_caption}]({image.url})\n\n"""
 
     # Split content into paragraphs
     paragraphs = article_content.split('\n\n')
