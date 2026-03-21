@@ -382,7 +382,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Transcript: {transcript_to_use}
 
     Format as Medium.com article. Use ## for section headings and ### for subsection headings only (Medium ignores #### and below).
-    DO NOT use em dashes. Avoid unnecessary buzzwords and corporate jargon unless the speaker uses them. Highlight a few important sentences if any.
+    DO NOT use em dashes. DO NOT use emojis. Avoid unnecessary buzzwords and corporate jargon unless the speaker uses them. Highlight a few important sentences if any.
     Use Markdown for headings, code blocks, links, bold, italic:"""
         }
     else:  # self-help niche
@@ -403,7 +403,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Structured as a Medium.com article in English while keeping the identical same voice tone as in the original transcript.
     Use ## for section headings and ### for subsection headings only (Medium ignores #### and below).
-    Use simple words, no em dashes, and DO NOT use any unnecessary or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
+    Use simple words, no em dashes, DO NOT use any emojis, and DO NOT use any unnecessary or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
         }
@@ -441,7 +441,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription, utilise le tutoiement et prioritise les mots simples.
     Utilise ## pour les titres de section et ### pour les sous-titres de section uniquement (Medium ignore #### et en dessous).
-    Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    N'utilise jamais d'emojis. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
 
     # Get the appropriate instruction based on source and output languages
     instruction_map = instructions[output_language]
