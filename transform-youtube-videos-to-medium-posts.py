@@ -347,12 +347,12 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     if niche == 'tech':
         # Tech CTAs - randomly select 2-3 platforms to avoid overwhelming readers
         tech_ctas = [
-            "🤖 Get inspired by [open-source projects I've built](https://github.com/pH-7) over the years",
-            "🔥 Follow my [AI & tech journey on Substack](https://substack.com/@pierrehenry)",
-            "⚡️ Check out [my book on PRO coding practices](https://github.com/pH-7/GoodJsCode)",
-            "🤔 [Learn more about me on Dev.to](https://dev.to/pierre)",
-            "👋 [Support my work with a coffee](https://ko-fi.com/phenry) if this helped you",
-            "📺 [Subscribe to my YouTube channel](https://www.youtube.com/@pH7Programming) for weekly programming videos"
+            "Get inspired by [open-source projects I've built](https://github.com/pH-7) over the years",
+            "Follow my [AI & tech journey on Substack](https://substack.com/@pierrehenry)",
+            "Check out [my book on PRO coding practices](https://github.com/pH-7/GoodJsCode)",
+            "[Learn more about me on Dev.to](https://dev.to/pierre)",
+            "[Support my work with a coffee](https://ko-fi.com/phenry) if this helped you",
+            "[Subscribe to my YouTube channel](https://www.youtube.com/@pH7Programming) for weekly programming videos"
         ]
         
         # Randomly select 2-3 CTAs
