@@ -364,6 +364,8 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
             'en': f"""{{instruction}} Remove all filler sounds and verbal tics.
     Rewrite this as a well-structured technical article for "NextGen Dev: AI & Software Development", skipping video intro/outro and promotional content.
     
+    WRITING QUALITY: Craft genuinely engaging prose. Vary sentence length and structure. Use vivid, precise language. Build momentum through smooth transitions. Hook readers from the first line and maintain their interest throughout.
+
     CRITICAL: Preserve the speaker's EXACT voice, tone, and personality. Match their speaking style precisely:
     - Keep their casual/formal tone, first-person perspective, directness, and enthusiasm
     - Maintain their teaching style, analogies, and personal experiences
@@ -388,6 +390,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     else:  # self-help niche
         prompts = {
             'en': f"""{{instruction}} Remove all filler sounds like "euh...", "bah", "ben", "hein" and similar verbal tics.
+
+    WRITING QUALITY: Craft genuinely engaging prose that captivates readers. Vary sentence rhythm - mix short punchy sentences with longer flowing ones. Use vivid, concrete language over abstract concepts. Build momentum through smooth transitions between ideas. Hook readers from the opening line and reward them throughout.
+
     While ensuring em dashes aren't used, rewrite it as a well-structured, comprehensive article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), CTA related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well and doesn't sound like a transcript, though the article must keep the exact same personal, positive, and motivational voice tone and unique written style markers as the transcript, and emphasise or highlight personal ideas that could fascinate the readers. Pay special attention to French idioms and expressions, translating them to their natural English equivalents.
     For longer content, develop each key concept thoroughly with examples, actionable steps, and deeper insights. Create a cohesive narrative that flows naturally from one idea to the next.
@@ -409,6 +414,9 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
         }
         if output_language == 'fr':  # Only self-help niche has French output
             prompts['fr'] = f"""{{instruction}} en supprimant les sons de remplissage comme "euh...", "bah", "ben", "hein" et autres tics verbaux similaires.
+
+    QUALITÉ RÉDACTIONNELLE: Rédige une prose captivante et soignée. Varie le rythme des phrases - alterne entre phrases courtes percutantes et phrases plus longues et fluides. Utilise un langage vivant et concret. Crée des transitions fluides entre les idées. Accroche le lecteur dès la première ligne et maintiens son intérêt tout au long de l'article.
+
     Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir,  code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
     Rédige la transcription vidéo sous forme d'un article facile à lire. Mets en valeur les idées personnelles qui peuvent fasciner.
 
