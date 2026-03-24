@@ -397,7 +397,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Ensure it reads well and doesn't sound like a transcript, though the article must keep the exact same personal, positive, and motivational voice tone and unique written style markers as the transcript, and emphasise or highlight personal ideas that could fascinate the readers. Pay special attention to French idioms and expressions, translating them to their natural English equivalents.
     For longer content, develop each key concept thoroughly with examples, actionable steps, and deeper insights. Create a cohesive narrative that flows naturally from one idea to the next.
     End the article with short bullet/numbered points of a TL;DR / Key Takeaways or Key Lessons, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
-    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote in Markdown using blockquote syntax (>) in italic font without surrounding quotation marks, followed by the author's name on a separate line, preceded by a dash.
+    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote in Markdown using blockquote syntax (>) in italic font without surrounding quotation marks, followed by the author's name on a separate line, preceded by long dash —.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
     Kicker: Right before Title, very short bold text (use **bold**, never a heading).
@@ -808,10 +808,11 @@ def embed_images_in_content(article_content: str, images: List[UnsplashImage], a
         return re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
 
     def create_image_block(image: UnsplashImage) -> str:
-        # Medium uses alt text as the native image caption,
-        # so we place the attribution caption there (plain text, no markdown links)
+        # Medium's API doesn't reliably render alt text as visible captions,
+        # so we add the caption as italic text on the line immediately after the image.
+        # The alt attribute gets a plain-text fallback; the visible caption keeps Markdown links.
         alt_caption = strip_md_links(image.caption)
-        return f"""![{alt_caption}]({image.url})\n\n"""
+        return f"""![{alt_caption}]({image.url})\n*{image.caption}*\n\n"""
 
     # Split content into paragraphs
     paragraphs = article_content.split('\n\n')
@@ -932,6 +933,30 @@ def clean_article_for_medium(content: str) -> str:
 
     # Remove trailing "Kicker:" sections (prompt leakage from GPT)
     content = re.sub(r'\n+###?\s*Kicker:\s*\n.*$', '', content, flags=re.DOTALL)
+
+    # Normalize blockquote attribution lines for Medium
+    # Pattern 1: Author attribution outside blockquote (missing ">")
+    #   > *Quote text*
+    #   — Author         ← missing ">"
+    # Fix: bring it inside the blockquote
+    content = re.sub(
+        r'(^>\s*.+)\n\n?(—\s*.+)$',
+        r'\1\n>\n> \2',
+        content,
+        flags=re.MULTILINE
+    )
+    # Pattern 2: Blank continuation inside blockquote before attribution is fine,
+    # but ensure the attribution is on its own ">" line (already handled above).
+    # Pattern 3: Quote and attribution on adjacent ">" lines with no blank ">" between
+    #   > *Quote text*
+    #   > — Author
+    # Add a blank ">" line so Medium renders them as separate visual lines within the same block
+    content = re.sub(
+        r'(^>\s*[*_].+[*_])\n(>\s*—)',
+        r'\1\n>\n\2',
+        content,
+        flags=re.MULTILINE
+    )
 
     # Collapse consecutive --- separators
     content = re.sub(r'(---\s*\n\s*){2,}', '---\n\n', content)
