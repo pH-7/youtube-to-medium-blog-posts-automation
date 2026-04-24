@@ -20,6 +20,9 @@ import youtube_transcript_api
 import openai
 import requests
 
+# Markdown to HTML conversion
+import markdown as md_lib
+
 RATE_LIMIT_PERIOD_SECONDS = 300 # 5 minute
 MAX_CALLS_IN_PERIOD = 1
 LONG_ARTICLE_THRESHOLD = 2499
@@ -877,36 +880,42 @@ def embed_youtube_video(article_content: str, video_id: str) -> str:
 
 def clean_article_for_medium(content: str) -> str:
     """
-    Clean article Markdown for optimal rendering in Medium's WYSIWYG rich text editor.
+    Clean article Markdown for optimal rendering on Medium.
 
-    Fixes Medium API limitations:
-    - Removes H1 title from body (the API 'title' field handles it separately,
-      leaving it in the body creates a duplicate heading)
+    Fixes:
+    - Converts ## subtitle right after # title to ### (smaller subtitle style)
     - Converts H4+ headings to bold (Medium only renders H1, H2, H3)
     - Strips trailing 'Kicker:' sections (GPT prompt leakage)
     - Collapses consecutive horizontal rules into one
+    - Normalizes blockquote attribution lines
     - Trims excessive blank lines
+
+    Note: The H1 title is intentionally KEPT in the content. The Medium API
+    'title' field is used only for SEO/listing metadata — it does NOT appear
+    on the actual post page. The title must be in the content body.
     """
     lines = content.split('\n')
     cleaned_lines = []
-    h1_removed = False
+    h1_seen = False
     expect_subtitle = False
 
     for line in lines:
         stripped = line.strip()
 
-        # Skip blank lines right after H1 removal (before subtitle)
+        # Track blank lines right after H1 (before subtitle)
         if expect_subtitle and stripped == '':
             cleaned_lines.append(line)
             continue
 
-        # Remove first H1 (duplicate of the API title field)
-        if not h1_removed and stripped.startswith('# ') and not stripped.startswith('## '):
-            h1_removed = True
+        # Keep first H1 (it MUST be in the content for display on Medium)
+        # but mark that we've seen it so the next heading can be a subtitle
+        if not h1_seen and stripped.startswith('# ') and not stripped.startswith('## '):
+            h1_seen = True
             expect_subtitle = True
+            cleaned_lines.append(line)
             continue
 
-        # Convert subtitle ## to ### if it appears right after the removed H1
+        # Convert subtitle ## to ### if it appears right after the H1 title
         # Medium renders ## as a large section heading, ### is better for subtitles
         if expect_subtitle and stripped.startswith('## ') and not stripped.startswith('### '):
             cleaned_lines.append(f'### {stripped[3:]}')
@@ -965,6 +974,130 @@ def clean_article_for_medium(content: str) -> str:
     content = re.sub(r'\n{4,}', '\n\n\n', content)
 
     return content.strip()
+
+
+def convert_markdown_to_medium_html(content: str, title: str) -> str:
+    """
+    Convert cleaned Markdown article to Medium-compatible HTML.
+
+    Medium's API accepts both 'html' and 'markdown' contentFormat, but HTML mode
+    provides correct rendering for elements that Markdown mode handles poorly:
+
+    - Image captions: <figure>/<figcaption> instead of unreliable italic text
+    - Kicker: <h4> text above the <h1> title (Medium's kicker element)
+    - Subtitle: <h3> text below the <h1> title
+    - Title in content: the API 'title' field is SEO-only and does NOT appear
+      on the actual post page; the title must be in the content as <h1>
+
+    Args:
+        content: Article content in Markdown format (already cleaned)
+        title: Article title (will be ensured as H1 in content)
+
+    Returns:
+        str: Medium-compatible HTML content
+    """
+    # Step 1: Pre-process image+caption blocks to HTML figure/figcaption
+    # BEFORE markdown conversion to prevent the library from wrapping them in <p>
+    # Pattern: ![alt](url)\n*caption text with [links](href) and other content*
+    def _image_caption_to_figure(match):
+        alt = match.group(1)
+        url = match.group(2)
+        caption = match.group(3)
+        # Convert any Markdown links [text](href) in caption to <a> tags
+        caption_html = re.sub(
+            r'\[([^\]]+)\]\(([^)]+)\)',
+            r'<a href="\2">\1</a>',
+            caption
+        )
+        return (
+            f'\n\n<figure><img src="{url}" alt="{alt}">'
+            f'<figcaption>{caption_html}</figcaption></figure>\n\n'
+        )
+
+    # Match: ![alt](url) followed by \n*caption* (italic caption line)
+    content = re.sub(
+        r'!\[([^\]]*)\]\(([^)]+)\)\s*\n\*([^*\n]+)\*',
+        _image_caption_to_figure,
+        content
+    )
+
+    # Handle standalone images without captions → figure without figcaption
+    content = re.sub(
+        r'!\[([^\]]*)\]\(([^)]+)\)',
+        r'\n\n<figure><img src="\2" alt="\1"></figure>\n\n',
+        content
+    )
+
+    # Step 2: Mark kicker for post-processing
+    # Kicker = **bold text** immediately before # Title (the first H1)
+    # Medium renders kicker as a small heading above the title (<h4>)
+    content = re.sub(
+        r'^\*\*([^*\n]+)\*\*\s*\n+(?=# [^#])',
+        r'MEDIUM_KICKER_START\1MEDIUM_KICKER_END\n\n',
+        content,
+        count=1,
+        flags=re.MULTILINE
+    )
+
+    # Step 3: Convert Markdown to HTML via the markdown library
+    # 'extra' extension handles tables, fenced code, footnotes, etc.
+    # 'sane_lists' prevents mixing of ordered/unordered lists
+    html = md_lib.markdown(
+        content,
+        extensions=['extra', 'sane_lists'],
+        output_format='html'
+    )
+
+    # Step 4: Post-process for Medium-specific formatting
+
+    # Convert kicker placeholder to proper <h4> (Medium's kicker element)
+    html = re.sub(
+        r'<p>MEDIUM_KICKER_START(.+?)MEDIUM_KICKER_END</p>',
+        r'<h4>\1</h4>',
+        html
+    )
+    # Also handle case where markdown lib may include it differently
+    html = html.replace('MEDIUM_KICKER_START', '<h4>').replace('MEDIUM_KICKER_END', '</h4>')
+
+    # Catch any remaining unconverted patterns:
+    # <p><img ...></p> followed by <p><em>caption</em></p> → figure/figcaption
+    html = re.sub(
+        r'<p>\s*<img([^>]*)>\s*</p>\s*<p>\s*<em>(.+?)</em>\s*</p>',
+        r'<figure><img\1><figcaption>\2</figcaption></figure>',
+        html,
+        flags=re.DOTALL
+    )
+
+    # Catch img + em in same paragraph (single newline between image and caption)
+    html = re.sub(
+        r'<p>\s*<img([^>]*)>\s*<br\s*/?>\s*\n?\s*<em>(.+?)</em>\s*</p>',
+        r'<figure><img\1><figcaption>\2</figcaption></figure>',
+        html,
+        flags=re.DOTALL
+    )
+
+    # Convert any remaining bare <p><img ...></p> to <figure> (no caption)
+    html = re.sub(
+        r'<p>\s*<img([^>]*)>\s*</p>',
+        r'<figure><img\1></figure>',
+        html
+    )
+
+    # Ensure the title appears in content as H1
+    # The Medium API 'title' field is used only for SEO/listing — it does NOT
+    # appear on the actual post page, so the H1 must be in the content body.
+    if not re.search(r'<h[1][\s>]', html[:500]):
+        # Title is missing from content — add it at the top (after kicker if present)
+        kicker_match = re.match(r'(\s*<h4>.*?</h4>\s*)', html)
+        if kicker_match:
+            # Insert H1 right after the kicker
+            insert_pos = kicker_match.end()
+            html = html[:insert_pos] + f'\n<h1>{title}</h1>\n' + html[insert_pos:]
+        else:
+            html = f'<h1>{title}</h1>\n' + html
+
+    return html
+
 
 def save_article_locally(
         video_id: str,
@@ -1041,6 +1174,13 @@ tags: {formatted_tags}
 def post_to_medium(title: str, content: str, tags: List[str], output_language: str, niche: str = 'self-help') -> Optional[str]:
     """
     Post article to Medium with support for publication posting.
+
+    Converts the Markdown content to Medium-compatible HTML before posting.
+    HTML contentFormat is used because it provides proper rendering for:
+    - Image captions via <figure>/<figcaption> (Markdown italic captions are unreliable)
+    - Kicker text via <h4> above the <h1> title
+    - Subtitle via <h3> below the <h1> title
+    - Title display on the post page (API 'title' field is SEO-only)
     """
     config = load_config()
     en_publication_id = config.get('MEDIUM_EN_PUBLICATION_ID')
@@ -1050,15 +1190,16 @@ def post_to_medium(title: str, content: str, tags: List[str], output_language: s
     token = config['MEDIUM_ACCESS_TOKEN']
     publish_status = config['PUBLISH_STATUS']
 
-    # Clean article for optimal Medium WYSIWYG rendering
-    content = clean_article_for_medium(content)
+    # Clean the Markdown and convert to Medium-compatible HTML
+    cleaned_md = clean_article_for_medium(content)
+    html_content = convert_markdown_to_medium_html(cleaned_md, title)
 
-    # Prepare article in Markdown format
-    # Note: Medium API handles title separately, so we don't include it in content
+    # Use HTML contentFormat for reliable rendering of captions, kicker, subtitle
+    # The API 'title' field is used for SEO/listing only (not displayed on the post page)
     article = {
         "title": title,
-        "contentFormat": "markdown",
-        "content": content,
+        "contentFormat": "html",
+        "content": html_content,
         "tags": tags[:5],  # Medium allows up to 5 tags
         "publishStatus": publish_status
     }
@@ -1384,7 +1525,8 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                         article = embed_youtube_video(article, video.id)
                         print(f"✓ Embedded YouTube video in article")
 
-                    # Clean Markdown for Medium's WYSIWYG editor (remove duplicate H1 title, fix unsupported headings, etc.)
+                    # Clean Markdown for local save (fix unsupported headings, blockquotes, etc.)
+                    # Note: post_to_medium() also cleans + converts to HTML internally
                     article = clean_article_for_medium(article)
 
                     # Set default medium_url
