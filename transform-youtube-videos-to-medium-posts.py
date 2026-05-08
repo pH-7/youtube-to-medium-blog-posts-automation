@@ -636,6 +636,160 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     print(f"✓ Generated article title: {title}")
     return title
 
+def generate_unsplash_search_queries(article_title: str, article_snippet: str, tags: List[str], num_images: int, output_language: str = 'en') -> List[str]:
+    """
+    Use GPT to generate specific, visually evocative Unsplash search queries — one per
+    image slot. Queries are always in English (Unsplash indexes in English), and each one
+    targets a distinct visual concept so that the images feel varied and meaningful.
+
+    Args:
+        article_title: Optimised article title
+        article_snippet: First ~500 chars of the article body
+        tags: Article topic tags (used as thematic hints)
+        num_images: How many distinct queries to generate
+        output_language: Article output language (used for context only)
+
+    Returns:
+        List[str]: List of Unsplash search query strings (always in English)
+    """
+    client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
+
+    prompt = f"""You are helping curate the best stock photos for a blog article on Medium.
+
+Article title: "{article_title}"
+Article tags: {', '.join(tags)}
+Article excerpt: {article_snippet[:450]}
+
+Generate exactly {num_images} distinct Unsplash search queries to find photos that visually represent different aspects or moods of this article.
+
+Requirements for each query:
+- 2–4 words, concrete and visually specific (describe a real scene or object)
+- Evocative of the article's emotional tone or a key concept
+- Different visual themes from each other — no two should overlap
+- Always in English (Unsplash searches best in English)
+- Avoid abstract or meta phrases like "personal development", "success mindset", "productivity concept"
+- Prefer scenes with people, nature, objects, textures, light — things a photographer would capture
+
+Good examples: "person writing journal sunrise", "runner morning fog track", "open book warm light", "calm forest path mist"
+Bad examples: "personal growth", "motivation success", "self improvement", "mindset concept"
+
+Return ONLY a JSON object: {{"queries": ["query1", "query2", ...]}}"""
+
+    try:
+        response = client.chat.completions.create(
+            model=config['OPENAI_MODEL'],
+            messages=[
+                {"role": "system", "content": "You generate precise, vivid visual search queries for stock photo sites. Output only valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.8,
+            max_completion_tokens=150,
+            response_format={"type": "json_object"}
+        )
+
+        result = json.loads(response.choices[0].message.content)
+        queries = result.get('queries', [])
+
+        if len(queries) >= num_images:
+            print(f"✓ Generated {num_images} targeted Unsplash queries: {queries[:num_images]}")
+            return queries[:num_images]
+
+        # Partial result — pad with tag-based fallbacks
+        fallback = [article_title] + [' '.join(tags[i:i+2]) for i in range(0, len(tags), 2)]
+        queries = (queries + fallback)[:num_images]
+        print(f"✓ Generated {len(queries)} queries (padded with fallbacks)")
+        return queries
+
+    except Exception as e:
+        print(f"✗ Error generating Unsplash search queries: {e}")
+        fallback = [article_title] + [' '.join(tags[i:i+2]) for i in range(0, len(tags), 2)]
+        return fallback[:num_images]
+
+
+def generate_unique_image_captions(images: List['UnsplashImage'], article_title: str, article_snippet: str, output_language: str = 'en') -> List[str]:
+    """
+    Use GPT to generate unique, article-specific caption descriptions for each image.
+    Each caption ties the image's visual content to the article's specific message so
+    that no two captions look the same, even across similar articles.
+
+    Photographer attribution is handled separately — this function returns only the
+    descriptive portion (e.g. "The quiet discipline behind lasting change").
+
+    Args:
+        images: List of UnsplashImage objects whose .alt contains the Unsplash description
+        article_title: Optimised article title
+        article_snippet: First ~400 chars of article body for context
+        output_language: 'en' or 'fr'
+
+    Returns:
+        List[str]: One unique caption description per image (same order as input)
+    """
+    if not images:
+        return []
+
+    client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
+
+    image_descs = [img.alt for img in images]
+    numbered = '\n'.join(f'{i + 1}. "{d}"' for i, d in enumerate(image_descs))
+
+    lang_instruction = {
+        'en': (
+            "Write each caption in English. "
+            "Each caption must be a short, punchy phrase (4–9 words) that connects the image to the article's theme. "
+            "Do NOT start with 'A photo of', 'An image of', or any similar phrase."
+        ),
+        'fr': (
+            "Écris chaque légende en français. "
+            "Chaque légende doit être une phrase courte et percutante (4–9 mots) qui relie l'image au thème de l'article. "
+            "Ne commence pas par 'Une photo de', 'Une image de' ou une formule similaire."
+        )
+    }.get(output_language, "Write each caption in English. Each caption must be a short, punchy phrase (4–9 words).")
+
+    prompt = f"""Article title: "{article_title}"
+Article excerpt: {article_snippet[:350]}
+
+Unsplash image descriptions:
+{numbered}
+
+{lang_instruction}
+
+Additional rules:
+- Every caption must be unique — no two can be similar in wording or meaning
+- Each caption should feel like it belongs specifically to this article, not a generic photo caption
+- Capture the emotional or conceptual connection between image and article message
+- Keep it concise: 4–9 words maximum
+
+Return ONLY a JSON object: {{"captions": ["caption1", "caption2", ...]}}"""
+
+    try:
+        response = client.chat.completions.create(
+            model=config['OPENAI_MODEL'],
+            messages=[
+                {"role": "system", "content": "You write concise, unique, emotionally resonant image captions for blog articles. Output only valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.85,
+            max_completion_tokens=200,
+            response_format={"type": "json_object"}
+        )
+
+        result = json.loads(response.choices[0].message.content)
+        captions = result.get('captions', [])
+
+        if len(captions) >= len(images):
+            print(f"✓ Generated {len(images)} unique image captions")
+            return captions[:len(images)]
+
+        # Pad with article-title-derived fallbacks if GPT returned fewer
+        fallback = [f"{article_title} ({i + 1})" for i in range(len(images))]
+        captions = (captions + fallback)[:len(images)]
+        return captions
+
+    except Exception as e:
+        print(f"✗ Error generating unique image captions: {e}")
+        return [img.alt for img in images]
+
+
 def fetch_images_from_unsplash(query, article_title: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
     """
     Fetch images from Unsplash with recursive fallback for better search results.
@@ -789,6 +943,48 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
         print(f"✗ Failed to fetch images from Unsplash: {e}")
         return None
 
+
+def fetch_images_for_article(queries: List[str], article_title: str, output_language: str = 'en') -> List[UnsplashImage]:
+    """
+    Fetch one distinct image per query so that every image in an article is visually
+    different and topically targeted. Deduplicates across calls by tracking image URLs.
+
+    This replaces the old single-query bulk fetch and gives each article a curated set
+    of images rather than a set of loosely related results from one search.
+
+    Args:
+        queries: One search query per desired image (produced by generate_unsplash_search_queries)
+        article_title: Article title (passed through to fetch_images_from_unsplash for fallback)
+        output_language: 'en' or 'fr'
+
+    Returns:
+        List[UnsplashImage]: One image per query (fewer if some queries yield no results)
+    """
+    images: List[UnsplashImage] = []
+    seen_urls: set = set()
+
+    for query in queries:
+        # Fetch a small batch per query and take the first non-duplicate result
+        candidates = fetch_images_from_unsplash(
+            query=query,
+            article_title=article_title,
+            output_language=output_language,
+            per_page=3  # Fetch a few extras to have fallback options if URLs collide
+        )
+        if not candidates:
+            print(f"✗ No image found for query '{query}', skipping slot")
+            continue
+
+        for candidate in candidates:
+            if candidate.url and candidate.url not in seen_urls:
+                seen_urls.add(candidate.url)
+                images.append(candidate)
+                break  # Take only one image per query
+
+    print(f"✓ Collected {len(images)} unique images across {len(queries)} targeted queries")
+    return images
+
+
 def embed_images_in_content(article_content: str, images: List[UnsplashImage], article_title: str) -> str:
     """
     Embed images in the article content using Medium-compatible Markdown format.
@@ -874,6 +1070,55 @@ def embed_youtube_video(article_content: str, video_id: str) -> str:
     result = paragraphs[:insertion_point] + [youtube_block] + paragraphs[insertion_point:]
     
     return '\n\n'.join(result)
+
+def separate_consecutive_quotes(content: str) -> str:
+    """
+    Ensure no two Markdown blockquote blocks appear back-to-back in the article.
+
+    When consecutive blockquotes are found, the second (and any further adjacent ones)
+    are deferred and re-inserted after the next non-quote paragraph. This guarantees
+    quotes are always separated by at least one paragraph of regular text, which makes
+    the article read more naturally and prevents the visual clutter of stacked quote blocks.
+
+    Args:
+        content: Markdown article content (post-blockquote normalisation)
+
+    Returns:
+        str: Content with blockquotes properly spread throughout the text
+    """
+    # Split on double (or more) newlines to get individual paragraph units
+    paragraphs = re.split(r'\n{2,}', content)
+
+    def is_blockquote_block(para: str) -> bool:
+        """Return True if every non-empty line in the paragraph starts with '>'."""
+        stripped = para.strip()
+        if not stripped:
+            return False
+        return all(line.startswith('>') or line.strip() == '' for line in stripped.split('\n'))
+
+    result: List[str] = []
+    deferred: List[str] = []
+
+    for para in paragraphs:
+        if is_blockquote_block(para):
+            # Look at the most recent non-empty paragraph already committed to result
+            prev_non_empty = next((p for p in reversed(result) if p.strip()), None)
+            if prev_non_empty is not None and is_blockquote_block(prev_non_empty):
+                # Previous committed paragraph is also a quote → defer this one
+                deferred.append(para)
+                continue
+
+        result.append(para)
+
+        # After any non-empty, non-quote paragraph, release one deferred quote
+        if deferred and para.strip() and not is_blockquote_block(para):
+            result.append(deferred.pop(0))
+
+    # Append any quotes that couldn't be re-inserted (e.g. article ends with non-quote content)
+    result.extend(deferred)
+
+    return '\n\n'.join(result)
+
 
 def clean_article_for_medium(content: str) -> str:
     """
@@ -969,6 +1214,9 @@ def clean_article_for_medium(content: str) -> str:
 
     # Clean up excessive blank lines (more than 2 consecutive)
     content = re.sub(r'\n{4,}', '\n\n\n', content)
+
+    # Ensure no two blockquote blocks sit directly next to each other
+    content = separate_consecutive_quotes(content)
 
     return content.strip()
 
@@ -1504,14 +1752,49 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                     images_per_article = 4 if len(article) > VERY_LONG_ARTICLE_THRESHOLD else (
                         3 if len(article) > LONG_ARTICLE_THRESHOLD else 2)
 
-                    # Fetch images from Unsplash using the tags
-                    images = fetch_images_from_unsplash(
-                        query=tags,
+                    # Step 1 — Generate targeted visual search queries (one per image slot).
+                    # These are crafted from the article's content so every image is
+                    # topically and emotionally relevant, not just a generic keyword match.
+                    visual_queries = generate_unsplash_search_queries(
                         article_title=optimized_title,
-                        output_language=output_language,
-                        per_page=images_per_article
+                        article_snippet=article[:500],
+                        tags=tags,
+                        num_images=images_per_article,
+                        output_language=output_language
                     )
+
+                    # Step 2 — Fetch one distinct image per query for a varied, curated set.
+                    images = fetch_images_for_article(
+                        queries=visual_queries,
+                        article_title=optimized_title,
+                        output_language=output_language
+                    )
+
                     if images:
+                        # Step 3 — Generate unique, article-specific caption descriptions.
+                        # Replaces the raw Unsplash alt_description with something that
+                        # ties each image directly to this article's message.
+                        unique_caption_descs = generate_unique_image_captions(
+                            images=images,
+                            article_title=optimized_title,
+                            article_snippet=article[:400],
+                            output_language=output_language
+                        )
+
+                        # Step 4 — Apply unique captions to images, preserving photographer credit.
+                        # The photographer attribution part is extracted from the existing caption
+                        # and reused; only the descriptive portion is replaced.
+                        photo_credit_patterns = {
+                            'en': r'(Photo by \[.+?\]\(.+?\) on Unsplash)',
+                            'fr': r'(Photo de \[.+?\]\(.+?\) sur Unsplash)',
+                        }
+                        credit_pattern = photo_credit_patterns.get(output_language, photo_credit_patterns['en'])
+                        for image, new_desc in zip(images, unique_caption_descs):
+                            credit_match = re.search(credit_pattern, image.caption)
+                            if credit_match and new_desc:
+                                image.caption = f"{new_desc} — {credit_match.group(1)}"
+                                image.alt = new_desc
+
                         article = embed_images_in_content(article, images, optimized_title)
 
                     # Embed YouTube video for tech niche only
