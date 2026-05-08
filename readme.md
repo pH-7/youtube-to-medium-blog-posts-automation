@@ -34,7 +34,7 @@ This program not only converts video transcripts extremely well into beautiful, 
    cd youtube-to-medium-blog-posts-automation
    ```
 
-2. Create and activate a virtual environment (required on macOS, which no longer ships Python by default; [PEP 668](https://peps.python.org/pep-0668/) protects system-managed packages from being overwritten):
+2. Create and activate a virtual environment (recommended on macOS and other systems to avoid conflicts with system-managed Python installations; [PEP 668](https://peps.python.org/pep-0668/) prevents modifying these environments directly):
    ```console
    python3 -m venv .venv && source .venv/bin/activate
    ```
