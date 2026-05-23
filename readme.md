@@ -159,6 +159,8 @@ https://github.com/user-attachments/assets/f951fd14-aec6-4c75-860c-c4297aba254d
 
 [![I've built a script that automatically publishes my videos to well-written English articles](https://i1.ytimg.com/vi/5JA2rq6TFwM/sddefault.jpg)](https://youtu.be/5JA2rq6TFwM)
 
+[▶ Here to Watch on YouTube](https://youtu.be/5JA2rq6TFwM)
+
 
 ## 👨‍🍳 Who created this transformation script?
 
