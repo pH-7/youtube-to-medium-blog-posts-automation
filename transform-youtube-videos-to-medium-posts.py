@@ -376,6 +376,10 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     
     For longer content, develop technical concepts with code examples and practical insights. Create natural narrative flow.
     End with "Key Takeaways" bullet points. Include 1-2 relevant technical quotes if appropriate.
+    Quotes must use this exact Markdown shape:
+    > *Quote text without surrounding double quotes*
+    >
+    > — Author
     
     After a Markdown separator, add this CTA section in the same voice as the article:
     {tech_cta_section}
@@ -387,7 +391,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Transcript: {transcript_to_use}
 
     Format as Medium.com article. Use ## for section headings and ### for subsection headings only (Medium ignores #### and below).
-    DO NOT use em dashes. DO NOT use emojis. Avoid unnecessary buzzwords and corporate jargon unless the speaker uses them. Highlight a few important sentences if any.
+    DO NOT use em dashes anywhere in the article body, headings, captions, bullets, or transitions. The only allowed em dash is the attribution marker in quote blocks: > — Author. DO NOT use emojis. Avoid unnecessary buzzwords and corporate jargon unless the speaker uses them. Highlight a few important sentences if any.
     Use Markdown for headings, code blocks, links, bold, italic:"""
         }
     else:  # self-help niche
@@ -400,7 +404,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Ensure it reads well and doesn't sound like a transcript, though the article must keep the exact same personal, positive, and motivational voice tone and unique written style markers as the transcript, and emphasise or highlight personal ideas that could fascinate the readers. Pay special attention to French idioms and expressions, translating them to their natural English equivalents.
     For longer content, develop each key concept thoroughly with examples, actionable steps, and deeper insights. Create a cohesive narrative that flows naturally from one idea to the next.
     End the article with short bullet/numbered points of a TL;DR / Key Takeaways or Key Lessons, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
-    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote in Markdown using blockquote syntax (>) in italic font without surrounding quotation marks, followed by the author's name on a separate line, preceded by long dash —.
+    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote with this exact Medium Markdown shape: > *Quote text without surrounding double quotes* then a blank blockquote line > then > — Author. The quote text must be italic and must not be surrounded by double quotes. The author must be on its own new line after the blank blockquote line. This quote attribution marker is the only place where an em dash is allowed.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
     Kicker: Right before Title, very short bold text (use **bold**, never a heading).
@@ -411,7 +415,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Structured as a Medium.com article in English while keeping the identical same voice tone as in the original transcript.
     Use ## for section headings and ### for subsection headings only (Medium ignores #### and below).
-    Use simple words, no em dashes, DO NOT use any emojis, and DO NOT use any unnecessary or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
+    Use simple words. DO NOT use em dashes anywhere in the article body, headings, captions, bullets, or transitions. The only allowed em dash is the attribution marker in quote blocks: > — Author. DO NOT use any emojis, and DO NOT use any unnecessary or complicated adjective such as: Unlock, Effortless, Explore, Insights, Today's Digital World, In today's world, Dive into, Refine, Evolving, Embrace, Embracing, Embark, Enrich, Envision, Unleash, Unmask, Unveil, Streamline, Fast-paced, Delve, Digital Age, Game-changer, Indulge, Merely, Endure.
     Use Markdown format for headings, links, bold, italic, etc:""",
 
         }
@@ -440,7 +444,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     (Amener le lecteur au livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me ou sur mon podcast https://podcast.ph7.me (utiliser texte d'ancrage).
 
     Pour les contenus plus longs, développe chaque concept clé en profondeur avec des exemples, des étapes actionnables et des insights plus approfondis. Crée un récit cohérent qui s'enchaîne naturellement d'une idée à l'autre.
-    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispercées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation en Markdown blockquote en utilisant (>) et en italique, sans entourer la citation entre guillemets, puis ajoute le nom de l'auteur sur une ligne séparée, précédé d'un tiret.
+    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispersées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation avec cette structure Medium Markdown exacte : > *Texte de citation sans guillemets* puis une ligne blockquote vide > puis > — Auteur. Le texte de la citation doit être en italique et sans guillemets. L'auteur doit être sur sa propre ligne après la ligne vide. Ce marqueur d'attribution est le seul endroit où le tiret cadratin est autorisé.
     Termine l'article avec un bref récap sous forme de points et/ou liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
@@ -452,7 +456,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     Structure le texte en tant qu'article Medium.com français tout en gardant le même ton de voix que dans la transcription, utilise le tutoiement et prioritise les mots simples.
     Utilise ## pour les titres de section et ### pour les sous-titres de section uniquement (Medium ignore #### et en dessous).
-    N'utilise jamais d'emojis. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
+    N'utilise jamais de tiret cadratin dans le corps de l'article, les titres, les légendes, les listes ou les transitions. Le seul tiret cadratin autorisé est le marqueur d'attribution des citations : > — Auteur. N'utilise jamais d'emojis. Utilise le format Markdown pour les titres, liens, gras, italique, etc:"""
 
     # Get the appropriate instruction based on source and output languages
     instruction_map = instructions[output_language]
@@ -632,13 +636,13 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
         max_completion_tokens=100
     )
 
-    title = response.choices[0].message.content.strip('"')
+    title = remove_disallowed_em_dashes(response.choices[0].message.content.strip('"'))
     print(f"✓ Generated article title: {title}")
     return title
 
 def generate_unsplash_search_queries(article_title: str, article_snippet: str, tags: List[str], num_images: int, output_language: str = 'en') -> List[str]:
     """
-    Use GPT to generate specific, visually evocative Unsplash search queries — one per
+    Use GPT to generate specific, visually evocative Unsplash search queries, one per
     image slot. Queries are always in English (Unsplash indexes in English), and each one
     targets a distinct visual concept so that the images feel varied and meaningful.
 
@@ -663,12 +667,12 @@ Article excerpt: {article_snippet[:450]}
 Generate exactly {num_images} distinct Unsplash search queries to find photos that visually represent different aspects or moods of this article.
 
 Requirements for each query:
-- 2–4 words, concrete and visually specific (describe a real scene or object)
+- 2 to 4 words, concrete and visually specific (describe a real scene or object)
 - Evocative of the article's emotional tone or a key concept
-- Different visual themes from each other — no two should overlap
+- Different visual themes from each other, no two should overlap
 - Always in English (Unsplash searches best in English)
 - Avoid abstract or meta phrases like "personal development", "success mindset", "productivity concept"
-- Prefer scenes with people, nature, objects, textures, light — things a photographer would capture
+- Prefer scenes with people, nature, objects, textures, light, and things a photographer would capture
 
 Good examples: "person writing journal sunrise", "runner morning fog track", "open book warm light", "calm forest path mist"
 Bad examples: "personal growth", "motivation success", "self improvement", "mindset concept"
@@ -694,7 +698,7 @@ Return ONLY a JSON object: {{"queries": ["query1", "query2", ...]}}"""
             print(f"✓ Generated {num_images} targeted Unsplash queries: {queries[:num_images]}")
             return queries[:num_images]
 
-        # Partial result — pad with tag-based fallbacks
+        # Partial result: pad with tag-based fallbacks
         fallback = [article_title] + [' '.join(tags[i:i+2]) for i in range(0, len(tags), 2)]
         queries = (queries + fallback)[:num_images]
         print(f"✓ Generated {len(queries)} queries (padded with fallbacks)")
@@ -712,7 +716,7 @@ def generate_unique_image_captions(images: List['UnsplashImage'], article_title:
     Each caption ties the image's visual content to the article's specific message so
     that no two captions look the same, even across similar articles.
 
-    Photographer attribution is handled separately — this function returns only the
+    Photographer attribution is handled separately. This function returns only the
     descriptive portion (e.g. "The quiet discipline behind lasting change").
 
     Args:
@@ -735,15 +739,15 @@ def generate_unique_image_captions(images: List['UnsplashImage'], article_title:
     lang_instruction = {
         'en': (
             "Write each caption in English. "
-            "Each caption must be a short, punchy phrase (4–9 words) that connects the image to the article's theme. "
+            "Each caption must be a short, punchy phrase (4 to 9 words) that connects the image to the article's theme. "
             "Do NOT start with 'A photo of', 'An image of', or any similar phrase."
         ),
         'fr': (
             "Écris chaque légende en français. "
-            "Chaque légende doit être une phrase courte et percutante (4–9 mots) qui relie l'image au thème de l'article. "
+            "Chaque légende doit être une phrase courte et percutante (4 à 9 mots) qui relie l'image au thème de l'article. "
             "Ne commence pas par 'Une photo de', 'Une image de' ou une formule similaire."
         )
-    }.get(output_language, "Write each caption in English. Each caption must be a short, punchy phrase (4–9 words).")
+    }.get(output_language, "Write each caption in English. Each caption must be a short, punchy phrase (4 to 9 words).")
 
     prompt = f"""Article title: "{article_title}"
 Article excerpt: {article_snippet[:350]}
@@ -754,10 +758,11 @@ Unsplash image descriptions:
 {lang_instruction}
 
 Additional rules:
-- Every caption must be unique — no two can be similar in wording or meaning
+- Every caption must be unique. No two can be similar in wording or meaning
 - Each caption should feel like it belongs specifically to this article, not a generic photo caption
 - Capture the emotional or conceptual connection between image and article message
-- Keep it concise: 4–9 words maximum
+- Keep it concise: 4 to 9 words maximum
+- Do not use em dashes
 
 Return ONLY a JSON object: {{"captions": ["caption1", "caption2", ...]}}"""
 
@@ -778,16 +783,16 @@ Return ONLY a JSON object: {{"captions": ["caption1", "caption2", ...]}}"""
 
         if len(captions) >= len(images):
             print(f"✓ Generated {len(images)} unique image captions")
-            return captions[:len(images)]
+            return [remove_disallowed_em_dashes(caption) for caption in captions[:len(images)]]
 
         # Pad with article-title-derived fallbacks if GPT returned fewer
         fallback = [f"{article_title} ({i + 1})" for i in range(len(images))]
         captions = (captions + fallback)[:len(images)]
-        return captions
+        return [remove_disallowed_em_dashes(caption) for caption in captions]
 
     except Exception as e:
         print(f"✗ Error generating unique image captions: {e}")
-        return [img.alt for img in images]
+        return [remove_disallowed_em_dashes(img.alt) for img in images]
 
 
 def fetch_images_from_unsplash(query, article_title: str, output_language: str = 'en', per_page: int = 2) -> Optional[List[UnsplashImage]]:
@@ -904,8 +909,8 @@ def fetch_images_from_unsplash(query, article_title: str, output_language: str =
             return None
 
         captions = {
-            'en': lambda desc, name, profile_url: f"{desc} - Photo by [{name}]({profile_url}) on Unsplash",
-            'fr': lambda desc, name, profile_url: f"{desc} - Photo de [{name}]({profile_url}) sur Unsplash"
+            'en': lambda desc, name, profile_url: f"{desc} - Photo by [{name}]({profile_url})",
+            'fr': lambda desc, name, profile_url: f"{desc} - Photo de [{name}]({profile_url})"
         }
 
         caption_formatter = captions.get(output_language, captions['en'])
@@ -1120,6 +1125,74 @@ def separate_consecutive_quotes(content: str) -> str:
     return '\n\n'.join(result)
 
 
+def _strip_quote_wrapping(text: str) -> str:
+    """Remove quote marks and Markdown emphasis around generated quote text."""
+    text = text.strip()
+    text = re.sub(r'^[*_]+|[*_]+$', '', text).strip()
+    text = text.strip('"“”«»')
+    text = re.sub(r'^[*_]+|[*_]+$', '', text).strip()
+    return text
+
+
+def _normalize_blockquote_for_medium(block: str) -> str:
+    """Normalize one Markdown blockquote to Medium's preferred quote format."""
+    raw_lines = [re.sub(r'^>\s?', '', line).strip() for line in block.split('\n')]
+    non_empty_lines = [line for line in raw_lines if line]
+
+    if not non_empty_lines:
+        return block
+
+    author = None
+    author_match = re.match(r'^(?:—|–|-{1,2})\s*(.+)$', non_empty_lines[-1])
+    if author_match:
+        author = author_match.group(1).strip()
+        quote_lines = non_empty_lines[:-1]
+    else:
+        quote_lines = non_empty_lines
+        inline_match = re.match(r'^(.+?)\s+(?:—|–|-{1,2})\s+([^.!?\n]{2,80})$', quote_lines[-1])
+        if inline_match:
+            quote_lines[-1] = inline_match.group(1).strip()
+            author = inline_match.group(2).strip()
+
+    quote = _strip_quote_wrapping(' '.join(quote_lines))
+    if not quote:
+        return block
+
+    normalized_lines = [f'> *{quote}*']
+    if author:
+        normalized_lines.extend(['>', f'> — {author}'])
+
+    return '\n'.join(normalized_lines)
+
+
+def normalize_quotes_for_medium(content: str) -> str:
+    """Normalize all Markdown blockquotes to italic quote text plus separated attribution."""
+    paragraphs = re.split(r'(\n{2,})', content)
+    normalized = []
+
+    for paragraph in paragraphs:
+        stripped = paragraph.strip()
+        if stripped and all(line.startswith('>') or not line.strip() for line in stripped.split('\n')):
+            normalized.append(_normalize_blockquote_for_medium(paragraph))
+        else:
+            normalized.append(paragraph)
+
+    return ''.join(normalized)
+
+
+def remove_disallowed_em_dashes(content: str) -> str:
+    """Remove em dashes everywhere except Medium quote attribution lines."""
+    cleaned_lines = []
+
+    for line in content.split('\n'):
+        if re.match(r'^\s*>\s*—\s+\S', line):
+            cleaned_lines.append(line)
+        else:
+            cleaned_lines.append(re.sub(r'\s*—\s*', ', ', line))
+
+    return '\n'.join(cleaned_lines)
+
+
 def clean_article_for_medium(content: str) -> str:
     """
     Clean article Markdown for optimal rendering on Medium.
@@ -1129,7 +1202,8 @@ def clean_article_for_medium(content: str) -> str:
     - Converts H4+ headings to bold (Medium only renders H1, H2, H3)
     - Strips trailing 'Kicker:' sections (GPT prompt leakage)
     - Collapses consecutive horizontal rules into one
-    - Normalizes blockquote attribution lines
+    - Normalizes blockquotes for Medium
+    - Removes em dashes except quote attribution markers
     - Trims excessive blank lines
 
     Note: The H1 title is intentionally KEPT in the content. The Medium API
@@ -1185,29 +1259,29 @@ def clean_article_for_medium(content: str) -> str:
     # Remove trailing "Kicker:" sections (prompt leakage from GPT)
     content = re.sub(r'\n+###?\s*Kicker:\s*\n.*$', '', content, flags=re.DOTALL)
 
-    # Normalize blockquote attribution lines for Medium
-    # Pattern 1: Author attribution outside blockquote (missing ">")
+    # Normalize blockquote attribution lines for Medium.
+    # Pattern 1: Author attribution outside blockquote (missing ">").
     #   > *Quote text*
-    #   — Author         ← missing ">"
-    # Fix: bring it inside the blockquote
+    #   - Author
+    # Fix: bring it inside the blockquote.
     content = re.sub(
-        r'(^>\s*.+)\n\n?(—\s*.+)$',
+        r'(^>\s*.+)\n\n?((?:—|–|-{1,2})\s*.+)$',
         r'\1\n>\n> \2',
         content,
         flags=re.MULTILINE
     )
-    # Pattern 2: Blank continuation inside blockquote before attribution is fine,
-    # but ensure the attribution is on its own ">" line (already handled above).
-    # Pattern 3: Quote and attribution on adjacent ">" lines with no blank ">" between
+    # Pattern 2: Quote and attribution on adjacent ">" lines with no blank ">" between.
     #   > *Quote text*
-    #   > — Author
-    # Add a blank ">" line so Medium renders them as separate visual lines within the same block
+    #   > - Author
+    # Add a blank ">" line so Medium renders them as separate visual lines in the same block.
     content = re.sub(
-        r'(^>\s*[*_].+[*_])\n(>\s*—)',
+        r'(^>\s*[*_].+[*_])\n(>\s*(?:—|–|-{1,2})\s*)',
         r'\1\n>\n\2',
         content,
         flags=re.MULTILINE
     )
+    content = normalize_quotes_for_medium(content)
+    content = remove_disallowed_em_dashes(content)
 
     # Collapse consecutive --- separators
     content = re.sub(r'(---\s*\n\s*){2,}', '---\n\n', content)
@@ -1785,14 +1859,14 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                         # The photographer attribution part is extracted from the existing caption
                         # and reused; only the descriptive portion is replaced.
                         photo_credit_patterns = {
-                            'en': r'(Photo by \[.+?\]\(.+?\) on Unsplash)',
-                            'fr': r'(Photo de \[.+?\]\(.+?\) sur Unsplash)',
+                            'en': r'(Photo by \[.+?\]\(.+?\))',
+                            'fr': r'(Photo de \[.+?\]\(.+?\))',
                         }
                         credit_pattern = photo_credit_patterns.get(output_language, photo_credit_patterns['en'])
                         for image, new_desc in zip(images, unique_caption_descs):
                             credit_match = re.search(credit_pattern, image.caption)
                             if credit_match and new_desc:
-                                image.caption = f"{new_desc} — {credit_match.group(1)}"
+                                image.caption = f"{new_desc} - {credit_match.group(1)}"
                                 image.alt = new_desc
 
                         article = embed_images_in_content(article, images, optimized_title)
