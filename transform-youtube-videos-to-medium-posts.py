@@ -23,6 +23,9 @@ import requests
 # Markdown to HTML conversion
 import markdown as md_lib
 
+# Multi-platform publishing layer (Medium, Dev.to, Hashnode, ...)
+from publishers import build_publishers, publish_to_all, select_primary_url
+
 RATE_LIMIT_PERIOD_SECONDS = 300 # 5 minute
 MAX_CALLS_IN_PERIOD = 1
 LONG_ARTICLE_THRESHOLD = 2499
@@ -1425,7 +1428,8 @@ def save_article_locally(
         tags: List[str],
         article: str,
         medium_url: str,
-        base_dir: str = 'articles'
+        base_dir: str = 'articles',
+        published_urls: Optional[Dict[str, str]] = None
 ) -> str:
     """
     Save the generated article locally as a Markdown file.
@@ -1436,7 +1440,9 @@ def save_article_locally(
         title (str): The optimized title for the article
         tags (List[str]): List of tags for the article
         article (str): The content of the article in Markdown format
+        medium_url (str): The primary/canonical published URL (or "not_published")
         base_dir (str, optional): Base directory for saving articles. Defaults to 'articles'
+        published_urls (Optional[Dict[str, str]]): Map of platform name -> published URL
 
     Returns:
         str: The path of the saved file
@@ -1462,13 +1468,20 @@ def save_article_locally(
     # Generate YouTube video URL
     youtube_url: str = f"https://www.youtube.com/watch?v={video_id}"
 
+    # Build per-platform published URL lines (one line per platform that succeeded)
+    platform_lines: str = ""
+    if published_urls:
+        for platform, url in published_urls.items():
+            if url:
+                platform_lines += f"{platform}_url: {url}\n"
+
     metadata_header: str = f"""---
 video_id: {video_id}
 youtube_url: {youtube_url}
 original_title: {original_title}
 optimized_title: {title}
 medium_url: {medium_url}
-date: {datetime.now().isoformat()}
+{platform_lines}date: {datetime.now().isoformat()}
 tags: {formatted_tags}
 ---
 
@@ -1487,87 +1500,19 @@ tags: {formatted_tags}
     print(f"✓ Article saved locally at: {file_name}")
     return file_name
 
-def post_to_medium(title: str, content: str, tags: List[str], output_language: str, niche: str = 'self-help') -> Optional[str]:
+def build_medium_html(markdown_content: str, title: str) -> str:
     """
-    Post article to Medium with support for publication posting.
+    Convert a Markdown article into Medium-compatible HTML.
 
-    Converts the Markdown content to Medium-compatible HTML before posting.
-    HTML contentFormat is used because it provides proper rendering for:
-    - Image captions via <figure>/<figcaption> (Markdown italic captions are unreliable)
+    Used by the Medium publisher. HTML contentFormat is preferred because it
+    renders elements that Markdown mode handles poorly:
+    - Image captions via <figure>/<figcaption>
     - Kicker text via <h4> above the <h1> title
     - Subtitle via <h3> below the <h1> title
     - Title display on the post page (API 'title' field is SEO-only)
     """
-    config = load_config()
-    en_publication_id = config.get('MEDIUM_EN_PUBLICATION_ID')
-    fr_publication_id = config.get('MEDIUM_FR_PUBLICATION_ID')
-    tech_publication_id = config.get('MEDIUM_TECH_PUBLICATION_ID')
-    post_to_publication = config.get('POST_TO_PUBLICATION', False)
-    token = config['MEDIUM_ACCESS_TOKEN']
-    publish_status = config['PUBLISH_STATUS']
-
-    # Clean the Markdown and convert to Medium-compatible HTML
-    cleaned_md = clean_article_for_medium(content)
-    html_content = convert_markdown_to_medium_html(cleaned_md, title)
-
-    # Use HTML contentFormat for reliable rendering of captions, kicker, subtitle
-    # The API 'title' field is used for SEO/listing only (not displayed on the post page)
-    article = {
-        "title": title,
-        "contentFormat": "html",
-        "content": html_content,
-        "tags": tags[:5],  # Medium allows up to 5 tags
-        "publishStatus": publish_status
-    }
-
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Accept-Charset": "utf-8"
-    }
-
-    try:
-        # Select publication based on niche and language
-        if niche == 'tech':
-            publication_id = tech_publication_id
-        else:
-            publication_id = fr_publication_id if output_language == 'fr' else en_publication_id
-
-        # Only post to publication if we have a valid publication ID
-        if post_to_publication and publication_id:
-            # Post to publication
-            response = requests.post(
-                f"https://api.medium.com/v1/publications/{publication_id}/posts",
-                headers=headers,
-                json=article
-            )
-        else:
-            # Post to user's profile
-            # First get the user's id
-            user_info = requests.get(
-                "https://api.medium.com/v1/me",
-                headers=headers
-            )
-            user_info.raise_for_status()
-            user_id = user_info.json()['data']['id']
-
-            # Then create the post under the user's profile
-            response = requests.post(
-                f"https://api.medium.com/v1/users/{user_id}/posts",
-                headers=headers,
-                json=article
-            )
-
-        response.raise_for_status()
-
-        print(f"✓ Article posted to Medium.com")
-        return response.json()["data"]["url"]
-
-    except Exception as e:
-        print(f"✗ Failed to post article: {e}")
-        print(f"Response: {response.text if 'response' in locals() else 'No response'}")
-        return None
+    cleaned_md = clean_article_for_medium(markdown_content)
+    return convert_markdown_to_medium_html(cleaned_md, title)
 
 def check_article_exists(video_id: str, original_title: str, base_dir: str = 'articles') -> Optional[str]:
     """
@@ -1707,7 +1652,7 @@ def update_article_medium_url(file_path: str, medium_url: str) -> bool:
         return False
 
 
-def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
+def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any], publishers: List[Any]):
     """
     Process videos for a specific niche.
     
@@ -1715,6 +1660,7 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
         youtube: YouTube API service instance
         niche_name: Name of the niche ('self-help' or 'tech')
         niche_config: Configuration dictionary for the niche
+        publishers: List of configured platform publishers (Medium, Dev.to, ...)
     """
     channel_id = niche_config['YOUTUBE_CHANNEL_ID']
     source_language = niche_config.get('SOURCE_LANGUAGE', 'en')
@@ -1775,23 +1721,25 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                     unpublished_path = check_unpublished_article(video.id, video.title, base_dir=article_dir)
                     if unpublished_path:
                         print(f"✓ Found unpublished article: {os.path.basename(unpublished_path)}")
-                        print(f"✓ Attempting to publish existing article to Medium (avoiding OpenAI regeneration)...")
+                        print(f"✓ Attempting to publish existing article (avoiding OpenAI regeneration)...")
                         
                         article_data = extract_article_from_file(unpublished_path)
                         if article_data:
                             try:
-                                medium_url = post_to_medium(
-                                    article_data['title'],
-                                    article_data['content'],
-                                    article_data['tags'],
-                                    output_language,
+                                results = publish_to_all(
+                                    publishers,
+                                    title=article_data['title'],
+                                    content=article_data['content'],
+                                    tags=article_data['tags'],
+                                    output_language=output_language,
                                     niche=niche_name
                                 )
-                                
-                                if medium_url:
-                                    print(f"✓ Successfully published! URL: {medium_url}")
-                                    # Update the medium_url in the file
-                                    if update_article_medium_url(unpublished_path, medium_url):
+                                primary_url = select_primary_url(results)
+
+                                if any(r.success for r in results.values()):
+                                    print(f"✓ Successfully published! URL: {primary_url}")
+                                    # Update the primary published URL in the file
+                                    if update_article_medium_url(unpublished_path, primary_url):
                                         # Rename file to remove 'not_published_' prefix
                                         new_path = rename_published_article(unpublished_path, video.id, video.title, article_dir)
                                         if new_path:
@@ -1877,20 +1825,30 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                         print(f"✓ Embedded YouTube video in article")
 
                     # Clean Markdown for local save (fix unsupported headings, blockquotes, etc.)
-                    # Note: post_to_medium() also cleans + converts to HTML internally
+                    # Note: the Medium publisher also cleans + converts to HTML internally
                     article = clean_article_for_medium(article)
 
-                    # Set default medium_url
-                    medium_url = "not_published"
-
-                    # Try to post to Medium, but continue saving article locally if fails
+                    # Publish to every configured platform (Medium, Dev.to, Hashnode, ...).
+                    # Saving locally still happens even if all publishers fail.
+                    published_urls: Dict[str, str] = {}
                     try:
-                        medium_result = post_to_medium(optimized_title, article, tags, output_language, niche=niche_name)
-                        if medium_result:
-                            medium_url = medium_result
+                        results = publish_to_all(
+                            publishers,
+                            title=optimized_title,
+                            content=article,
+                            tags=tags,
+                            output_language=output_language,
+                            niche=niche_name
+                        )
+                        published_urls = {
+                            name: r.url for name, r in results.items() if r.success and r.url
+                        }
+                        medium_url = select_primary_url(results)
+                        if medium_url not in ("not_published", "posted_as_draft"):
                             print(f"✓ Article available at: {medium_url}")
                     except Exception as e:
-                        print(f"✗ Failed to post to Medium: {e}")
+                        print(f"✗ Failed to publish article: {e}")
+                        medium_url = "not_published"
 
                     save_article_locally(
                         video.id,
@@ -1899,7 +1857,8 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any]):
                         tags,
                         article,
                         medium_url,
-                        base_dir=article_dir
+                        base_dir=article_dir,
+                        published_urls=published_urls
                     )
 
                 except Exception as e:
@@ -1913,6 +1872,10 @@ def main():
     Main function to process all configured niches.
     """
     youtube = get_authenticated_service()
+
+    # Build the set of enabled publishers once (Medium, Dev.to, Hashnode, ...).
+    # The Medium publisher needs the Markdown -> HTML converter from this module.
+    publishers = build_publishers(config, build_medium_html)
 
     niches_config = config.get('NICHES', {})
     active_niche = config.get('ACTIVE_NICHE', 'all')
@@ -1933,7 +1896,7 @@ def main():
     # Process each niche
     for niche_name, niche_config in niches_to_process:
         try:
-            process_niche(youtube, niche_name, niche_config)
+            process_niche(youtube, niche_name, niche_config, publishers)
         except Exception as e:
             print(f"✗ Error processing {niche_name} niche: {e}")
             continue
