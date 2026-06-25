@@ -407,7 +407,16 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Ensure it reads well and doesn't sound like a transcript, though the article must keep the exact same personal, positive, and motivational voice tone and unique written style markers as the transcript, and emphasise or highlight personal ideas that could fascinate the readers. Pay special attention to French idioms and expressions, translating them to their natural English equivalents.
     For longer content, develop each key concept thoroughly with examples, actionable steps, and deeper insights. Create a cohesive narrative that flows naturally from one idea to the next.
     End the article with one or two properly formatted subheading-style questions (e.g. ### TL;DR, ### Key Takeaways, ### Key Lessons, ### Actions List, ### Ask Yourself, ### What About You). Follow each heading with short bullet or numbered points. Precede the heading with a Markdown separator (---).
-    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote with this exact Medium Markdown shape: > *Quote text without surrounding double quotes* then a blank blockquote line > then > — Author. The quote text must be italic and must not be surrounded by double quotes. The author must be on its own new line after the blank blockquote line. This quote attribution marker is the only place where an em dash is allowed.
+    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message.
+Use this EXACT Markdown format for every quote (pay close attention to the blank line):
+
+> *Quote text without surrounding double quotes. Only this line should be italicized.*
+
+>
+> — Author
+
+Only the quote text must be wrapped in asterisks (*). The author/attribution line must NOT be italicized.
+The em dash (—) is only allowed in the attribution line. Do not use em dashes anywhere else in the article.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
     Kicker: Right before Title, very short bold text (use **bold**, never a heading).
@@ -447,7 +456,16 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     (Amener le lecteur au livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me ou sur mon podcast https://podcast.ph7.me (utiliser texte d'ancrage).
 
     Pour les contenus plus longs, développe chaque concept clé en profondeur avec des exemples, des étapes actionnables et des insights plus approfondis. Crée un récit cohérent qui s'enchaîne naturellement d'une idée à l'autre.
-    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispersées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation avec cette structure Medium Markdown exacte : > *Texte de citation sans guillemets* puis une ligne blockquote vide > puis > — Auteur. Le texte de la citation doit être en italique et sans guillemets. L'auteur doit être sur sa propre ligne après la ligne vide. Ce marqueur d'attribution est le seul endroit où le tiret cadratin est autorisé.
+    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispersées dans l'article et percutantes qui résonnent profondément avec le message de l'article. 
+Utilise ce format Markdown EXACT pour chaque citation (fais attention à la ligne vide) :
+
+> *Texte de citation sans guillemets. Seule cette ligne doit être en italique.*
+
+>
+> — Auteur
+
+Seul le texte de la citation doit être entouré d'astérisques (*). La ligne d'attribution de l'auteur ne doit PAS être en italique.
+Le tiret cadratin (—) n'est autorisé que dans la ligne d'attribution. N'utilise jamais de tiret cadratin ailleurs dans l'article.
     Termine l'article par un ou deux sous-titre (par exemple : ## Points Clés, ## Récap, ## Actions à prendre, ## Demandez-vous). Fais suivre chaque sous-titre par des points ou d'une liste numérotée. Précède le titre d'un séparateur Markdown (---).
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
