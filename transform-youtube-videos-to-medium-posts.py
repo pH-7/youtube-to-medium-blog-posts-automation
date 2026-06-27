@@ -380,7 +380,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     For longer content, develop technical concepts with code examples and practical insights. Create natural narrative flow.
     End with "Key Takeaways" bullet points. Include 1-2 relevant technical quotes if appropriate.
     Quotes must use this exact Markdown shape:
-    > *Quote text without any surrounding double quotes*
+    > *Quote text without surrounding double quotes*
     >
     > — Author
     
@@ -403,18 +403,11 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     WRITING QUALITY: Craft genuinely engaging prose that captivates readers. Vary sentence rhythm - mix short punchy sentences with longer flowing ones. Use vivid, concrete language over abstract concepts. Build momentum through smooth transitions between ideas. Hook readers from the opening line and reward them throughout.
 
-    While ensuring em dashes aren't used, rewrite it as a well-structured, comprehensive article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, les liens en dessous de la vidéo, à bientôt, ciao, n'oublie pas de t'abonner, ...), CTA related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
+    While ensuring em dashes aren't used, rewrite it as a well-structured, comprehensive article in English, skipping the video introduction (e.g. Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), the ending section (e.g. au revoir, code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, n'oublie pas de t'abonner, ...), CTA related to PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com and workshops.
     Ensure it reads well and doesn't sound like a transcript, though the article must keep the exact same personal, positive, and motivational voice tone and unique written style markers as the transcript, and emphasise or highlight personal ideas that could fascinate the readers. Pay special attention to French idioms and expressions, translating them to their natural English equivalents.
     For longer content, develop each key concept thoroughly with examples, actionable steps, and deeper insights. Create a cohesive narrative that flows naturally from one idea to the next.
-    End the article with one or two properly formatted subheading-style questions (e.g. ### TL;DR, ### Key Takeaways, ### Key Lessons, ### Actions List, ### Ask Yourself, ### What About You). Follow each heading with short bullet or numbered points. Precede the heading with a Markdown separator (---).
-    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Use this exact format:
-
-> *Quote text here. Only this line should be italicized.*
-
->
-> — Author
-
-    Only the quote text must be italicized. Do not italicize the author line. The em dash (—) is only allowed in this attribution.
+    End the article with short bullet/numbered points of a TL;DR / Key Takeaways or Key Lessons, Actions List, and/or "What About You ?" / "Ask Yourself" styled questions in italic font preceded by Markdown separator.
+    If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Format each quote with this exact Medium Markdown shape: > *Quote text without surrounding double quotes* then a blank blockquote line > then > — Author. The quote text must be italic and must not be surrounded by double quotes. The author must be on its own new line after the blank blockquote line. This quote attribution marker is the only place where an em dash is allowed.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
     Kicker: Right before Title, very short bold text (use **bold**, never a heading).
@@ -434,7 +427,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 
     QUALITÉ RÉDACTIONNELLE: Rédige une prose captivante et soignée. Varie le rythme des phrases - alterne entre phrases courtes percutantes et phrases plus longues et fluides. Utilise un langage vivant et concret. Crée des transitions fluides entre les idées. Accroche le lecteur dès la première ligne et maintiens son intérêt tout au long de l'article.
 
-    Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir,  code de promotion, code de réduction, je te retouve dans mes formations, les liens en dessous de la vidéo, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
+    Réécris-le sous forme d'article bien structuré en français, en omettant l'introduction vidéo (ex: Bonjour à toi, Comment vas-tu, Bienvenue sur ma chaîne, ...), la conclusion (ex: au revoir,  code de promotion, code de réduction, je te retouve dans mes formations, à bientôt, ciao, N'oublie pas de t'abonner, ...), et exclus toute promotion liée à PIERREWRITER.COM, pier.com, pwrit.com, prwrit.com et aux ateliers.
     Rédige la transcription vidéo sous forme d'un article facile à lire. Mets en valeur les idées personnelles qui peuvent fasciner.
 
     Si le texte le permet, utilise la structure suivante, MAIS en incorporant cette structure au texte de manière naturelle pour que cela ne soit pas évident pour le lecteur.
@@ -454,15 +447,8 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     (Amener le lecteur au livre complémentaire https://livre.ph7.me (utilise un texte d'ancrage comme "mon livre" ou "mon dernier livre" et met le lien en gras), ou invite le lecteur à ma chaîne YouTube https://fr-youtube.ph7.me ou sur mon podcast https://podcast.ph7.me (utiliser texte d'ancrage).
 
     Pour les contenus plus longs, développe chaque concept clé en profondeur avec des exemples, des étapes actionnables et des insights plus approfondis. Crée un récit cohérent qui s'enchaîne naturellement d'une idée à l'autre.
-    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispersées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Utilise ce format exact :
-
-> *Texte de citation ici. Seule cette ligne doit être en italique.*
-
->
-> — Auteur
-
-    Seul le texte de la citation doit être en italique. Ne mets pas la ligne d'auteur en italique. Le tiret cadratin (—) n'est autorisé que dans l'attribution.
-    Termine l'article par un ou deux sous-titre (par exemple : ## Points Clés, ## Récap, ## Actions à prendre, ## Demandez-vous). Fais suivre chaque sous-titre par des points ou d'une liste numérotée. Précède le titre d'un séparateur Markdown (---).
+    Si cela est pertinent avec l'article, inclue 1 à 3 citations dispersées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Formate chaque citation avec cette structure Medium Markdown exacte : > *Texte de citation sans guillemets* puis une ligne blockquote vide > puis > — Auteur. Le texte de la citation doit être en italique et sans guillemets. L'auteur doit être sur sa propre ligne après la ligne vide. Ce marqueur d'attribution est le seul endroit où le tiret cadratin est autorisé.
+    Termine l'article avec un bref récap sous forme de points et/ou liste d'actions que le lecteur peut directement appliquer, précédé d'un séparateur Markdown.
     Enfin, suggérer le lecteur de s'inscrire à ma liste de contacts sur https://contacts.ph7.me (utilise un texte d'ancrage), précédé d'un séparateur Markdown.
 
     Kicker: Juste avant le Titre, très courte phrase d'accroche en gras (utilise **gras**, jamais un titre/heading).
@@ -616,22 +602,41 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
 
     prompts = {
-        'en': f"""Based on the content provided below, generate an engaging title for a Medium.com article.
+        'en': f"""Based on the content provided below, generate a title and subtitle for a Medium.com article.
 
-    Content: {article_content[:550]}  # Limit the content sent to the model
-    
-    Ensure the title grabs attention and intrigues readers to absolutely read the article. The title should be creative and concise, ideally under 60 characters.
-    When it relevant, use one of these following title formats: "Use/Adopt [Skill|Action] or [Bad Consequence]", "How [Action|Benefit] WITHOUT [Related Pain Point]?", "How to [Action|Benefit] in [Limited Time]?", "The New Way to [Action] With No [Friction Point]".
+    Content: {article_content[:600]}
 
-    Do not use em dashes, hyphens, or dashes. Avoid irrelevant adjective like Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer, ... and prioritize simple words.""",
+    REQUIREMENTS:
+    - The title must be grounded in the actual content. Identify the core painful problem the reader is facing.
+    - Prefer titles that show a clear benefit + what the reader can achieve WITHOUT something painful, difficult, or time-consuming (when this is accurate in the article).
+    - Good structures (use when they fit naturally):
+        • "How to [Benefit] Without [Pain Point / Struggle]"
+        • "[Action] Without [Common Problem]"
+        • "Stop [Painful Thing]. Do [Better Approach] Instead"
+        • "The Simple Way to [Goal] (Without [Friction])"
+    - Avoid hype, exaggeration, or generic clickbait. The title must feel honest and specific to this content.
+    - Keep the title under 65 characters when possible.
+    - After the title, suggest a short, specific subtitle (as ### H3) that adds more detail or promise based on the article.
 
-        'fr': f"""À partir du contenu fourni ci-dessous, génère un titre accrocheur pour un article Medium.com.
+    Do not use em dashes, hyphens, or dashes in the title. Avoid words like: Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer. Prioritize simple, concrete words.""",
 
-    Contenu: {article_content[:550]}  # Limite le contenu envoyé au modèle
-    
-    Assure-toi que le titre attire l'attention des lecteurs. Le titre doit être créatif et concis, idéalement moins de 60 caractères.
-    Dans la mesure du possible, utilise l'un des formats suivants : "Comment [Action|Bénéfice] SANS [Point de Douleur] ?", "Comment [Action|Bénéfice] en [Temps Limité] ?", "La Nouvelle Façon de [Action] SANS [Point de Friction]", "Faites [Compétence/Action] ou [Conséquence]".
-    N'utilise pas de tirets cadratins, tirets, ou traits d'union. Utilise le tutoiement et utilise des mots simples. N'utilise aucun adjectif non pertinent ou compliqué comme Débloquer, Dévoiler, Démasquer, Révéler, Rationaliser, Révolutionnaire."""
+        'fr': f"""À partir du contenu fourni ci-dessous, génère un titre et un sous-titre pour un article Medium.com.
+
+    Contenu: {article_content[:600]}
+
+    EXIGENCES :
+    - Le titre doit être ancré dans le contenu réel. Identifie le problème douloureux principal que le lecteur vit.
+    - Privilégie les titres qui montrent un bénéfice clair + ce que le lecteur peut obtenir SANS quelque chose de pénible, difficile ou chronophage (quand c'est exact dans l'article).
+    - Bonnes structures (à utiliser quand elles collent naturellement) :
+        • "Comment [Bénéfice] Sans [Point de Douleur / Difficulté]"
+        • "[Action] Sans [Problème Courant]"
+        • "Arrête [Chose Pénible]. Fais [Meilleure Approche] À la Place"
+        • "La Manière Simple de [Objectif] (Sans [Friction])"
+    - Évite le hype, l'exagération ou le clickbait générique. Le titre doit sembler honnête et spécifique à ce contenu.
+    - Garde le titre idéalement sous 65 caractères.
+    - Après le titre, propose un court sous-titre spécifique (en ### H3) qui ajoute plus de précision ou de promesse basée sur l'article.
+
+    N'utilise pas de tirets cadratins, tirets ou traits d'union dans le titre. Évite les mots comme : Débloquer, Sans Effort, Évolutif, Embrasser, Enrichir, Libérer, Démasquer, Dévoiler, Rationaliser, Révolutionnaire. Privilégie des mots simples et concrets."""
     }
 
     system_messages = {
