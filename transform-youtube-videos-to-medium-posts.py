@@ -602,41 +602,57 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
 
     prompts = {
-        'en': f"""Based on the content provided below, generate a title and subtitle for a Medium.com article.
+        'en': f"""Based on the content below, generate a strong title + subtitle for a Medium article.
 
-    Content: {article_content[:600]}
+Content: {article_content[:700]}
 
-    REQUIREMENTS:
-    - The title must be grounded in the actual content. Identify the core painful problem the reader is facing.
-    - Prefer titles that show a clear benefit + what the reader can achieve WITHOUT something painful, difficult, or time-consuming (when this is accurate in the article).
-    - Good structures (use when they fit naturally):
-        • "How to [Benefit] Without [Pain Point / Struggle]"
-        • "[Action] Without [Common Problem]"
-        • "Stop [Painful Thing]. Do [Better Approach] Instead"
-        • "The Simple Way to [Goal] (Without [Friction])"
-    - Avoid hype, exaggeration, or generic clickbait. The title must feel honest and specific to this content.
-    - Keep the title under 65 characters when possible.
-    - After the title, suggest a short, specific subtitle (as ### H3) that adds more detail or promise based on the article.
+GOAL: Create titles that are honest, specific, and arouse genuine curiosity by showing a desirable outcome while acknowledging real friction or pain.
 
-    Do not use em dashes, hyphens, or dashes in the title. Avoid words like: Unlock, Effortless, Evolving, Embrace, Enrich, Unleash, Unmask, Unveil, Streamline, Fast-paced, Game-changer. Prioritize simple, concrete words.""",
+PREFERRED TITLE STRUCTURES (use when they fit naturally):
+1. "How to [achieve desired outcome] without [pain/friction/struggle]"   ← Strongest default
+2. "The new way to [achieve desired outcome]"
+3. "How to [achieve desired outcome] in [X hours/days/weeks]"
 
-        'fr': f"""À partir du contenu fourni ci-dessous, génère un titre et un sous-titre pour un article Medium.com.
+Other strong patterns when relevant:
+- "Stop [painful thing]. Do [better approach] instead"
+- "[Action] without [common expensive/hard thing]"
 
-    Contenu: {article_content[:600]}
+RULES:
+- First identify the core painful problem or frustrating situation the reader is facing.
+- The title must stay grounded in the actual content — no exaggeration or false promises.
+- Create titles that make the reader think: “This sounds useful… I wonder how they do that without the usual pain.”
+- Combine honesty with a light sense of possibility and curiosity.
+- Keep the main title under 70 characters when possible.
+- After the title, suggest a short, specific subtitle (as ### H3) that adds more concrete detail or promise from the article.
+- Avoid hype words: Unlock, Effortless, Game-changer, Revolutionary, etc. Use simple, concrete language.
 
-    EXIGENCES :
-    - Le titre doit être ancré dans le contenu réel. Identifie le problème douloureux principal que le lecteur vit.
-    - Privilégie les titres qui montrent un bénéfice clair + ce que le lecteur peut obtenir SANS quelque chose de pénible, difficile ou chronophage (quand c'est exact dans l'article).
-    - Bonnes structures (à utiliser quand elles collent naturellement) :
-        • "Comment [Bénéfice] Sans [Point de Douleur / Difficulté]"
-        • "[Action] Sans [Problème Courant]"
-        • "Arrête [Chose Pénible]. Fais [Meilleure Approche] À la Place"
-        • "La Manière Simple de [Objectif] (Sans [Friction])"
-    - Évite le hype, l'exagération ou le clickbait générique. Le titre doit sembler honnête et spécifique à ce contenu.
-    - Garde le titre idéalement sous 65 caractères.
-    - Après le titre, propose un court sous-titre spécifique (en ### H3) qui ajoute plus de précision ou de promesse basée sur l'article.
+""",
 
-    N'utilise pas de tirets cadratins, tirets ou traits d'union dans le titre. Évite les mots comme : Débloquer, Sans Effort, Évolutif, Embrasser, Enrichir, Libérer, Démasquer, Dévoiler, Rationaliser, Révolutionnaire. Privilégie des mots simples et concrets."""
+        'fr': f"""À partir du contenu ci-dessous, génère un titre + sous-titre forts pour un article Medium.
+
+Contenu: {article_content[:700]}
+
+OBJECTIF : Créer des titres honnêtes, précis, qui éveillent une curiosité sincère en montrant un résultat désirable tout en reconnaissant les difficultés réelles.
+
+STRUCTURES DE TITRES PRÉFÉRÉES (à utiliser quand elles collent naturellement) :
+1. "Comment [obtenir le résultat souhaité] sans [galère / difficulté / friction]"   ← Structure la plus forte
+2. "La nouvelle façon d’[obtenir le résultat souhaité]"
+3. "Comment [obtenir le résultat souhaité] en [X heures/jours/semaines]"
+
+Autres structures puissantes quand pertinentes :
+- "Arrête [chose pénible]. Fais [meilleure approche] à la place"
+- "[Action] sans [chose chère ou difficile]"
+
+RÈGLES :
+- Identifie d’abord le problème douloureux ou la situation frustrante principale que vit le lecteur.
+- Le titre doit rester ancré dans le contenu réel — aucune exagération ni fausse promesse.
+- Crée des titres qui donnent envie au lecteur de se dire : « Ça a l’air utile… Je me demande comment ils font ça sans la galère habituelle. »
+- Combine honnêteté et une légère sensation de possibilité et de curiosité.
+- Garde le titre principal idéalement sous 70 caractères.
+- Après le titre, propose un court sous-titre spécifique (en ### H3) qui apporte plus de précision ou une promesse concrète de l’article.
+- Évite les mots hype : Débloquer, Sans effort, Révolutionnaire, etc. Utilise un langage simple et concret.
+
+"""
     }
 
     system_messages = {
