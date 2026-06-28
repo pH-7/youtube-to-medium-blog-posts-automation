@@ -413,7 +413,11 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 >
 > — Author
 
-    Only the quote text must be italicized. Do not italicize the author line. The em dash (—) is only allowed in the attribution.
+CRITICAL RULES:
+- Only the quote text must be wrapped in asterisks (*).
+- The author/attribution line must NEVER be italicized.
+- There must be a blank line containing only ">" between the quote and the author line.
+- The em dash (—) is only allowed in the attribution line.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list to receive exclusive software engineering insights I share at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
     Kicker: Right before Title, very short bold text (use **bold**, never a heading).
@@ -614,27 +618,28 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     client = openai.OpenAI(api_key=config['OPENAI_API_KEY'])
 
     prompts = {
-        'en': f"""Based on the content below, generate a strong title + subtitle for a Medium article.
+        'en': f"""Based on the content below, generate ONLY a clean title and subtitle.
 
 Content: {article_content[:620]}
 
-GOAL: Create titles that are honest, specific, and arouse genuine curiosity by showing a desirable outcome while acknowledging real friction or pain.
+STRICT OUTPUT RULES:
+- Output ONLY two lines.
+- First line = Title (maximum 70 characters)
+- Second line = Subtitle (plain text, no markdown)
+- NEVER include the words "Title:", "Subtitle:", "Kicker:", "###", or any prompt instructions in your response.
+- Do not add any extra text, explanations, or formatting.
 
-PREFERRED TITLE STRUCTURES (use when they fit naturally):
-1. "How to [achieve desired outcome] without [pain/friction/struggle]"   ← Strongest default
+GOAL: Create honest, specific titles that arouse genuine curiosity by showing a desirable outcome while acknowledging real friction or pain.
+
+PREFERRED STRUCTURES (use when they fit naturally):
+1. "How to [achieve desired outcome] without [pain/friction/struggle]"
 2. "The new way to [achieve desired outcome]"
 3. "How to [achieve desired outcome] in [X hours/days/weeks]"
 
-Other strong patterns when relevant:
-- "Stop [painful thing]. Do [better approach] instead"
-- "[Action] without [common expensive/hard thing]"
-
 RULES:
-- First identify the core painful problem or frustrating situation the reader is facing.
-- The title must stay grounded in the actual content. No exaggeration or false promises.
+- Identify the core painful problem the reader is facing.
+- The title must stay grounded in the actual content. No exaggeration.
 - Create titles that make the reader think: “This sounds useful… I wonder how they do that without the usual pain.”
-- Combine honesty with a light sense of possibility and curiosity.
-- Keep the main title under 70 characters when possible.
 - Avoid hype words: Unlock, Effortless, Game-changer, Revolutionary, etc. Use simple, concrete language.
 
 """,
