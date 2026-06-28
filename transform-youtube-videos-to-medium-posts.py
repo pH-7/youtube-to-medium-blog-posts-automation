@@ -616,7 +616,7 @@ def generate_article_title(article_content: str, output_language: str = 'en') ->
     prompts = {
         'en': f"""Based on the content below, generate a strong title + subtitle for a Medium article.
 
-Content: {article_content[:700]}
+Content: {article_content[:620]}
 
 GOAL: Create titles that are honest, specific, and arouse genuine curiosity by showing a desirable outcome while acknowledging real friction or pain.
 
@@ -631,24 +631,23 @@ Other strong patterns when relevant:
 
 RULES:
 - First identify the core painful problem or frustrating situation the reader is facing.
-- The title must stay grounded in the actual content — no exaggeration or false promises.
+- The title must stay grounded in the actual content. No exaggeration or false promises.
 - Create titles that make the reader think: “This sounds useful… I wonder how they do that without the usual pain.”
 - Combine honesty with a light sense of possibility and curiosity.
 - Keep the main title under 70 characters when possible.
-- After the title, suggest a short, specific subtitle (as ### H3) that adds more concrete detail or promise from the article.
 - Avoid hype words: Unlock, Effortless, Game-changer, Revolutionary, etc. Use simple, concrete language.
 
 """,
 
         'fr': f"""À partir du contenu ci-dessous, génère un titre + sous-titre forts pour un article Medium.
 
-Contenu: {article_content[:700]}
+Contenu: {article_content[:620]}
 
 OBJECTIF : Créer des titres honnêtes, précis, qui éveillent une curiosité sincère en montrant un résultat désirable tout en reconnaissant les difficultés réelles.
 
 STRUCTURES DE TITRES PRÉFÉRÉES (à utiliser quand elles collent naturellement) :
 1. "Comment [obtenir le résultat souhaité] sans [galère / difficulté / friction]"   ← Structure la plus forte
-2. "La nouvelle façon d’[obtenir le résultat souhaité]"
+2. "La nouvelle façon d'[obtenir le résultat souhaité]"
 3. "Comment [obtenir le résultat souhaité] en [X heures/jours/semaines]"
 
 Autres structures puissantes quand pertinentes :
@@ -656,12 +655,11 @@ Autres structures puissantes quand pertinentes :
 - "[Action] sans [chose chère ou difficile]"
 
 RÈGLES :
-- Identifie d’abord le problème douloureux ou la situation frustrante principale que vit le lecteur.
-- Le titre doit rester ancré dans le contenu réel — aucune exagération ni fausse promesse.
-- Crée des titres qui donnent envie au lecteur de se dire : « Ça a l’air utile… Je me demande comment ils font ça sans la galère habituelle. »
+- Identifie d'abord le problème douloureux ou la situation frustrante principale que vit le lecteur.
+- Le titre doit rester ancré dans le contenu réel. Pas d'exagération ni de fausse promesse.
+- Crée des titres qui donnent envie au lecteur de se dire : « Ça a l'air utile… Je me demande comment ils font ça sans la galère habituelle. »
 - Combine honnêteté et une légère sensation de possibilité et de curiosité.
 - Garde le titre principal idéalement sous 70 caractères.
-- Après le titre, propose un court sous-titre spécifique (en ### H3) qui apporte plus de précision ou une promesse concrète de l’article.
 - Évite les mots hype : Débloquer, Sans effort, Révolutionnaire, etc. Utilise un langage simple et concret.
 
 """
