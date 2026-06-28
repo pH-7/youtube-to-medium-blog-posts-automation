@@ -410,11 +410,10 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     If relevant to article's theme, include 1 to 3 impactful quotes in different places throughout the article that deeply resonate with the article's message. Use this exact format:
 
 > *Quote text here. Only this line should be italicized.*
-
 >
 > — Author
 
-    Only the quote text must be italicized. Do not italicize the author line. The em dash (—) is only allowed in this attribution.
+    Only the quote text must be italicized. Do not italicize the author line. The em dash (—) is only allowed in the attribution.
     Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list to receive exclusive software engineering insights I share at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
     Kicker: Right before Title, very short bold text (use **bold**, never a heading).
@@ -457,7 +456,6 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
     Si cela est pertinent avec l'article, inclue 1 à 3 citations dispersées dans l'article et percutantes qui résonnent profondément avec le message de l'article. Utilise ce format exact :
 
 > *Texte de citation ici. Seule cette ligne doit être en italique.*
-
 >
 > — Auteur
 
