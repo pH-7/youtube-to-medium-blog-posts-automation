@@ -415,7 +415,7 @@ def generate_article_from_transcript(transcript: str, title: str, source_languag
 > — Author
 
     Only the quote text must be italicized. Do not italicize the author line. The em dash (—) is only allowed in this attribution.
-    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
+    Lastly, in the exact same personal voice tone as the transcript, lead readers to read my complementary book available at https://book.ph7.me (use anchor text such as "my self-help guide" and emphasize/bold it). Suggest my podcast https://podcasts.ph7.me co-hosted with El, and/or invite them subscribe to my private mailing list to receive exclusive software engineering insights I share at https://masterclass.ph7.me (always use anchor text for links), preceded by another Markdown separator.
 
     Kicker: Right before Title, very short bold text (use **bold**, never a heading).
     Title: {title}
