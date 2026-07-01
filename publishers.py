@@ -1,22 +1,21 @@
 """
-Multi-platform publishing layer.
+Publishing layer.
 
-This module provides a clean, extensible abstraction for publishing a single
-generated article to several blogging platforms (Medium, Dev.to, Hashnode, ...).
+This module provides a clean, extensible abstraction for publishing a generated
+article to blogging platforms. Currently Medium is supported, but the
+``BasePublisher`` contract makes adding a new platform straightforward: add one
+class and register it in ``_PUBLISHER_REGISTRY``.
 
-Design goals:
-- Each platform is a small, self-contained ``BasePublisher`` subclass.
-- Adding a new platform = add one class + register it in ``_PUBLISHER_REGISTRY``.
-- Platform-specific *formatting* is respected:
-    * Medium consumes HTML (captions, kicker, subtitle render reliably).
-    * Dev.to (Forem) and Hashnode consume Markdown directly.
-- The main script stays agnostic: it builds the publishers once and calls
-  ``publish_to_all(...)`` with plain Markdown.
+Medium consumes HTML (so captions, kicker and subtitle render reliably); the
+Markdown -> HTML conversion is injected so all Medium-specific formatting stays
+in one place in the main script.
+
+For turning a whole collection of articles into a distributable book
+(EPUB/PDF for Amazon KDP and similar), see ``book_compiler.py``.
 """
 
 from __future__ import annotations
 
-import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
@@ -43,18 +42,6 @@ def _is_publish_status(config: Dict[str, Any]) -> bool:
     """Return True when articles should be published live (not as drafts)."""
     status = str(config.get("PUBLISH_STATUS", "draft")).strip().lower()
     return status in ("publish", "public", "published", "live", "true")
-
-
-def _first_image_url(markdown_content: str) -> Optional[str]:
-    """Extract the first Markdown image URL (used as a cover image when supported)."""
-    match = re.search(r"!\[[^\]]*\]\(([^)\s]+)", markdown_content)
-    return match.group(1) if match else None
-
-
-def _slugify_tag(tag: str) -> str:
-    """Normalize a tag into a lowercase, alphanumeric slug (platform-safe)."""
-    slug = re.sub(r"[^a-zA-Z0-9]+", "", tag.lower())
-    return slug
 
 
 # ---------------------------------------------------------------------------
@@ -165,159 +152,11 @@ class MediumPublisher(BasePublisher):
 
 
 # ---------------------------------------------------------------------------
-# Dev.to (Forem)
-# ---------------------------------------------------------------------------
-class DevToPublisher(BasePublisher):
-    """
-    Publish to Dev.to via the Forem API (https://developers.forem.com/api).
-
-    Dev.to consumes Markdown directly through ``body_markdown`` and supports up
-    to 4 tags (alphanumeric, no spaces). The free API key is created at
-    https://dev.to/settings/extensions.
-    """
-
-    name = "devto"
-    _API_URL = "https://dev.to/api/articles"
-
-    def is_configured(self) -> bool:
-        return bool(self.config.get("DEVTO_API_KEY"))
-
-    def publish(self, *, title, content, tags, output_language, niche) -> PublishResult:
-        api_key = self.config["DEVTO_API_KEY"]
-
-        # Dev.to tags: max 4, lowercase, alphanumeric only, no empties.
-        sane_tags = [t for t in (_slugify_tag(tag) for tag in tags) if t][:4]
-
-        article: Dict[str, Any] = {
-            "title": title,
-            "body_markdown": content,
-            "published": _is_publish_status(self.config),
-            "tags": sane_tags,
-        }
-
-        organization_id = self.config.get("DEVTO_ORGANIZATION_ID")
-        if organization_id:
-            article["organization_id"] = organization_id
-
-        cover_image = _first_image_url(content)
-        if cover_image:
-            article["main_image"] = cover_image
-
-        headers = {
-            "api-key": api_key,
-            "Content-Type": "application/json",
-            "Accept": "application/vnd.forem.api-v1+json",
-        }
-
-        response = None
-        try:
-            response = requests.post(self._API_URL, headers=headers, json={"article": article})
-            response.raise_for_status()
-            url = response.json().get("url")
-            return PublishResult(self.name, True, url=url)
-        except Exception as e:
-            detail = response.text if response is not None else "No response"
-            return PublishResult(self.name, False, error=f"{e} | {detail}")
-
-
-# ---------------------------------------------------------------------------
-# Hashnode
-# ---------------------------------------------------------------------------
-class HashnodePublisher(BasePublisher):
-    """
-    Publish to Hashnode via the GraphQL API (https://gql.hashnode.com/).
-
-    Hashnode consumes Markdown through ``contentMarkdown``. A publication ID is
-    required (find it in your Hashnode dashboard URL or via the API). Drafts and
-    live posts use different mutations, honoured here based on ``PUBLISH_STATUS``.
-    The free personal access token is created at
-    https://hashnode.com/settings/developer.
-    """
-
-    name = "hashnode"
-    _API_URL = "https://gql.hashnode.com/"
-
-    def is_configured(self) -> bool:
-        return bool(self.config.get("HASHNODE_API_KEY") and self.config.get("HASHNODE_PUBLICATION_ID"))
-
-    def _build_tags(self, tags: List[str]) -> List[Dict[str, str]]:
-        built = []
-        seen = set()
-        for tag in tags[:5]:
-            slug = _slugify_tag(tag)
-            if slug and slug not in seen:
-                seen.add(slug)
-                built.append({"slug": slug, "name": tag})
-        return built
-
-    def publish(self, *, title, content, tags, output_language, niche) -> PublishResult:
-        api_key = self.config["HASHNODE_API_KEY"]
-        publication_id = self.config["HASHNODE_PUBLICATION_ID"]
-        is_live = _is_publish_status(self.config)
-
-        post_input: Dict[str, Any] = {
-            "title": title,
-            "contentMarkdown": content,
-            "tags": self._build_tags(tags),
-            "publicationId": publication_id,
-        }
-
-        cover_image = _first_image_url(content)
-        if cover_image:
-            post_input["coverImageOptions"] = {"coverImageURL": cover_image}
-
-        if is_live:
-            query = (
-                "mutation PublishPost($input: PublishPostInput!) {"
-                " publishPost(input: $input) { post { url } } }"
-            )
-        else:
-            # Drafts do not accept publicationId/tags the same way; keep it minimal.
-            post_input.pop("tags", None)
-            query = (
-                "mutation CreateDraft($input: CreateDraftInput!) {"
-                " createDraft(input: $input) { draft { id } } }"
-            )
-
-        headers = {
-            "Authorization": api_key,
-            "Content-Type": "application/json",
-        }
-
-        response = None
-        try:
-            response = requests.post(
-                self._API_URL,
-                headers=headers,
-                json={"query": query, "variables": {"input": post_input}},
-            )
-            response.raise_for_status()
-            payload = response.json()
-
-            if payload.get("errors"):
-                return PublishResult(self.name, False, error=str(payload["errors"]))
-
-            data = payload.get("data", {})
-            if is_live:
-                url = data.get("publishPost", {}).get("post", {}).get("url")
-                return PublishResult(self.name, True, url=url)
-            # Draft: no public URL, but creation succeeded.
-            draft_id = data.get("createDraft", {}).get("draft", {}).get("id")
-            return PublishResult(self.name, bool(draft_id), url=None,
-                                 error=None if draft_id else "Draft not created")
-        except Exception as e:
-            detail = response.text if response is not None else "No response"
-            return PublishResult(self.name, False, error=f"{e} | {detail}")
-
-
-# ---------------------------------------------------------------------------
 # Factory + orchestration
 # ---------------------------------------------------------------------------
 #: Maps platform identifiers to their publisher classes.
 _PUBLISHER_REGISTRY: Dict[str, Callable[..., BasePublisher]] = {
     MediumPublisher.name: MediumPublisher,
-    DevToPublisher.name: DevToPublisher,
-    HashnodePublisher.name: HashnodePublisher,
 }
 
 
