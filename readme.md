@@ -9,6 +9,7 @@ This program not only converts video transcripts extremely well into beautiful, 
 - [⚙️ Requirements](#%EF%B8%8F-requirements)
 - [📦 Installation](#-installation)
 - [🪄 Usage](#-usage)
+- [📖 Compile articles into a book](#-compile-articles-into-a-book)
 - [🛠️ Configuration](#%EF%B8%8F-configuration)
 - [🎬 Demo](#-demo)
 - [👨‍🍳 Who is the creator?](#-who-created-this)
@@ -49,19 +50,13 @@ This program not only converts video transcripts extremely well into beautiful, 
    - Add your API keys and YouTube [Channel ID](https://www.youtube.com/account_advanced) to the file as followed:
      ```json
      {
-       "PUBLISH_PLATFORMS": ["medium", "devto", "hashnode"], // Platforms to publish to. Use any subset, e.g. ["medium"]
+       "PUBLISH_PLATFORMS": ["medium"], // Platforms to publish to
 
        "MEDIUM_ACCESS_TOKEN": "YOUR_MEDIUM_ACCESS_TOKEN",
        "MEDIUM_EN_PUBLICATION_ID": "OPTIONAL_ENGLISH_PUBLICATION_ID",
        "MEDIUM_FR_PUBLICATION_ID": "OPTIONAL_FRENCH_PUBLICATION_ID",
        "MEDIUM_TECH_PUBLICATION_ID": "OPTIONAL_TECH_PUBLICATION_ID",
        "POST_TO_PUBLICATION": true, // Whenever we want the post to be published to a specified Medium's publication ID or not
-
-       "DEVTO_API_KEY": "OPTIONAL_DEVTO_API_KEY", // Free key from https://dev.to/settings/extensions
-       "DEVTO_ORGANIZATION_ID": null, // Optional Dev.to organization to publish under
-
-       "HASHNODE_API_KEY": "OPTIONAL_HASHNODE_API_KEY", // Free token from https://hashnode.com/settings/developer
-       "HASHNODE_PUBLICATION_ID": "OPTIONAL_HASHNODE_PUBLICATION_ID", // Required when publishing to Hashnode
 
        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
        "OPENAI_MODEL": "gpt-4.1", // non-reasoning models like "gpt-4.1", "gpt-4.1-mini"
@@ -87,18 +82,32 @@ This program not only converts video transcripts extremely well into beautiful, 
        },
 
        // Active niche to process ("self-help" or "tech" or "all")
-       "ACTIVE_NICHE": "all"
+       "ACTIVE_NICHE": "all",
+
+       // Optional: compile saved articles into books (see "Compile articles into a book")
+       "BOOK": {
+         "AUTHOR": "Your Name",
+         "OUTPUT_DIR": "books",
+         "FORMATS": ["epub", "pdf"], // "epub", "pdf", or both
+         "PAGE_SIZE": "6in 9in", // KDP trim size for the PDF interior
+         "EMBED_IMAGES": true,
+         "COLLECTIONS": [
+           {
+             "title": "Self-Help Essays, Vol. 1",
+             "source_dir": "articles",
+             "language": "en"
+           }
+         ]
+       }
      }
      ```
 
-     **Multi-Platform Publishing:**
-     - Set `PUBLISH_PLATFORMS` to any subset of `["medium", "devto", "hashnode"]`.
-     - Each platform receives correctly formatted content automatically:
-       - **Medium** → HTML (reliable kicker, subtitle and image captions)
-       - **Dev.to** and **Hashnode** → Markdown (their native format)
-     - A platform is only used when listed **and** its credentials are present; otherwise it is skipped with a clear message.
-     - `PUBLISH_STATUS` (`"draft"` or `"publish"`) is honoured on every platform.
-     - All successful URLs are recorded in the saved article's Markdown metadata.
+     **Publishing:**
+     - Set `PUBLISH_PLATFORMS` to `["medium"]`.
+     - **Medium** receives HTML for reliable kicker, subtitle and image captions.
+     - Medium is only used when its credentials are present; otherwise it is skipped with a clear message.
+     - `PUBLISH_STATUS` (`"draft"` or `"publish"`) is honoured.
+     - The published URL is recorded in the saved article's Markdown metadata.
 
      **Multi-Niche Support:**
      - The script now supports multiple content niches (self-help and tech)
@@ -139,13 +148,50 @@ python transform-youtube-videos-to-medium-posts.py
 5. Generate an engaging article title
 6. Fetch relevant images from Unsplash for the article (one for article header, and 1-2 for content)
 7. Embed a few images in the article content using Medium-compatible Markdown format.
-8. Publish the article to every configured platform (Medium, Dev.to, Hashnode) with the correct format for each
-9. Save the generated article locally as a Markdown file, so you always keep a copy, with article's details (incl. each platform URL) in a markdown yaml-like metadata
+8. Publish the article to Medium with correctly formatted HTML
+9. Save the generated article locally as a Markdown file, so you always keep a copy, with article's details (incl. the Medium URL) in a markdown yaml-like metadata
 10. Clearly mentioning any issues for each publishing step till the end, right in the terminal
 11. Automatically wait a few minutes (for each iteration) before publishing a new article to Medium, to prevent being wrongly flagged as spam
 12. Sit and relax. Enjoy the work!
 
 **Note:** The script posts articles as drafts by default. To change this, modify the `PUBLISH_STATUS` to "publish" in the `config.json` file.
+
+## 📖 Compile articles into a book
+
+Once you have a folder of generated articles, you can bundle them into a polished, ready-to-publish **EPUB/PDF book** — perfect for [Amazon KDP](https://kdp.amazon.com/), Apple Books, Kobo, or simply sharing a PDF.
+
+```console
+python transform-youtube-videos-to-medium-posts.py --make-book
+```
+
+This reads the optional `BOOK` section of `config.json` and produces one book per entry in `COLLECTIONS`:
+
+| Option | Description |
+| --- | --- |
+| `AUTHOR` | Author name written into the book metadata and title page. |
+| `OUTPUT_DIR` | Where the generated `.epub`/`.pdf` files are written (default `books`). |
+| `FORMATS` | Any of `"epub"`, `"pdf"` (default both). |
+| `PAGE_SIZE` | PDF trim size, e.g. `"6in 9in"` (a common KDP paperback size). |
+| `EMBED_IMAGES` | Download and embed article images so the book is self-contained. |
+| `COLLECTIONS` | One book per entry: `title`, `source_dir`, optional `language`, `recursive`, `cover_image`, `page_size`, `embed_images`. |
+
+If `COLLECTIONS` is omitted, one book is compiled per configured niche using its `ARTICLES_BASE_DIR`.
+
+**How chapters are built:**
+- Each Markdown article becomes one chapter, titled from its `optimized_title` metadata.
+- Chapters are ordered chronologically (oldest first) using each article's `date`.
+- Unpublished drafts (`not_published_*`) are skipped.
+- Blog-only bits (embedded YouTube videos, the leading kicker line) are stripped; images and their captions are kept as proper figures.
+- EPUB embeds images inline; the PDF gets a title page, a table of contents with page numbers, and page numbering.
+
+**About PDF generation:** the EPUB exporter is pure Python and always works. The PDF exporter uses [weasyprint](https://weasyprint.org/), which needs native libraries. On macOS:
+
+```console
+brew install pango
+pip install weasyprint
+```
+
+If weasyprint is unavailable, the PDF step is skipped with a clear message and the EPUB is still produced.
 
 🙃 Enjoying this project? **[Offer me a coffee](https://ko-fi.com/phenry)** (**spoiler alert**: I love almond flat white 😋)
 
