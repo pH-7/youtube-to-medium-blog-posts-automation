@@ -3,6 +3,7 @@ import json
 import re
 import time
 import random
+import argparse
 import isodate
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
@@ -23,8 +24,9 @@ import requests
 # Markdown to HTML conversion
 import markdown as md_lib
 
-# Multi-platform publishing layer (Medium, Dev.to, Hashnode, ...)
+# Publishing layer (Medium) and book compilation (EPUB/PDF for Amazon KDP, ...)
 from publishers import build_publishers, publish_to_all, select_primary_url
+from book_compiler import compile_book
 
 RATE_LIMIT_PERIOD_SECONDS = 300 # 5 minute
 MAX_CALLS_IN_PERIOD = 1
@@ -1710,7 +1712,7 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any], publis
         youtube: YouTube API service instance
         niche_name: Name of the niche ('self-help' or 'tech')
         niche_config: Configuration dictionary for the niche
-        publishers: List of configured platform publishers (Medium, Dev.to, ...)
+        publishers: List of configured platform publishers (currently Medium)
     """
     channel_id = niche_config['YOUTUBE_CHANNEL_ID']
     source_language = niche_config.get('SOURCE_LANGUAGE', 'en')
@@ -1878,7 +1880,7 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any], publis
                     # Note: the Medium publisher also cleans + converts to HTML internally
                     article = clean_article_for_medium(article)
 
-                    # Publish to every configured platform (Medium, Dev.to, Hashnode, ...).
+                    # Publish to every configured platform (currently Medium).
                     # Saving locally still happens even if all publishers fail.
                     published_urls: Dict[str, str] = {}
                     try:
@@ -1917,13 +1919,77 @@ def process_niche(youtube, niche_name: str, niche_config: Dict[str, Any], publis
         except Exception as e:
             print(f"✗ Error processing video {video.title}: {e}")
 
+def run_book_compilation(config: Dict[str, Any]) -> None:
+    """
+    Compile locally-saved articles into books (EPUB/PDF) for Amazon KDP, etc.
+
+    Driven by the optional ``BOOK`` section in config.json. When one or more
+    ``COLLECTIONS`` are defined, each becomes its own book. Otherwise, one book
+    is produced per configured niche using that niche's article directory.
+    """
+    book_config = config.get('BOOK', {})
+    author = book_config.get('AUTHOR', 'Unknown Author')
+    output_dir = book_config.get('OUTPUT_DIR', 'books')
+    formats = tuple(book_config.get('FORMATS', ['epub', 'pdf']))
+    page_size = book_config.get('PAGE_SIZE', '6in 9in')
+    embed_images = book_config.get('EMBED_IMAGES', True)
+
+    collections = book_config.get('COLLECTIONS', [])
+
+    # Fall back to one book per niche when no explicit collections are configured.
+    if not collections:
+        niches_config = config.get('NICHES', {})
+        if not niches_config:
+            print("✗ No BOOK.COLLECTIONS and no NICHES configured; nothing to compile.")
+            return
+        for niche_name, niche_config in niches_config.items():
+            output_languages = niche_config.get('OUTPUT_LANGUAGES', ['en'])
+            collections.append({
+                'title': f"{niche_name.replace('-', ' ').title()} Collection",
+                'source_dir': niche_config.get('ARTICLES_BASE_DIR', 'articles'),
+                'language': output_languages[0] if output_languages else 'en',
+            })
+
+    all_outputs: List[str] = []
+    for collection in collections:
+        title = collection.get('title')
+        source_dir = collection.get('source_dir')
+        if not title or not source_dir:
+            print(f"⚠ Skipping invalid book collection (needs 'title' and 'source_dir'): {collection}")
+            continue
+
+        try:
+            outputs = compile_book(
+                title=title,
+                author=author,
+                source_dir=source_dir,
+                output_dir=output_dir,
+                language=collection.get('language', 'en'),
+                formats=formats,
+                page_size=collection.get('page_size', page_size),
+                embed_images=collection.get('embed_images', embed_images),
+                recursive=collection.get('recursive', False),
+                cover_image=collection.get('cover_image'),
+            )
+            all_outputs.extend(outputs)
+        except Exception as e:
+            print(f"✗ Error compiling book '{title}': {e}")
+            continue
+
+    if all_outputs:
+        print(f"\n✓ Book compilation complete. {len(all_outputs)} file(s) written:")
+        for path in all_outputs:
+            print(f"   • {path}")
+    else:
+        print("\n⚠ No books were produced.")
+
 def main():
     """
     Main function to process all configured niches.
     """
     youtube = get_authenticated_service()
 
-    # Build the set of enabled publishers once (Medium, Dev.to, Hashnode, ...).
+    # Build the set of enabled publishers once (currently Medium).
     # The Medium publisher needs the Markdown -> HTML converter from this module.
     publishers = build_publishers(config, build_medium_html)
 
@@ -1954,4 +2020,19 @@ def main():
     print("\n✓ All niches processed successfully!")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Turn YouTube videos into Medium articles, or compile saved "
+                    "articles into EPUB/PDF books for Amazon KDP."
+    )
+    parser.add_argument(
+        "--make-book",
+        action="store_true",
+        help="Compile locally-saved articles into books (EPUB/PDF) instead of "
+             "generating and publishing new articles.",
+    )
+    args = parser.parse_args()
+
+    if args.make_book:
+        run_book_compilation(config)
+    else:
+        main()
