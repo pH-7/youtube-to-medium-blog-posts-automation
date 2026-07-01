@@ -1,17 +1,11 @@
 {
-    "PUBLISH_PLATFORMS": ["medium", "devto", "hashnode"],
+    "PUBLISH_PLATFORMS": ["medium"],
 
     "MEDIUM_ACCESS_TOKEN": "YOUR_MEDIUM_ACCESS_TOKEN",
     "MEDIUM_EN_PUBLICATION_ID": "OPTIONAL_ENGLISH_PUBLICATION_ID",
     "MEDIUM_FR_PUBLICATION_ID": "OPTIONAL_FRENCH_PUBLICATION_ID",
     "MEDIUM_TECH_PUBLICATION_ID": "OPTIONAL_TECH_PUBLICATION_ID",
     "POST_TO_PUBLICATION": true,
-
-    "DEVTO_API_KEY": "OPTIONAL_DEVTO_API_KEY",
-    "DEVTO_ORGANIZATION_ID": null,
-
-    "HASHNODE_API_KEY": "OPTIONAL_HASHNODE_API_KEY",
-    "HASHNODE_PUBLICATION_ID": "OPTIONAL_HASHNODE_PUBLICATION_ID",
 
     "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
     "OPENAI_MODEL": "gpt-4.1",
@@ -35,5 +29,27 @@
         }
     },
 
-    "ACTIVE_NICHE": "all"
+    "ACTIVE_NICHE": "all",
+
+    "BOOK": {
+        "AUTHOR": "Your Name",
+        "OUTPUT_DIR": "books",
+        "FORMATS": ["epub", "pdf"],
+        "PAGE_SIZE": "6in 9in",
+        "EMBED_IMAGES": true,
+        "COLLECTIONS": [
+            {
+                "title": "Self-Help Essays, Vol. 1",
+                "source_dir": "articles",
+                "language": "en"
+            },
+            {
+                "title": "Software Engineering Notes",
+                "source_dir": "articles/tech",
+                "language": "en",
+                "recursive": false,
+                "cover_image": "promo-assets/tech-cover.jpg"
+            }
+        ]
+    }
 }
