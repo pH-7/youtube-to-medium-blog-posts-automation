@@ -14,3 +14,10 @@ token.json
 
 ## Misc files ##
 .DS_Store
+
+## Generated assets ##
+*.mp3
+__pycache__/
+.venv/
+unsplash_images/
+books/
