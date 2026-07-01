@@ -8,3 +8,9 @@ isodate>=0.7.2
 ratelimit>=2.2.1
 httplib2>=0.31.0
 markdown>=3.7
+
+# Book compilation (EPUB/PDF for Amazon KDP, etc.)
+# EbookLib is pure Python. weasyprint needs native libs (e.g. `brew install pango`
+# on macOS); the PDF exporter degrades gracefully if it is unavailable.
+EbookLib>=0.18
+weasyprint>=62
