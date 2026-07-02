@@ -37,18 +37,31 @@
         "FORMATS": ["epub", "pdf"],
         "PAGE_SIZE": "6in 9in",
         "EMBED_IMAGES": true,
+        "MIN_PAGES": 90,
+        "MAX_PAGES": 110,
+        "WORDS_PER_PAGE": 250,
+        "RIGHTS": "Copyright © 2026 Your Name. All rights reserved.",
         "COLLECTIONS": [
             {
-                "title": "Self-Help Essays, Vol. 1",
+                "title": "The Productivity System",
+                "subtitle": "Focused work, less overwhelm",
                 "source_dir": "articles",
-                "language": "en"
+                "language": "en",
+                "topics": ["productivity", "time management", "focus"],
+                "match": "any",
+                "min_pages": 90,
+                "max_pages": 110
             },
             {
-                "title": "Software Engineering Notes",
-                "source_dir": "articles/tech",
+                "title": "Build Mental Strength",
+                "subtitle": "Consistency over motivation",
+                "source_dir": "articles",
                 "language": "en",
-                "recursive": false,
-                "cover_image": "promo-assets/tech-cover.jpg"
+                "topics": ["mental strength", "mindset", "resilience"],
+                "exclude_topics": ["productivity"],
+                "min_pages": 90,
+                "max_pages": 110,
+                "cover_image": "promo-assets/mental-strength-cover.jpg"
             }
         ]
     }
