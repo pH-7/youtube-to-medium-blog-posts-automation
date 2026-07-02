@@ -91,11 +91,17 @@ This program not only converts video transcripts extremely well into beautiful, 
          "FORMATS": ["epub", "pdf"], // "epub", "pdf", or both
          "PAGE_SIZE": "6in 9in", // KDP trim size for the PDF interior
          "EMBED_IMAGES": true,
+         "MIN_PAGES": 90, // aim for a book of at least this many pages
+         "MAX_PAGES": 110, // ...and at most this many
+         "WORDS_PER_PAGE": 250, // used to estimate the page count
+         "RIGHTS": "Copyright © 2026 Your Name. All rights reserved.",
          "COLLECTIONS": [
            {
-             "title": "Self-Help Essays, Vol. 1",
+             "title": "The Productivity System",
+             "subtitle": "Focused work, less overwhelm",
              "source_dir": "articles",
-             "language": "en"
+             "language": "en",
+             "topics": ["productivity", "time management", "focus"]
            }
          ]
        }
@@ -164,6 +170,20 @@ Once you have a folder of generated articles, you can bundle them into a polishe
 python transform-youtube-videos-to-medium-posts.py --make-book
 ```
 
+Each book is curated around **one coherent topic** and trimmed to a **target page count** (e.g. 90-110 pages), so every volume reads like a real, focused book rather than a dump of every article.
+
+Not sure which topics you have enough material for? List them first:
+
+```console
+python transform-youtube-videos-to-medium-posts.py --list-topics
+```
+
+Then compile the books defined in your `config.json`:
+
+```console
+python transform-youtube-videos-to-medium-posts.py --make-book
+```
+
 This reads the optional `BOOK` section of `config.json` and produces one book per entry in `COLLECTIONS`:
 
 | Option | Description |
@@ -173,16 +193,23 @@ This reads the optional `BOOK` section of `config.json` and produces one book pe
 | `FORMATS` | Any of `"epub"`, `"pdf"` (default both). |
 | `PAGE_SIZE` | PDF trim size, e.g. `"6in 9in"` (a common KDP paperback size). |
 | `EMBED_IMAGES` | Download and embed article images so the book is self-contained. |
-| `COLLECTIONS` | One book per entry: `title`, `source_dir`, optional `language`, `recursive`, `cover_image`, `page_size`, `embed_images`. |
+| `MIN_PAGES` / `MAX_PAGES` | Target page range; chapters are added until the range is reached. |
+| `WORDS_PER_PAGE` | Words-per-page used to estimate length (default `250`, calibrated for 6x9in). |
+| `RIGHTS` | Copyright-page text (a sensible default is generated when omitted). |
+| `COLLECTIONS` | One book per entry (see below). |
+
+**Each collection** supports: `title`, `subtitle`, `source_dir`, `topics` (tags that define the book's subject), `exclude_topics`, `match` (`"any"` or `"all"`), `min_pages`, `max_pages`, `max_chapters`, `words_per_page`, `language`, `recursive`, `cover_image`, `page_size`, `embed_images`, and `rights`.
 
 If `COLLECTIONS` is omitted, one book is compiled per configured niche using its `ARTICLES_BASE_DIR`.
 
 **How chapters are built:**
 - Each Markdown article becomes one chapter, titled from its `optimized_title` metadata.
-- Chapters are ordered chronologically (oldest first) using each article's `date`.
+- Duplicate articles (e.g. accented vs. un-accented file names) are removed automatically.
+- Only chapters whose tags match the collection's `topics` are included, so the book stays on one accurate subject.
+- Chapters are ordered chronologically (oldest first) and added until the `MIN_PAGES`/`MAX_PAGES` range is met; the estimated page count is printed as it compiles.
 - Unpublished drafts (`not_published_*`) are skipped.
-- Blog-only bits (embedded YouTube videos, the leading kicker line) are stripped; images and their captions are kept as proper figures.
-- EPUB embeds images inline; the PDF gets a title page, a table of contents with page numbers, and page numbering.
+- Blog-only bits (embedded YouTube videos, the leading kicker line, the trailing "listen to my podcast / join my mailing list" promo) are stripped; images and their captions are kept as proper figures.
+- Both formats get a **title page** and a **copyright page**; the PDF also gets a table of contents with page numbers and page numbering, ready for Amazon KDP.
 
 **About PDF generation:** the EPUB exporter is pure Python and always works. The PDF exporter uses [weasyprint](https://weasyprint.org/), which needs native libraries. On macOS:
 
