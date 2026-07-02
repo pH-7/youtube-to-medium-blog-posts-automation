@@ -26,7 +26,7 @@ import markdown as md_lib
 
 # Publishing layer (Medium) and book compilation (EPUB/PDF for Amazon KDP, ...)
 from publishers import build_publishers, publish_to_all, select_primary_url
-from book_compiler import compile_book
+from book_compiler import compile_book, tag_frequencies
 
 RATE_LIMIT_PERIOD_SECONDS = 300 # 5 minute
 MAX_CALLS_IN_PERIOD = 1
@@ -1934,6 +1934,12 @@ def run_book_compilation(config: Dict[str, Any]) -> None:
     page_size = book_config.get('PAGE_SIZE', '6in 9in')
     embed_images = book_config.get('EMBED_IMAGES', True)
 
+    # Book-wide defaults (each collection can override any of these).
+    default_min_pages = book_config.get('MIN_PAGES')
+    default_max_pages = book_config.get('MAX_PAGES')
+    default_words_per_page = book_config.get('WORDS_PER_PAGE', 250)
+    default_rights = book_config.get('RIGHTS')
+
     collections = book_config.get('COLLECTIONS', [])
 
     # Fall back to one book per niche when no explicit collections are configured.
@@ -1970,6 +1976,15 @@ def run_book_compilation(config: Dict[str, Any]) -> None:
                 embed_images=collection.get('embed_images', embed_images),
                 recursive=collection.get('recursive', False),
                 cover_image=collection.get('cover_image'),
+                subtitle=collection.get('subtitle'),
+                rights=collection.get('rights', default_rights),
+                topics=collection.get('topics'),
+                exclude_topics=collection.get('exclude_topics'),
+                match=collection.get('match', 'any'),
+                min_pages=collection.get('min_pages', default_min_pages),
+                max_pages=collection.get('max_pages', default_max_pages),
+                words_per_page=collection.get('words_per_page', default_words_per_page),
+                max_chapters=collection.get('max_chapters'),
             )
             all_outputs.extend(outputs)
         except Exception as e:
@@ -1982,6 +1997,44 @@ def run_book_compilation(config: Dict[str, Any]) -> None:
             print(f"   • {path}")
     else:
         print("\n⚠ No books were produced.")
+
+
+def list_available_topics(config: Dict[str, Any]) -> None:
+    """
+    Print the most common tags per article directory to help choose book topics.
+
+    Use this to discover coherent, accurate topics before defining a
+    ``BOOK.COLLECTIONS`` entry with a ``topics`` filter.
+    """
+    book_config = config.get('BOOK', {})
+    niches_config = config.get('NICHES', {})
+
+    # Prefer the directories referenced by collections; otherwise use niches.
+    dirs: List[str] = []
+    for collection in book_config.get('COLLECTIONS', []):
+        source_dir = collection.get('source_dir')
+        if source_dir and source_dir not in dirs:
+            dirs.append(source_dir)
+    if not dirs:
+        for niche_config in niches_config.values():
+            source_dir = niche_config.get('ARTICLES_BASE_DIR', 'articles')
+            if source_dir not in dirs:
+                dirs.append(source_dir)
+    if not dirs:
+        dirs = ['articles']
+
+    for source_dir in dirs:
+        try:
+            frequencies = tag_frequencies(source_dir)
+        except FileNotFoundError:
+            print(f"\n⚠ Directory not found: {source_dir}")
+            continue
+        print(f"\n📊 Top topics in '{source_dir}' (tag: article count):")
+        if not frequencies:
+            print("   (no tags found)")
+            continue
+        for tag, count in frequencies[:30]:
+            print(f"   {count:>4}  {tag}")
 
 def main():
     """
@@ -2030,9 +2083,17 @@ if __name__ == "__main__":
         help="Compile locally-saved articles into books (EPUB/PDF) instead of "
              "generating and publishing new articles.",
     )
+    parser.add_argument(
+        "--list-topics",
+        action="store_true",
+        help="List the most common article topics (tags) per source directory, "
+             "to help choose a coherent topic for each book.",
+    )
     args = parser.parse_args()
 
-    if args.make_book:
+    if args.list_topics:
+        list_available_topics(config)
+    elif args.make_book:
         run_book_compilation(config)
     else:
         main()
