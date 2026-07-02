@@ -1,3 +1,4 @@
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -6,6 +7,10 @@ from book_compiler import collect_chapters, compile_book
 
 
 class RealWorldBookCompileTest(unittest.TestCase):
+    @unittest.skipUnless(
+        os.getenv("RUN_REAL_WORLD_TESTS") == "1",
+        "Set RUN_REAL_WORLD_TESTS=1 to run real-content integration tests",
+    )
     def test_compile_epub_from_real_articles(self) -> None:
         articles_dir = Path("articles")
         self.assertTrue(articles_dir.exists(), "articles directory is missing")
